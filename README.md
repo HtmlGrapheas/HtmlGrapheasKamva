@@ -1,1 +1,1 @@
-HtmlGrapheasKamva is a painter library for HtmlGrapheas.
+HtmlGrapheasKamva is a drawing library for HtmlGrapheas.
