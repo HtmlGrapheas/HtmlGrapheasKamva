@@ -1,0 +1,15 @@
+[submodule "HtmlGrapheas"]
+	path = HtmlGrapheas
+	url = git@bitbucket.org:htmlgrapheas/htmlgrapheas.git
+[submodule "external/LibCMaker"]
+	path = external/LibCMaker
+	url = git@bitbucket.org:libcmaker/libcmaker.git
+[submodule "external/LibCMaker_Allegro"]
+	path = external/LibCMaker_Allegro
+	url = git@bitbucket.org:libcmaker/libcmaker_allegro.git
+[submodule "external/LibCMaker_FreeType"]
+	path = external/LibCMaker_FreeType
+	url = git@bitbucket.org:libcmaker/libcmaker_freetype.git
+[submodule "external/LibCMaker_HarfBuzz"]
+	path = external/LibCMaker_HarfBuzz
+	url = git@bitbucket.org:libcmaker/libcmaker_harfbuzz.git
