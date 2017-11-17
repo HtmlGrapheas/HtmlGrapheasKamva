@@ -4,6 +4,9 @@
 [submodule "external/LibCMaker"]
 	path = external/LibCMaker
 	url = git@bitbucket.org:libcmaker/libcmaker.git
+[submodule "external/LibCMaker_AGG"]
+	path = external/LibCMaker_AGG
+	url = git@bitbucket.org:libcmaker/libcmaker_agg.git
 [submodule "external/LibCMaker_Allegro"]
 	path = external/LibCMaker_Allegro
 	url = git@bitbucket.org:libcmaker/libcmaker_allegro.git
