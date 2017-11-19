@@ -1,7 +1,8 @@
 
 #include "LionWindow.h"
 
-unsigned parse_lion(agg::path_storage& path, agg::rgba8* colors, unsigned* path_idx);
+#include "parse_lion.cpp"
+//unsigned parse_lion(agg::path_storage& path, agg::rgba8* colors, unsigned* path_idx);
 
 #include "agg_renderer_base.h"
 #include "agg_renderer_primitives.h"

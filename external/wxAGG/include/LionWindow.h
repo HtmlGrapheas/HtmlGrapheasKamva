@@ -31,7 +31,7 @@ namespace GUI {
 
         protected:
         agg::path_storage paths;                    ///< Storage for the lion paths
-        agg::rgba8 colors[100];                     ///< Path colors
+        agg::srgba8 colors[100];                     ///< Path colors
         unsigned pathIndices[100];                  ///< Path indices
         unsigned numPaths;                          ///< Number of paths
         unsigned width, height;                     ///< Size of the lion paths

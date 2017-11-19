@@ -7,6 +7,7 @@
 #include <wx/rawbmp.h>
 #include <wx/window.h>
 #include <wx/dcmemory.h>
+#include <wx/dcclient.h>
 
 #include "agg_rendering_buffer.h"
 

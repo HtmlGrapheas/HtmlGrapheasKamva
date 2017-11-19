@@ -142,24 +142,26 @@ namespace GUI {
     }
     
     void MainFrame::open() {
-        // Get a file or a set of files.
-        wxFileDialog dlg(this, _("Open"), wxT(""), wxT(""), wxT("*"), wxOPEN | wxMULTIPLE | wxFILE_MUST_EXIST);
-        
-        if (dlg.ShowModal() == wxID_CANCEL)
-            return;
-        
-        wxArrayString files;
-        dlg.GetFilenames(files);
-        
-        if (files.GetCount() == 0)
-            return;
-        
-        // Do something intelligent with the files.
-        wxString msg;
-        for (int i = 0; i < (int) files.GetCount(); ++i) {
-            msg += files[i] + (i == files.GetCount() - 1 ? wxT("") : wxT("\n"));
-        }
-        wxMessageBox(msg, _("Selected files"), wxICON_INFORMATION | wxOK, this);
+// Commented because of compile error:
+// ‘wxOPEN’ (wxMULTIPLE, wxFILE_MUST_EXIST) was not declared in this scope
+//        // Get a file or a set of files.
+//        wxFileDialog dlg(this, _("Open"), wxT(""), wxT(""), wxT("*"), wxOPEN | wxMULTIPLE | wxFILE_MUST_EXIST);
+//
+//        if (dlg.ShowModal() == wxID_CANCEL)
+//            return;
+//
+//        wxArrayString files;
+//        dlg.GetFilenames(files);
+//
+//        if (files.GetCount() == 0)
+//            return;
+//
+//        // Do something intelligent with the files.
+//        wxString msg;
+//        for (int i = 0; i < (int) files.GetCount(); ++i) {
+//            msg += files[i] + (i == files.GetCount() - 1 ? wxT("") : wxT("\n"));
+//        }
+//        wxMessageBox(msg, _("Selected files"), wxICON_INFORMATION | wxOK, this);
     }
 
     Application::Application():
