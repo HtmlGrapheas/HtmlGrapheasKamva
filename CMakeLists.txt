@@ -228,6 +228,6 @@ if(WITH_HarfBuzz)
 endif()
 
 # AGG
- We export AGG includes.
+# We export AGG includes.
 target_include_directories(${hgk_LIB_NAME} PUBLIC ${AGG_INCLUDE_DIRS})
 target_link_libraries(${hgk_LIB_NAME} PUBLIC ${AGG_LIBRARIES})
