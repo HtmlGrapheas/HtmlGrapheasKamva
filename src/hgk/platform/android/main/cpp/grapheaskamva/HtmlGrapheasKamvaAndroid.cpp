@@ -87,7 +87,7 @@ bool HtmlGrapheasKamvaAndroid::drawIntoBitmap_pixfmt(
 
   // Text drawing with FreeType and HarfBuzz to AGG buffer
   std::cout << "START agg_ft_hb_draw()\n";
-//  agg_ft_hb_draw<PixelFormat>(rbase);
+  agg_ft_hb_draw<PixelFormat>(rbase);
 
   return true;
 }
