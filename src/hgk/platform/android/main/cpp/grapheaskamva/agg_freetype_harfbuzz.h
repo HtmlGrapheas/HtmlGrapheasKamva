@@ -27,7 +27,6 @@
 #ifndef AGG_FREETYPE_HARFBUZZ_H
 #define AGG_FREETYPE_HARFBUZZ_H
 
-#include <iostream>
 #include <string>
 
 #include <assert.h>
@@ -188,8 +187,6 @@ void agg_ft_hb_draw(agg::renderer_base<PixelFormat>& rbase)
   /* Init freetype */
   FT_Library ft_library;
   assert(!FT_Init_FreeType(&ft_library));
-
-  std::cout << "enFont: " << enFont << "\n";
 
   /* Load our fonts */
   FT_Face ft_face[NUM_EXAMPLES];
