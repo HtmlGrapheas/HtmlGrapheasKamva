@@ -1,0 +1,334 @@
+/*****************************************************************************
+ * Project:  HtmlGrapheas
+ * Purpose:  HTML text editor library
+ * Author:   NikitaFeodonit, nfeodonit@yandex.com
+ *****************************************************************************
+ *   Copyright (c) 2017 NikitaFeodonit
+ *
+ *    This file is part of the HtmlGrapheas project.
+ *
+ *    This program is free software: you can redistribute it and/or modify
+ *    it under the terms of the GNU General Public License as published
+ *    by the Free Software Foundation, either version 3 of the License,
+ *    or (at your option) any later version.
+ *
+ *    This program is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *    See the GNU General Public License for more details.
+ *
+ *    You should have received a copy of the GNU General Public License
+ *    along with this program. If not, see <http://www.gnu.org/licenses/>.
+ ****************************************************************************/
+
+import org.gradle.internal.os.OperatingSystem;
+
+//-----------------------------------------------------------------------
+// Android Java part
+//-----------------------------------------------------------------------
+
+apply plugin: 'com.android.library'
+
+android {
+  compileSdkVersion 26
+  buildToolsVersion "27.0.1"
+
+  defaultConfig {
+    minSdkVersion 14
+    targetSdkVersion 26
+    versionCode 1
+    versionName "1.0"
+
+    testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+  }
+
+  def String rootModulePath = "src/hgk/platform/android"
+
+  buildTypes {
+    release {
+      minifyEnabled false
+      proguardFiles getDefaultProguardFile("proguard-android.txt"),
+          "${rootModulePath}/proguard-rules.pro"
+    }
+  }
+
+  sourceSets {
+    main {
+      setRoot "${rootModulePath}/main"
+    }
+    androidTest {
+      setRoot "${rootModulePath}/androidTest"
+    }
+    test {
+      setRoot "${rootModulePath}/test"
+    }
+  }
+}
+
+dependencies {
+  implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+  testImplementation 'junit:junit:4.12'
+  androidTestImplementation 'com.android.support.test:runner:1.0.1'
+  androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
+}
+
+//-----------------------------------------------------------------------
+// Native CMake part
+//-----------------------------------------------------------------------
+
+// useful links
+// https://developer.android.com/studio/projects/add-native-code.html
+// https://developer.android.com/ndk/guides/cmake.html#variables
+// https://developer.android.com/ndk/guides/abis.html#sa
+
+// From Android Studio 2.2 Preview 6 (July 22, 2016) report:
+// significantly improve build/deploy/debug cycle by only building the ABI
+// that is needed for the target device or emulator.
+
+//def cmAndroidAbis = ["armeabi", "armeabi-v7a", "x86", "mips", "arm64-v8a", "x86_64", "mips64"]
+//def cmAndroidAbis = ["armeabi-v7a", "arm64-v8a", "x86", "x86_64"]
+//def cmAndroidAbis = ["armeabi-v7a", "x86_64"] // for debug
+//def cmAndroidAbis = ["armeabi-v7a"] // for debug
+//def cmAndroidAbis = ["x86_64"] // for debug
+def cmAndroidAbis = ["x86"] // for debug
+//def String abiFiltersString = cmAndroidAbis.toString()
+//abiFiltersString = abiFiltersString.substring(1, abiFiltersString.length() - 1)
+
+android {
+  defaultConfig {
+    ndk {
+      abiFilters = cmAndroidAbis // what ABIs gradle should package into one apk
+    }
+
+    externalNativeBuild {
+      cmake {
+        abiFilters = cmAndroidAbis // what ABIs gradle should build
+
+//        targets "cmaketarget1", "cmaketarget2", "cmaketarget3" // TODO:
+
+        def String downloadDir = "${rootDir}/.downloads"
+
+        arguments "-DSTUB_NOT_USED_CMAKE_VAR=OFF",
+            "-DEXTERNAL_DOWNLOAD_DIR=${downloadDir}",
+            "-DEXTERNAL_UNPACKED_SRC_DIR=${downloadDir}/external_unpacked",
+            "-DCMAKE_INSTALL_PREFIX=${buildDir}/install",
+
+//            "-DCMAKE_VERBOSE_MAKEFILE=TRUE",
+
+//            "-DANDROID_PLATFORM=android-9", // ${getNdkPlatformLevel(abi)}
+// We could not specify ANDROID_PLATFORM:
+// From Android Studio 2.2 Preview 5 (July 8, 2016) report:
+// Enhanced logic for selecting platform version for ndk-build and CMake:
+//  (1) get the set of ABIs based on compileSdkVersion.
+//  (2) then for each of these ABIs we have decided to build for,
+//      (a) if platforms/android-[min sdk]/arch-[ABI] exists,
+//          then use the min sdk  as platform for that ABI.
+//      (b) else if there exists platforms/android-[platform]/arch-[ABI] such that
+//          platform < min sdk, use max(platform where platform < min sdk).
+//      (c) else use min(platform where platforms/android-[platform]/arch-[ABI]  exists).
+
+//            "-DANDROID_CPP_FEATURES=rtti exceptions",
+//            "-DCMAKE_TOOLCHAIN_FILE=${projectDir}/...../android.toolchain.cmake",
+//            "-GAndroid Gradle - Unix Makefiles",
+//            "-DCMAKE_MAKE_PROGRAM=make",
+//            "-DBUILD_SHARED_LIBS=ON",
+
+//            "-DCXX_STANDARD=14",
+//            "-DCXX_STANDARD_REQUIRED=ON",
+
+//            "-DCMAKE_BUILD_TYPE=Release", // let's always release ${buildTypeName}
+
+            // gcc
+//            "-DANDROID_TOOLCHAIN=gcc",
+//            "-DANDROID_STL=gnustl_static",
+
+            // clang
+            "-DANDROID_TOOLCHAIN=clang",
+            "-DANDROID_STL=c++_static"
+      }
+    }
+  }
+  externalNativeBuild {
+    cmake {
+      path "CMakeLists.txt"
+    }
+  }
+
+// TODO:
+//  androidAbis.each { androidAbi ->
+//    task "cleanNative-${androidAbi}"(type: Exec) {
+//      workingDir getWorkDir(androidAbi)
+//      def cmakeCmd = "cmake --build . --target clean"
+//      commandLine getShell(), getShellArg(), "${cmakeCmd}"
+//    }
+//  }
+//  clean.dependsOn androidAbis.collect {
+//    androidAbi -> "cleanNative-${androidAbi}"
+//  }
+}
+
+// Waiting for fix: https://code.google.com/p/android/issues/detail?id=52962
+
+// For Build -- Generate Signed APK:
+// defaultPublishConfig "release" (the default value)
+// buildConfig = android.defaultPublishConfig.toString()
+
+// For Build -- Make Project
+// defaultPublishConfig "release" (the default value)
+// buildConfig = "debug"
+
+// OR (for the debug of the native code)
+// defaultPublishConfig "debug"
+// buildConfig = android.defaultPublishConfig.toString()
+
+android {
+  defaultPublishConfig "debug" // uncomment it for the debug of the native code
+}
+
+//-----------------------------------------------------------------------
+// Copy a native bindings to the java source tree
+//-----------------------------------------------------------------------
+
+def String buildConfig = android.defaultPublishConfig.toString()
+//def String buildConfig = "debug"
+def String buildConfigUpper = buildConfig.substring(0, 1).toUpperCase() +
+    buildConfig.substring(1, buildConfig.length())
+
+android {
+//  def String srcJavaDir = "${rootDir}/libname/bindings/java"
+  def String genSrcJavaDir = "${projectDir}/.externalNativeBuild/cmake/${buildConfig}" +
+      "/${cmAndroidAbis.get(0)}/libname/libname2/bindings"
+
+  task cmCopyJSources(type: Copy) {
+    description "Copy java files."
+
+//    from(new File(srcJavaDir)) { include "*.java" }
+    from(new File(genSrcJavaDir)) { include "*.java" }
+    into new File("src/main/java/ru/firmname/libname/bindings")
+  }
+
+  cmCopyJSources.dependsOn {
+    // TODO: set from buildType
+    // externalNativeBuildDebug is before externalNativeBuildRelease
+    // if externalNativeBuildDebug is enabled then externalNativeBuildDebug else externalNativeBuildRelease
+    tasks.findAll {
+      task -> task.name.contains("externalNativeBuild${buildConfigUpper}")
+    }
+  }
+
+  task cmMoveJSources(type: Delete, dependsOn: cmCopyJSources) {
+    delete fileTree(new File(genSrcJavaDir)) { include "*.java" }
+  }
+}
+
+def String dependedTask = "compile${buildConfigUpper}JavaWithJavac"
+
+tasks.all {
+  task ->
+    if (task.name.contains(dependedTask)) {
+// TODO: uncomment it. Copy java files binded to jni
+//      task.dependsOn cmMoveJSources
+    }
+}
+
+//-----------------------------------------------------------------------
+// Useful functions
+//-----------------------------------------------------------------------
+
+def getNdkPlatformLevel(abi)
+{
+// below 14 is deprecated
+  def platform32 = 14
+  def platform64 = 21
+
+  switch (abi) {
+// armeabi is deprecated
+//    case "armeabi":
+//        return platform32
+    case "armeabi-v7a":
+      return platform32
+    case "x86":
+      return platform32
+// mips is deprecated
+//    case "mips":
+//        return platform32
+    default:
+      return platform32
+
+    case "arm64-v8a":
+      return platform64
+    case "x86_64":
+      return platform64
+// mips is deprecated
+//    case "mips64":
+//        return platform64
+  }
+}
+
+def getSdkDir()
+{
+  if (System.env.ANDROID_HOME != null) {
+    return System.env.ANDROID_HOME
+  }
+
+  Properties properties = new Properties()
+  properties.load(project.rootProject.file("local.properties").
+      newDataInputStream())
+  def sdkdir = properties.getProperty("sdk.dir", null)
+  if (sdkdir == null) {
+    throw new GradleException("""\
+                SDK location not found.
+                Define location with sdk.dir in the local.properties file
+                or with an ANDROID_HOME environment variable.""")
+  }
+
+  return sdkdir
+}
+
+def getNdkDir()
+{
+  if (System.env.ANDROID_NDK_ROOT != null) {
+    return System.env.ANDROID_NDK_ROOT
+  }
+
+  Properties properties = new Properties()
+  properties.load(project.rootProject.file("local.properties").
+      newDataInputStream())
+  def ndkdir = properties.getProperty("ndk.dir", null)
+  if (ndkdir == null) {
+    throw new GradleException("""\
+                NDK location not found.
+                Define location with ndk.dir in the local.properties file
+                or with an ANDROID_NDK_ROOT environment variable.""")
+  }
+
+  return ndkdir
+}
+
+def getNdkBuildCmd()
+{
+  def ndkbuild = getNdkDir() + "/ndk-build"
+  if (OperatingSystem.current().isWindows()) {
+    ndkbuild += ".cmd"
+  }
+  return ndkbuild
+}
+
+def getShell()
+{
+  if (OperatingSystem.current().isWindows()) {
+    return "cmd"
+  } else {
+    return "sh"
+  }
+}
+
+def getShellArg()
+{
+  if (OperatingSystem.current().isWindows()) {
+    return "/c"
+  } else {
+    return "-c"
+  }
+}

@@ -24,7 +24,7 @@
 cmake_minimum_required(VERSION 3.2 FATAL_ERROR)
 
 project(HtmlGrapheasKamva CXX)
-string(TOLOWER ${PROJECT_NAME} hgk_LIB_NAME)
+set(hgk_LIB_NAME "htmlgrapheaskamva")
 
 # External libs directories
 set(EXTERNAL_SRC_DIR "${PROJECT_SOURCE_DIR}/external")
@@ -236,3 +236,16 @@ endif()
 # We export AGG includes.
 target_include_directories(${hgk_LIB_NAME} PUBLIC ${AGG_INCLUDE_DIRS})
 target_link_libraries(${hgk_LIB_NAME} PUBLIC ${AGG_LIBRARIES})
+
+
+#-----------------------------------------------------------------------
+# Platforms
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+# Android
+#-----------------------------------------------------------------------
+
+if(ANDROID)
+  add_subdirectory(src/hgk/platform/android/main/cpp/grapheaskamva)
+endif()
