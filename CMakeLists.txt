@@ -73,6 +73,11 @@ set(cmr_PRINT_DEBUG ON)
 # Set vars for LibCMaker_FreeType and LibCMaker_HarfBuzz.
 #-----------------------------------------------------------------------
 
+# Needed for lib_cmaker_harfbuzz() to build HarfBuzz with FreeType
+set(LIBCMAKER_FREETYPE_SRC_DIR "${EXTERNAL_SRC_DIR}/LibCMaker_FreeType")
+# To use our FindFreetype.cmake
+list(APPEND CMAKE_MODULE_PATH "${LIBCMAKER_FREETYPE_SRC_DIR}/cmake/")
+
 set(FT_lib_VERSION "2.8.1")
 
 set(FT_DOWNLOAD_DIR "${EXTERNAL_DOWNLOAD_DIR}")
