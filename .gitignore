@@ -28,9 +28,17 @@
 *.out
 *.app
 
+# Android Studio
+/build
+*.iml
+.externalNativeBuild
+
 # Eclipse
 .externalToolBuilders/
 .settings/
 build/
 .cproject
 .project
+
+# Main project
+.downloads/
