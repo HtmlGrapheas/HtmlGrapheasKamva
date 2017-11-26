@@ -24,37 +24,62 @@
 // Based on the code from:
 // http://mrl.nyu.edu/~ajsecord/downloads/wxAGG-1.1.tgz
 
-#ifndef WX_AGG_HGA_WINDOW_H
-#define WX_AGG_HGA_WINDOW_H
+/**
+ * @author Adrian Secord
+ * @link http://mrl.nyu.edu/~ajsecord
+ * @link http://mrl.nyu.edu/~ajsecord/downloads/wxAGG-1.1.tgz
+ */
 
-#include "AGGWindow.h"
+#ifndef HTMLGRAPHEASKAMVAWX_H
+#define HTMLGRAPHEASKAMVAWX_H
+
+#include <wx/bitmap.h>
+#include <wx/dcclient.h>
+#include <wx/dcmemory.h>
+#include <wx/rawbmp.h>
+#include <wx/window.h>
 
 namespace GUI
 {
-// TODO: use code from AGGWindow to exclude agg headers from export.
-
-/// An example of an application-specific subclass of AGGWindow,
-/// in this case, a window that draws the lion example from AGG.
-class HtmlGrapheasKamvaWx : public AGGWindow
+/// A simple widget that displays a bitmap that AGG can draw on.
+/// It reallocates the bitmap so that it always is the current size of the
+/// entire panel and calls the virtual method draw() to draw to the bitmap.
+/// This should be useable anywhere a wxWindow can be, e.g. in actual windows,
+/// buttons, etc.
+class HtmlGrapheasKamvaWx : public wxWindow
 {
 public:
-  /// Initialize a lion window.
-  /// Defaults are taken from AGGWindow::AGGWindow(), see that
-  /// documentation for more information.
-  HtmlGrapheasKamvaWx(wxWindow* parent,
+  /// Create an HtmlGrapheasKamvaWx.
+  /// Defaults are taken from wxWindow::wxWindow(), see that documentation
+  /// for more information.
+  explicit HtmlGrapheasKamvaWx(wxWindow* parent,
       wxWindowID id = wxID_ANY,
       const wxPoint& pos = wxDefaultPosition,
       const wxSize& size = wxDefaultSize,
       long style = wxTAB_TRAVERSAL);
 
-  /// Clean up any resources held.
+  /// Clean up resources held.
   virtual ~HtmlGrapheasKamvaWx();
 
-  /// Draw the bitmap with the lion.
-  virtual void draw();
-
 protected:
+  /// Create the bitmap given the current size.
+  void init(const int width, const int height);
+
+  /// Paint the bitmap onto the panel.
+  void onPaint(wxPaintEvent& event);
+
+  /// Resize the bitmap to match the window.
+  void onSize(wxSizeEvent& event);
+
+  /// Handle the erase-background event.
+  void onEraseBackground(wxEraseEvent& event);
+
+private:
+  wxBitmap* bitmap;  ///< wxWidgets bitmap for AGG to draw into
+  wxMemoryDC memDC;  ///< Memory "device context" for drawing the bitmap
+
+  DECLARE_EVENT_TABLE()  /// Allocate wxWidgets storage for event handlers
 };
 }
 
-#endif
+#endif  // HTMLGRAPHEASKAMVAWX_H

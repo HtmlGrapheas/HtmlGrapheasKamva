@@ -205,7 +205,7 @@ endif()
 # which used in parent project in link_directories().
 # TODO: rewrite AGG's CMake scripts to exclude link_directories().
 find_package(Agg REQUIRED CONFIG)
-include(${AGG_USE_FILE})
+#include(${AGG_USE_FILE})
 
 
 #-----------------------------------------------------------------------
@@ -227,7 +227,7 @@ target_include_directories(${hgk_LIB_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/src/hgk)
 # FreeType
 # TODO: PUBLIC change to PRIVATE for inc_dirs
 target_include_directories(${hgk_LIB_NAME} PUBLIC ${FREETYPE_INCLUDE_DIRS})
-target_link_libraries(${hgk_LIB_NAME} PUBLIC ${FREETYPE_LIBRARIES})
+target_link_libraries(${hgk_LIB_NAME} PRIVATE ${FREETYPE_LIBRARIES})
 
 # HarfBuzz
 if(WITH_HarfBuzz)
@@ -235,14 +235,14 @@ if(WITH_HarfBuzz)
   target_include_directories(${hgk_LIB_NAME} PUBLIC ${HARFBUZZ_INCLUDE_DIRS})
   # From <freetype sources>/docs/CHANGES:
   #  Note that HarfBuzz depends on FreeType.
-  target_link_libraries(${hgk_LIB_NAME} PUBLIC
+  target_link_libraries(${hgk_LIB_NAME} PRIVATE
     ${HARFBUZZ_LIBRARIES} ${FREETYPE_LIBRARIES})
 endif()
 
 # AGG
 # Export AGG includes.
 target_include_directories(${hgk_LIB_NAME} PUBLIC ${AGG_INCLUDE_DIRS})
-target_link_libraries(${hgk_LIB_NAME} PUBLIC ${AGG_LIBRARIES})
+target_link_libraries(${hgk_LIB_NAME} PRIVATE ${AGG_LIBRARIES})
 
 
 #-----------------------------------------------------------------------

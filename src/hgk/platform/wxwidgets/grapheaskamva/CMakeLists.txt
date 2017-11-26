@@ -28,6 +28,7 @@ set(lib_NAME "grapheaskamva")
 
 set(lib_HEADERS
   HtmlGrapheasKamvaWx.h
+  PixelFormatConvertor.h
 )
 
 set(lib_SOURCES
@@ -41,15 +42,7 @@ set_property(TARGET ${lib_NAME} PROPERTY C_STANDARD 11)
 target_include_directories(${lib_NAME} PUBLIC ${PROJECT_SOURCE_DIR})
 
 # HtmlGrapheasKamva
-target_link_libraries(${lib_NAME} PUBLIC htmlgrapheaskamva)
-
-# wxAGG
-target_sources(${lib_NAME} PRIVATE
-  ${wxAGG_SRC_DIR}/src/AGGWindow.cpp
-  ${wxAGG_SRC_DIR}/include/AGGWindow.h
-  ${wxAGG_SRC_DIR}/include/PixelFormatConvertor.h
-)
-target_include_directories(${lib_NAME} PUBLIC ${wxAGG_SRC_DIR}/include)
+target_link_libraries(${lib_NAME} PRIVATE htmlgrapheaskamva)
 
 # wxWidgets
 target_link_libraries(${lib_NAME} PRIVATE ${wxWidgets_LIBRARIES})
