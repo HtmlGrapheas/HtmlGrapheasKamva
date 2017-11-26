@@ -28,7 +28,6 @@ set(lib_NAME "grapheaskamva")
 
 set(lib_HEADERS
   HtmlGrapheasKamvaAndroid.h
-  agg_freetype_harfbuzz.h
 )
 
 set(lib_SOURCES
@@ -37,7 +36,7 @@ set(lib_SOURCES
 )
 
 add_library(${lib_NAME} SHARED ${lib_SOURCES} ${lib_HEADERS})
-target_link_libraries(${lib_NAME} PUBLIC htmlgrapheaskamva)
-target_link_libraries(${lib_NAME} PRIVATE android jnigraphics)
 set_property(TARGET ${lib_NAME} PROPERTY CXX_STANDARD 11)
 set_property(TARGET ${lib_NAME} PROPERTY C_STANDARD 11)
+target_link_libraries(${lib_NAME} PRIVATE htmlgrapheaskamva)
+target_link_libraries(${lib_NAME} PRIVATE android jnigraphics)

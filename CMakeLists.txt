@@ -212,11 +212,16 @@ set(AGG_LIBRARY_DIRS ${AGG_LIBRARY_DIRS} PARENT_SCOPE)
 #-----------------------------------------------------------------------
 
 # HtmlGrapheasKamva
-add_library(${hgk_LIB_NAME} ${PROJECT_SOURCE_DIR}/src/hgk/dummy.cpp)
+add_library(${hgk_LIB_NAME}
+  ${PROJECT_SOURCE_DIR}/src/hgk/dummy.cpp
+  ${PROJECT_SOURCE_DIR}/src/hgk/agg_freetype_harfbuzz.h
+)
 set_target_properties(${hgk_LIB_NAME} PROPERTIES
   CXX_STANDARD 11
   C_STANDARD 11
 )
+# Export HtmlGrapheasKamva includes.
+target_include_directories(${hgk_LIB_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/src/hgk)
 
 # FreeType
 # TODO: PUBLIC change to PRIVATE for inc_dirs
@@ -229,11 +234,12 @@ if(WITH_HarfBuzz)
   target_include_directories(${hgk_LIB_NAME} PUBLIC ${HARFBUZZ_INCLUDE_DIRS})
   # From <freetype sources>/docs/CHANGES:
   #  Note that HarfBuzz depends on FreeType.
-  target_link_libraries(${hgk_LIB_NAME} PUBLIC ${HARFBUZZ_LIBRARIES} ${FREETYPE_LIBRARIES})
+  target_link_libraries(${hgk_LIB_NAME} PUBLIC
+    ${HARFBUZZ_LIBRARIES} ${FREETYPE_LIBRARIES})
 endif()
 
 # AGG
-# We export AGG includes.
+# Export AGG includes.
 target_include_directories(${hgk_LIB_NAME} PUBLIC ${AGG_INCLUDE_DIRS})
 target_link_libraries(${hgk_LIB_NAME} PUBLIC ${AGG_LIBRARIES})
 
