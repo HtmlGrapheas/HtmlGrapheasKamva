@@ -35,8 +35,17 @@ set(lib_SOURCES
   HtmlGrapheasKamvaAndroidJni.cpp
 )
 
+# TODO: rewrite AGG's CMake scripts to exclude link_directories().
+# AGG_LIBRARY_DIRS is cache var from AggConfig.cmake
+# by find_package(Agg REQUIRED CONFIG) in HtmlGrapheasKamva.
+link_directories(${AGG_LIBRARY_DIRS})
+
 add_library(${lib_NAME} SHARED ${lib_SOURCES} ${lib_HEADERS})
 set_property(TARGET ${lib_NAME} PROPERTY CXX_STANDARD 11)
 set_property(TARGET ${lib_NAME} PROPERTY C_STANDARD 11)
+
+# HtmlGrapheasKamva
 target_link_libraries(${lib_NAME} PRIVATE htmlgrapheaskamva)
+
+# Android libs
 target_link_libraries(${lib_NAME} PRIVATE android jnigraphics)
