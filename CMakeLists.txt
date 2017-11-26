@@ -201,10 +201,11 @@ if(WITH_HarfBuzz)
 endif()
 
 # AGG
+# AggConfig.cmake set the cache var AGG_LIBRARY_DIRS,
+# which used in parent project in link_directories().
+# TODO: rewrite AGG's CMake scripts to exclude link_directories().
 find_package(Agg REQUIRED CONFIG)
 include(${AGG_USE_FILE})
-# Needed to parents. TODO: rewrite AGG's CMake scripts to exclude it.
-set(AGG_LIBRARY_DIRS ${AGG_LIBRARY_DIRS} PARENT_SCOPE)
 
 
 #-----------------------------------------------------------------------
@@ -247,6 +248,16 @@ target_link_libraries(${hgk_LIB_NAME} PUBLIC ${AGG_LIBRARIES})
 #-----------------------------------------------------------------------
 # Platforms
 #-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+# wxWidgets
+#-----------------------------------------------------------------------
+
+if(wxWidgets_FOUND)
+  set(wxAGG_SRC_DIR "${PROJECT_SOURCE_DIR}/external/wxAGG") # TODO: remove it
+  add_subdirectory(src/hgk/platform/wxwidgets/grapheaskamva)
+endif()
+
 
 #-----------------------------------------------------------------------
 # Android
