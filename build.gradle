@@ -156,6 +156,7 @@ android {
   externalNativeBuild {
     cmake {
       path "CMakeLists.txt"
+      buildStagingDirectory "${rootDir}/build_android/build_native/${rootProject.name}/${project.name}"
     }
   }
 
