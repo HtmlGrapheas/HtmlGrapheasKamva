@@ -50,6 +50,10 @@ android {
       proguardFiles getDefaultProguardFile("proguard-android.txt"),
           "${rootModulePath}/proguard-rules.pro"
     }
+    debug {
+// TODO: needed?
+      jniDebuggable true
+    }
   }
 
   sourceSets {
