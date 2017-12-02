@@ -62,126 +62,15 @@ list(APPEND CMAKE_MODULE_PATH
 # Set common useful vars for LibCMaker libs.
 #-----------------------------------------------------------------------
 
-set(cmr_PRINT_DEBUG ON)
-
-
-#-----------------------------------------------------------------------
-# FreeType and HarfBuzz libraries
-#-----------------------------------------------------------------------
-
-#-----------------------------------------------------------------------
-# Set vars for LibCMaker_FreeType and LibCMaker_HarfBuzz.
-#-----------------------------------------------------------------------
-
-# Needed for lib_cmaker_harfbuzz() to build HarfBuzz with FreeType
-set(LIBCMAKER_FREETYPE_SRC_DIR "${EXTERNAL_SRC_DIR}/LibCMaker_FreeType")
-# To use our FindFreetype.cmake
-list(APPEND CMAKE_MODULE_PATH "${LIBCMAKER_FREETYPE_SRC_DIR}/cmake/")
-
-set(FT_lib_VERSION "2.8.1")
-
-set(FT_DOWNLOAD_DIR "${EXTERNAL_DOWNLOAD_DIR}")
-set(FT_UNPACKED_SRC_DIR "${EXTERNAL_UNPACKED_SRC_DIR}")
-set(FT_BUILD_DIR "${EXTERNAL_BIN_DIR}/build_ft")
-
-# Library specific vars.
-set(FREETYPE_NO_DIST ON)
-
-set(WITH_ZLIB OFF)
-set(WITH_BZip2 OFF)
-set(WITH_PNG OFF)
-set(WITH_HarfBuzz ON)
-
-if(WITH_HarfBuzz)
-  # Needed for lib_cmaker_freetype() to build HarfBuzz
-  set(LIBCMAKER_HARFBUZZ_SRC_DIR
-    "${EXTERNAL_SRC_DIR}/LibCMaker_HarfBuzz")
-  # To find FindHarfBuzz.cmake
-  list(APPEND CMAKE_MODULE_PATH "${LIBCMAKER_HARFBUZZ_SRC_DIR}/cmake/")
-
-  set(HB_lib_VERSION "1.6.3")
-
-  set(HB_DOWNLOAD_DIR "${EXTERNAL_DOWNLOAD_DIR}")
-  set(HB_UNPACKED_SRC_DIR "${EXTERNAL_UNPACKED_SRC_DIR}")
-  set(HB_BUILD_DIR "${EXTERNAL_BIN_DIR}/build_hb")
-
-  # ENV{FREETYPE_DIR} is not needed to find Freetype in CONFIG mode,
-  # but need to find FreeType in lib_cmaker_harfbuzz().
-  set(ENV{FREETYPE_DIR} "${EXTERNAL_INSTALL_DIR}")
-  # Needed to find HarfBuzz in lib_cmaker_freetype() and here.
-  set(ENV{HARFBUZZ_DIR} "${EXTERNAL_INSTALL_DIR}")
-endif()
-
-#-----------------------------------------------------------------------
-# Build and install the FreeType (and HarfBuzz in lib_cmaker_freetype()).
-#-----------------------------------------------------------------------
-
-include(${EXTERNAL_SRC_DIR}/LibCMaker_FreeType/lib_cmaker_freetype.cmake)
-lib_cmaker_freetype(
-  VERSION ${FT_lib_VERSION}
-  DOWNLOAD_DIR ${FT_DOWNLOAD_DIR}
-  UNPACKED_SRC_DIR ${FT_UNPACKED_SRC_DIR}
-  BUILD_DIR ${FT_BUILD_DIR}
-)
-
-
-#-----------------------------------------------------------------------
-# AGG library
-#-----------------------------------------------------------------------
-
-#-----------------------------------------------------------------------
-# Set vars for LibCMaker_AGG.
-#-----------------------------------------------------------------------
-
-set(AGG_lib_VERSION "2.4.127")
-
-set(AGG_DOWNLOAD_DIR "${EXTERNAL_DOWNLOAD_DIR}")
-set(AGG_UNPACKED_SRC_DIR "${EXTERNAL_UNPACKED_SRC_DIR}")
-set(AGG_BUILD_DIR "${EXTERNAL_BIN_DIR}/build_agg")
-
-set(NOT_ADD_AGG_PLATFORM ON)
-set(SKIP_BUILD_AGG_EXAMPLES ON)
-set(SKIP_BUILD_AGG_MYAPP ON)
-
-# Library specific vars and options.
-set(AGG_DIR "${EXTERNAL_INSTALL_DIR}")
-set(ENV{AGG_DIR} "${AGG_DIR}")
-set(AGG_DIR_BIN "${AGG_DIR}/bin")
-
-# Var antigrain_SOURCE_DIR is set in lib_cmaker_agg() from UNPACKED_SRC_DIR.
-# Var antigrain_BINARY_DIR is set in lib_cmaker_agg() from CMAKE_INSTALL_PREFIX.
-
-option(agg_USE_GPC "Use Gpc Boolean library" OFF)
-option(agg_USE_FREETYPE "Use Freetype library" OFF)
-option(agg_USE_EXPAT "Use Expat library" OFF)
-option(agg_USE_SDL_PLATFORM "Use SDL as platform" OFF)
-option(agg_USE_PACK "Package Agg" OFF)
-option(agg_USE_AGG2D "Agg 2D graphical context" OFF)
-option(agg_USE_DEBUG "For debug version" OFF)
-option(agg_USE_AGG2D_FREETYPE "Agg 2D graphical context uses freetype" OFF)    
-
-# TODO: set ENV{FREETYPE_DIR} for AGG if agg_USE_FREETYPE==ON
-
-
-#-----------------------------------------------------------------------
-# Build and install the AGG.
-#-----------------------------------------------------------------------
-
-include(${EXTERNAL_SRC_DIR}/LibCMaker_AGG/lib_cmaker_agg.cmake)
-lib_cmaker_agg(
-  VERSION ${AGG_lib_VERSION}
-  DOWNLOAD_DIR ${AGG_DOWNLOAD_DIR}
-  UNPACKED_SRC_DIR ${AGG_UNPACKED_SRC_DIR}
-  BUILD_DIR ${AGG_BUILD_DIR}
-)
+#set(cmr_PRINT_DEBUG ON)
 
 
 #-----------------------------------------------------------------------
 # Configure to find_package.
 #-----------------------------------------------------------------------
 
-# Set CMake's search path for find_package(), find_program(), find_library(),
-# find_file(), and find_path() commands.
+# Set CMake's search path for find_package(CONFIG mode), find_program(),
+# find_library(), find_file(), and find_path() commands.
 list(APPEND CMAKE_PREFIX_PATH "${EXTERNAL_INSTALL_DIR}")
 
 if(ANDROID)
@@ -190,23 +79,17 @@ endif()
 
 
 #-----------------------------------------------------------------------
-# find_package
+# Build, install and find FreeType and HarfBuzz libraries
 #-----------------------------------------------------------------------
 
-# FreeType
-find_package(Freetype REQUIRED)
+include(build_freetype_with_harfbuzz)
 
-# HarfBuzz
-if(WITH_HarfBuzz)
-  find_package(HarfBuzz REQUIRED)
-endif()
 
-# AGG
-# AggConfig.cmake set the cache var AGG_LIBRARY_DIRS,
-# which used in parent project in link_directories().
-# TODO: rewrite AGG's CMake scripts to exclude link_directories().
-find_package(Agg REQUIRED CONFIG)
-#include(${AGG_USE_FILE})
+#-----------------------------------------------------------------------
+# Build, install and find AGG library
+#-----------------------------------------------------------------------
+
+include(build_agg)
 
 
 #-----------------------------------------------------------------------
@@ -255,7 +138,6 @@ target_link_libraries(${hgk_LIB_NAME} PRIVATE ${AGG_LIBRARIES})
 #-----------------------------------------------------------------------
 
 if(wxWidgets_FOUND)
-  set(wxAGG_SRC_DIR "${PROJECT_SOURCE_DIR}/external/wxAGG") # TODO: remove it
   add_subdirectory(src/hgk/platform/wxwidgets/grapheaskamva)
 endif()
 
