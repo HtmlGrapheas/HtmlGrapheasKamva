@@ -45,9 +45,13 @@ target_include_directories(${lib_NAME} PUBLIC ${PROJECT_SOURCE_DIR})
 target_link_libraries(${lib_NAME} PRIVATE htmlgrapheaskamva)
 
 # wxWidgets
-target_compile_definitions(${lib_NAME} PRIVATE ${wxWidgets_DEFINITIONS})
-target_include_directories(${lib_NAME} PRIVATE ${wxWidgets_INCLUDE_DIRS})
-target_link_libraries(${lib_NAME} PRIVATE ${wxWidgets_LIBRARIES})
-# TODO:
-#COMPILE_DEFINITIONS_DEBUG ${wxWidgets_DEFINITIONS_DEBUG}
-#wxWidgets_CXX_FLAGS
+if(USING_WX_SUB_DIR)
+  target_link_libraries(${lib_NAME} PRIVATE ${WX_lib_COMPONENTS})
+else()
+  target_compile_definitions(${lib_NAME} PRIVATE ${wxWidgets_DEFINITIONS})
+  target_include_directories(${lib_NAME} PRIVATE ${wxWidgets_INCLUDE_DIRS})
+  target_link_libraries(${lib_NAME} PRIVATE ${wxWidgets_LIBRARIES})
+  # TODO:
+  #COMPILE_DEFINITIONS_DEBUG ${wxWidgets_DEFINITIONS_DEBUG}
+  #wxWidgets_CXX_FLAGS
+endif()
