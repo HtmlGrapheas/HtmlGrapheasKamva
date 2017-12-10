@@ -24,6 +24,25 @@
 cmake_minimum_required(VERSION 3.2 FATAL_ERROR)
 
 project(HtmlGrapheasKamvaAndroid CXX)
+
+#-----------------------------------------------------------------------
+# HtmlGrapheasKamva
+#-----------------------------------------------------------------------
+
+if(NOT HtmlGrapheasKamva_DIR)
+  message(FATAL_ERROR
+    "Please set HtmlGrapheasKamva_DIR with path to HtmlGrapheasKamva library.")
+endif()
+
+add_subdirectory(
+  "${HtmlGrapheasKamva_DIR}"
+  "${PROJECT_BINARY_DIR}/HtmlGrapheasKamva"
+)
+
+#-----------------------------------------------------------------------
+# Android platform
+#-----------------------------------------------------------------------
+
 set(lib_NAME "grapheaskamva")
 
 set(lib_HEADERS

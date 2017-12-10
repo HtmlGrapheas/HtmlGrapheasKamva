@@ -127,25 +127,3 @@ endif()
 # Export AGG includes.
 target_include_directories(${hgk_LIB_NAME} PUBLIC ${AGG_INCLUDE_DIRS})
 target_link_libraries(${hgk_LIB_NAME} PRIVATE ${AGG_LIBRARIES})
-
-
-#-----------------------------------------------------------------------
-# Platforms
-#-----------------------------------------------------------------------
-
-#-----------------------------------------------------------------------
-# wxWidgets
-#-----------------------------------------------------------------------
-
-if(wxWidgets_FOUND)
-  add_subdirectory(src/hgk/platform/wxwidgets/grapheaskamva)
-endif()
-
-
-#-----------------------------------------------------------------------
-# Android
-#-----------------------------------------------------------------------
-
-if(ANDROID)
-  add_subdirectory(src/hgk/platform/android/main/cpp/grapheaskamva)
-endif()
