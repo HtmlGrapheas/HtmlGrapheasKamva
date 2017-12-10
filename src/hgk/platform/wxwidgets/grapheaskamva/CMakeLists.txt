@@ -26,6 +26,32 @@ cmake_minimum_required(VERSION 3.2 FATAL_ERROR)
 project(HtmlGrapheasKamvaWxWidgets CXX)
 set(lib_NAME "grapheaskamva")
 
+#-----------------------------------------------------------------------
+# HtmlGrapheasKamva
+#-----------------------------------------------------------------------
+
+if(NOT HtmlGrapheasKamva_DIR)
+  message(FATAL_ERROR
+    "Please set HtmlGrapheasKamva_DIR with path to HtmlGrapheasKamva library.")
+endif()
+
+if(NOT USING_WX_SUB_DIR)
+  add_subdirectory(
+    "${HtmlGrapheasKamva_DIR}"
+    "${PROJECT_BINARY_DIR}/HtmlGrapheasKamva"
+  )
+  
+  # TODO: rewrite AGG's CMake scripts to exclude link_directories().
+  # AGG_LIBRARY_DIRS is cache var from AggConfig.cmake
+  # by find_package(Agg REQUIRED CONFIG) in HtmlGrapheasKamva.
+  link_directories(${AGG_LIBRARY_DIRS})
+endif()
+
+
+#-----------------------------------------------------------------------
+# wxWidgets platform
+#-----------------------------------------------------------------------
+
 set(lib_HEADERS
   HtmlGrapheasKamvaWx.h
   PixelFormatConvertor.h
