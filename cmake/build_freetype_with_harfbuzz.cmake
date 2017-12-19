@@ -50,6 +50,9 @@ set(WITH_BZip2 OFF)
 set(WITH_PNG OFF)
 set(WITH_HarfBuzz ON)
 
+# Needed to find FreeType in lib_cmaker_harfbuzz() and here.
+set(ENV{FREETYPE_DIR} "${EXTERNAL_INSTALL_DIR}")
+
 if(WITH_HarfBuzz)
   # Needed for lib_cmaker_freetype() to build HarfBuzz.
   set(LIBCMAKER_HARFBUZZ_SRC_DIR
@@ -63,9 +66,6 @@ if(WITH_HarfBuzz)
   set(HB_UNPACKED_SRC_DIR "${EXTERNAL_UNPACKED_SRC_DIR}")
   set(HB_BUILD_DIR "${EXTERNAL_BIN_DIR}/build_hb")
 
-  # ENV{FREETYPE_DIR} is not needed to find Freetype in CONFIG mode,
-  # but need to find FreeType in lib_cmaker_harfbuzz().
-  set(ENV{FREETYPE_DIR} "${EXTERNAL_INSTALL_DIR}")
   # Needed to find HarfBuzz in lib_cmaker_freetype() and here.
   set(ENV{HARFBUZZ_DIR} "${EXTERNAL_INSTALL_DIR}")
 endif()
