@@ -10,6 +10,12 @@
 [submodule "external/LibCMaker_Allegro"]
 	path = external/LibCMaker_Allegro
 	url = git@bitbucket.org:libcmaker/libcmaker_allegro.git
+[submodule "external/LibCMaker_Expat"]
+	path = external/LibCMaker_Expat
+	url = git@bitbucket.org:libcmaker/libcmaker_expat.git
+[submodule "external/LibCMaker_FontConfig"]
+	path = external/LibCMaker_FontConfig
+	url = git@bitbucket.org:libcmaker/libcmaker_fontconfig.git
 [submodule "external/LibCMaker_FreeType"]
 	path = external/LibCMaker_FreeType
 	url = git@bitbucket.org:libcmaker/libcmaker_freetype.git
