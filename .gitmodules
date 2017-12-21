@@ -10,6 +10,9 @@
 [submodule "external/LibCMaker_Allegro"]
 	path = external/LibCMaker_Allegro
 	url = git@bitbucket.org:libcmaker/libcmaker_allegro.git
+[submodule "external/LibCMaker_Dirent"]
+  path = external/LibCMaker_Dirent
+  url = git@bitbucket.org:libcmaker/libcmaker_dirent.git
 [submodule "external/LibCMaker_Expat"]
 	path = external/LibCMaker_Expat
 	url = git@bitbucket.org:libcmaker/libcmaker_expat.git
