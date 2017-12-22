@@ -40,7 +40,7 @@ set(FT_lib_VERSION "2.8.1")
 
 set(FT_DOWNLOAD_DIR "${EXTERNAL_DOWNLOAD_DIR}")
 set(FT_UNPACKED_SRC_DIR "${EXTERNAL_UNPACKED_SRC_DIR}")
-set(FT_BUILD_DIR "${EXTERNAL_BIN_DIR}/build_ft")
+set(FT_BUILD_DIR "${EXTERNAL_BIN_DIR}/build_freetype")
 
 # Library specific vars.
 set(FREETYPE_NO_DIST ON)
@@ -64,7 +64,7 @@ if(WITH_HarfBuzz)
 
   set(HB_DOWNLOAD_DIR "${EXTERNAL_DOWNLOAD_DIR}")
   set(HB_UNPACKED_SRC_DIR "${EXTERNAL_UNPACKED_SRC_DIR}")
-  set(HB_BUILD_DIR "${EXTERNAL_BIN_DIR}/build_hb")
+  set(HB_BUILD_DIR "${EXTERNAL_BIN_DIR}/build_harfbuzz")
 
   # Needed to find HarfBuzz in lib_cmaker_freetype() and here.
   set(ENV{HARFBUZZ_DIR} "${EXTERNAL_INSTALL_DIR}")

@@ -79,16 +79,15 @@ endif()
 
 
 #-----------------------------------------------------------------------
-# Build, install and find FreeType and HarfBuzz libraries
+# Build, install and find required libraries.
 #-----------------------------------------------------------------------
 
+if(MSVC)
+  include(build_dirent)
+endif()
+include(build_expat)
 include(build_freetype_with_harfbuzz)
-
-
-#-----------------------------------------------------------------------
-# Build, install and find AGG library
-#-----------------------------------------------------------------------
-
+include(build_fontconfig)
 include(build_agg)
 
 
@@ -107,6 +106,13 @@ set_target_properties(${hgk_LIB_NAME} PROPERTIES
 )
 # Export HtmlGrapheasKamva includes.
 target_include_directories(${hgk_LIB_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/src/hgk)
+
+# FontConfig
+target_include_directories(${hgk_LIB_NAME} PRIVATE ${FONTCONFIG_INCLUDE_DIR})
+target_link_libraries(${hgk_LIB_NAME} PRIVATE ${FONTCONFIG_LIBRARY})
+
+# Expat
+target_link_libraries(${hgk_LIB_NAME} PRIVATE ${EXPAT_LIBRARY})
 
 # FreeType
 # TODO: PUBLIC change to PRIVATE for inc_dirs
