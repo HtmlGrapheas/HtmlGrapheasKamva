@@ -23,7 +23,8 @@
 
 cmake_minimum_required(VERSION 3.2 FATAL_ERROR)
 
-project(HtmlGrapheasKamvaAndroid CXX)
+project(HtmlGrapheasKamvaWx CXX)
+set(lib_NAME "htmlgrapheaskamvawx")
 
 #-----------------------------------------------------------------------
 # HtmlGrapheasKamva
@@ -34,38 +35,49 @@ if(NOT HtmlGrapheasKamva_DIR)
     "Please set HtmlGrapheasKamva_DIR with path to HtmlGrapheasKamva library.")
 endif()
 
-add_subdirectory(
-  "${HtmlGrapheasKamva_DIR}"
-  "${PROJECT_BINARY_DIR}/HtmlGrapheasKamva"
-)
+if(NOT USING_WX_SUB_DIR)
+  add_subdirectory(
+    "${HtmlGrapheasKamva_DIR}"
+    "${PROJECT_BINARY_DIR}/HtmlGrapheasKamva"
+  )
+  
+  # TODO: rewrite AGG's CMake scripts to exclude link_directories().
+  # AGG_LIBRARY_DIRS is cache var from AggConfig.cmake
+  # by find_package(Agg REQUIRED CONFIG) in HtmlGrapheasKamva.
+  link_directories(${AGG_LIBRARY_DIRS})
+endif()
 
 
 #-----------------------------------------------------------------------
-# Android platform
+# wxWidgets platform
 #-----------------------------------------------------------------------
-
-set(lib_NAME "grapheaskamva")
 
 set(lib_HEADERS
-  HtmlGrapheasKamvaAndroid.h
+  HtmlGrapheasKamvaWx.h
+  PixelFormatConvertor.h
 )
 
 set(lib_SOURCES
-  HtmlGrapheasKamvaAndroid.cpp
-  HtmlGrapheasKamvaAndroidJni.cpp
+  HtmlGrapheasKamvaWx.cpp
 )
 
-# TODO: rewrite AGG's CMake scripts to exclude link_directories().
-# AGG_LIBRARY_DIRS is cache var from AggConfig.cmake
-# by find_package(Agg REQUIRED CONFIG) in HtmlGrapheasKamva.
-link_directories(${AGG_LIBRARY_DIRS})
-
-add_library(${lib_NAME} SHARED ${lib_SOURCES} ${lib_HEADERS})
+add_library(${lib_NAME} ${lib_SOURCES} ${lib_HEADERS})
 set_property(TARGET ${lib_NAME} PROPERTY CXX_STANDARD 11)
 set_property(TARGET ${lib_NAME} PROPERTY C_STANDARD 11)
+# Export HtmlGrapheasKamvaWx includes.
+target_include_directories(${lib_NAME} PUBLIC ${PROJECT_SOURCE_DIR})
 
 # HtmlGrapheasKamva
 target_link_libraries(${lib_NAME} PRIVATE htmlgrapheaskamva)
 
-# Android libs
-target_link_libraries(${lib_NAME} PRIVATE android jnigraphics)
+# wxWidgets
+if(USING_WX_SUB_DIR)
+  target_link_libraries(${lib_NAME} PRIVATE ${WX_lib_COMPONENTS})
+else()
+  target_compile_definitions(${lib_NAME} PRIVATE ${wxWidgets_DEFINITIONS})
+  target_include_directories(${lib_NAME} PRIVATE ${wxWidgets_INCLUDE_DIRS})
+  target_link_libraries(${lib_NAME} PRIVATE ${wxWidgets_LIBRARIES})
+  # TODO:
+  #COMPILE_DEFINITIONS_DEBUG ${wxWidgets_DEFINITIONS_DEBUG}
+  #wxWidgets_CXX_FLAGS
+endif()

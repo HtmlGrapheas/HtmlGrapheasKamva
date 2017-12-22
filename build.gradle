@@ -159,7 +159,7 @@ android {
   externalNativeBuild {
     cmake {
       path =
-          "${projectDir}/src/hgk/platform/android/main/cpp/grapheaskamva/CMakeLists.txt"
+          "${projectDir}/src/hgk/platform/android/main/cpp/HtmlGrapheasKamvaAndroid/CMakeLists.txt"
       // https://google.github.io/android-gradle-dsl/current/com.android.build.gradle.internal.dsl.CmakeOptions.html
       buildStagingDirectory =
           "${rootDir}/build_android/build_native/${rootProject.name}/${project.name}"
