@@ -26,7 +26,24 @@ cmake_minimum_required(VERSION 3.2 FATAL_ERROR)
 project(HtmlGrapheasKamva CXX)
 set(hgk_LIB_NAME "htmlgrapheaskamva")
 
-# External libs directories
+
+#-----------------------------------------------------------------------
+# Configure to find_package.
+#-----------------------------------------------------------------------
+
+# Set CMake's search path for find_package(CONFIG mode), find_program(),
+# find_library(), find_file(), and find_path() commands.
+list(APPEND CMAKE_PREFIX_PATH "${EXTERNAL_INSTALL_DIR}")
+
+if(ANDROID)
+  list(APPEND CMAKE_FIND_ROOT_PATH "${EXTERNAL_INSTALL_DIR}")
+endif()
+
+
+#-----------------------------------------------------------------------
+# Configure external libs directories.
+#-----------------------------------------------------------------------
+
 set(EXTERNAL_SRC_DIR "${PROJECT_SOURCE_DIR}/external")
 if(NOT EXTERNAL_DOWNLOAD_DIR)
   set(EXTERNAL_DOWNLOAD_DIR "${PROJECT_SOURCE_DIR}/.downloads")
@@ -37,10 +54,13 @@ endif()
 set(EXTERNAL_BIN_DIR "${PROJECT_BINARY_DIR}/external/build")
 set(EXTERNAL_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}")
 
-# Path to LibCMaker root
+
+#-----------------------------------------------------------------------
+# Set path to LibCMaker root
+#-----------------------------------------------------------------------
+
 set(LIBCMAKER_SRC_DIR "${EXTERNAL_SRC_DIR}/LibCMaker")
 
-set(CMAKE_COLOR_MAKEFILE ON)
 list(APPEND CMAKE_MODULE_PATH
   "${PROJECT_SOURCE_DIR}/cmake"
   "${LIBCMAKER_SRC_DIR}/cmake/modules"
@@ -66,19 +86,6 @@ list(APPEND CMAKE_MODULE_PATH
 
 
 #-----------------------------------------------------------------------
-# Configure to find_package.
-#-----------------------------------------------------------------------
-
-# Set CMake's search path for find_package(CONFIG mode), find_program(),
-# find_library(), find_file(), and find_path() commands.
-list(APPEND CMAKE_PREFIX_PATH "${EXTERNAL_INSTALL_DIR}")
-
-if(ANDROID)
-  list(APPEND CMAKE_FIND_ROOT_PATH "${EXTERNAL_INSTALL_DIR}")
-endif()
-
-
-#-----------------------------------------------------------------------
 # Build, install and find required libraries.
 #-----------------------------------------------------------------------
 
@@ -89,6 +96,13 @@ include(build_expat)
 include(build_freetype_with_harfbuzz)
 include(build_fontconfig)
 include(build_agg)
+
+
+#-----------------------------------------------------------------------
+# HtmlGrapheas
+#-----------------------------------------------------------------------
+
+add_subdirectory(HtmlGrapheas)
 
 
 #-----------------------------------------------------------------------
