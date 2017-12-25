@@ -25,3 +25,6 @@
 [submodule "external/LibCMaker_HarfBuzz"]
 	path = external/LibCMaker_HarfBuzz
 	url = git@bitbucket.org:libcmaker/libcmaker_harfbuzz.git
+[submodule "external/LibCMaker_GoogleTest"]
+	path = external/LibCMaker_GoogleTest
+	url = git@bitbucket.org:libcmaker/libcmaker_googletest.git
