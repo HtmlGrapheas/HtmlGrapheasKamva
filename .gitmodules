@@ -22,9 +22,9 @@
 [submodule "external/LibCMaker_FreeType"]
 	path = external/LibCMaker_FreeType
 	url = git@bitbucket.org:libcmaker/libcmaker_freetype.git
+[submodule "external/LibCMaker_GoogleTest"]
+  path = external/LibCMaker_GoogleTest
+  url = git@bitbucket.org:libcmaker/libcmaker_googletest.git
 [submodule "external/LibCMaker_HarfBuzz"]
 	path = external/LibCMaker_HarfBuzz
 	url = git@bitbucket.org:libcmaker/libcmaker_harfbuzz.git
-[submodule "external/LibCMaker_GoogleTest"]
-	path = external/LibCMaker_GoogleTest
-	url = git@bitbucket.org:libcmaker/libcmaker_googletest.git
