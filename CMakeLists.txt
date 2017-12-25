@@ -102,7 +102,9 @@ include(build_agg)
 # HtmlGrapheas
 #-----------------------------------------------------------------------
 
-add_subdirectory(HtmlGrapheas)
+set(HtmlGrapheas_DIR "${PROJECT_SOURCE_DIR}/HtmlGrapheas")
+
+add_subdirectory(${HtmlGrapheas_DIR})
 
 
 #-----------------------------------------------------------------------
@@ -110,16 +112,28 @@ add_subdirectory(HtmlGrapheas)
 #-----------------------------------------------------------------------
 
 # HtmlGrapheasKamva
-add_library(${hgk_LIB_NAME}
-  ${PROJECT_SOURCE_DIR}/src/hgk/dummy.cpp
+set(hgk_HEADERS
+  ${HtmlGrapheas_DIR}/src/hg/containers/agg/AggContainer.h
+
   ${PROJECT_SOURCE_DIR}/src/hgk/agg_freetype_harfbuzz.h
 )
+
+set(hgk_SOURCES
+  ${HtmlGrapheas_DIR}/src/hg/containers/agg/AggContainer.cpp
+
+  ${PROJECT_SOURCE_DIR}/src/hgk/dummy.cpp
+)
+
+add_library(${hgk_LIB_NAME} ${hgk_SOURCES} ${hgk_HEADERS})
 set_target_properties(${hgk_LIB_NAME} PROPERTIES
   CXX_STANDARD 11
   C_STANDARD 11
 )
 # Export HtmlGrapheasKamva includes.
 target_include_directories(${hgk_LIB_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/src/hgk)
+
+# HtmlGrapheas
+target_link_libraries(${hgk_LIB_NAME} PRIVATE htmlgrapheas)
 
 # FontConfig
 target_include_directories(${hgk_LIB_NAME} PRIVATE ${FONTCONFIG_INCLUDE_DIR})
