@@ -133,7 +133,7 @@ set_target_properties(${hgk_LIB_NAME} PROPERTIES
 target_include_directories(${hgk_LIB_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/src/hgk)
 
 # HtmlGrapheas
-target_link_libraries(${hgk_LIB_NAME} PRIVATE htmlgrapheas)
+target_link_libraries(${hgk_LIB_NAME} PUBLIC htmlgrapheas)
 
 # FontConfig
 target_include_directories(${hgk_LIB_NAME} PRIVATE ${FONTCONFIG_INCLUDE_DIR})
@@ -161,3 +161,10 @@ endif()
 # Export AGG includes.
 target_include_directories(${hgk_LIB_NAME} PUBLIC ${AGG_INCLUDE_DIRS})
 target_link_libraries(${hgk_LIB_NAME} PRIVATE ${AGG_LIBRARIES})
+
+
+#-----------------------------------------------------------------------
+# Testing
+#-----------------------------------------------------------------------
+
+add_subdirectory(test)
