@@ -33,7 +33,7 @@ if(BUILD_TESTING)
   # HgFont tests.
   set(test_NAME "HgFont_test")
   add_executable(${test_NAME}
-    ${HtmlGrapheas_DIR}/src/hg/containers/agg/HgFont_test.cpp
+    ${HtmlGrapheas_DIR}/src/hg/containers/htmlgrapheas/HgFont_test.cpp
   )
   target_link_libraries(${test_NAME} PRIVATE
     htmlgrapheaskamva
@@ -44,7 +44,7 @@ if(BUILD_TESTING)
   # AggContainer tests.
 #  set(test_NAME "AggContainer_test")
 #  add_executable(${test_NAME}
-#    ${HtmlGrapheas_DIR}/src/hg/containers/agg/AggContainer_test.cpp
+#    ${HtmlGrapheas_DIR}/src/hg/containers/htmlgrapheas/HgContainer_test.cpp
 #  )
 #  target_link_libraries(${test_NAME} PRIVATE
 #    htmlgrapheaskamva
@@ -55,6 +55,7 @@ endif()
 
 
 # For running test, 1st build all:
+#   cmake .. -DBUILD_TESTING=ON
 #   cmake --build .
 # Then run test with this command:
 #   cmake -E env CTEST_OUTPUT_ON_FAILURE=1 cmake --build . --target test

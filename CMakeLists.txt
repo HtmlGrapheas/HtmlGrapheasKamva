@@ -113,15 +113,15 @@ add_subdirectory(${HtmlGrapheas_DIR})
 
 # HtmlGrapheasKamva
 set(hgk_HEADERS
-#  ${HtmlGrapheas_DIR}/src/hg/containers/agg/AggContainer.h
-  ${HtmlGrapheas_DIR}/src/hg/containers/agg/HgFont.h
+#  ${HtmlGrapheas_DIR}/src/hg/containers/htmlgrapheas/HgContainer.h
+  ${HtmlGrapheas_DIR}/src/hg/containers/htmlgrapheas/HgFont.h
 
   ${PROJECT_SOURCE_DIR}/src/hgk/agg_freetype_harfbuzz.h
 )
 
 set(hgk_SOURCES
-#  ${HtmlGrapheas_DIR}/src/hg/containers/agg/AggContainer.cpp
-  ${HtmlGrapheas_DIR}/src/hg/containers/agg/HgFont.cpp
+#  ${HtmlGrapheas_DIR}/src/hg/containers/htmlgrapheas/HgContainer.cpp
+  ${HtmlGrapheas_DIR}/src/hg/containers/htmlgrapheas/HgFont.cpp
 
   ${PROJECT_SOURCE_DIR}/src/hgk/dummy.cpp
 )
