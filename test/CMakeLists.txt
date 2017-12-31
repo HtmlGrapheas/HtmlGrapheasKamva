@@ -30,17 +30,27 @@ if(BUILD_TESTING)
   # by find_package(Agg REQUIRED CONFIG) in HtmlGrapheasKamva.
   link_directories(${AGG_LIBRARY_DIRS})
 
-  # AggContainer tests.
-  set(test_NAME "AggContainer_test")
+  # HgFont tests.
+  set(test_NAME "HgFont_test")
   add_executable(${test_NAME}
-    ${HtmlGrapheas_DIR}/src/hg/containers/agg/AggContainer_test.cpp
+    ${HtmlGrapheas_DIR}/src/hg/containers/agg/HgFont_test.cpp
   )
   target_link_libraries(${test_NAME} PRIVATE
     htmlgrapheaskamva
     GTest::GTest GTest::Main
   )
-
   add_test(NAME ${test_NAME} COMMAND ${test_NAME})
+
+  # AggContainer tests.
+#  set(test_NAME "AggContainer_test")
+#  add_executable(${test_NAME}
+#    ${HtmlGrapheas_DIR}/src/hg/containers/agg/AggContainer_test.cpp
+#  )
+#  target_link_libraries(${test_NAME} PRIVATE
+#    htmlgrapheaskamva
+#    GTest::GTest GTest::Main
+#  )
+#  add_test(NAME ${test_NAME} COMMAND ${test_NAME})
 endif()
 
 
