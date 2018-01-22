@@ -42,7 +42,7 @@ if(BUILD_TESTING)
   add_test(NAME ${test_NAME} COMMAND ${test_NAME})
 
   # AggContainer tests.
-  set(test_NAME "AggContainer_test")
+  set(test_NAME "HgContainer_test")
   add_executable(${test_NAME}
     ${HtmlGrapheas_DIR}/src/hg/containers/htmlgrapheas/HgContainer_test.cpp
   )
