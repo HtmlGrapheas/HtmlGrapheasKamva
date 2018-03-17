@@ -30,9 +30,9 @@
  * @link http://mrl.nyu.edu/~ajsecord/downloads/wxAGG-1.1.tgz
  */
 
-#include "HtmlGrapheasKamvaWx.h"
+#include "hgkamva/platform/wxwidgets/HtmlGrapheasKamvaWx.h"
 
-#include "PixelFormatConvertor.h"
+#include "hgkamva/platform/wxwidgets/PixelFormatConvertor.h"
 
 #include "agg_bounding_rect.h"
 #include "agg_pixfmt_rgb.h"

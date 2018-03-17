@@ -21,34 +21,21 @@
  *    along with this program. If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
 
-package ru.feographia.htmlgrapheas;
+package ru.feographia.htmlgrapheaskamva;
 
-import android.content.Context;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.runner.AndroidJUnit4;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
-import static org.junit.Assert.*;
+import android.graphics.Bitmap;
 
 
-/**
- * Instrumented test, which will execute on an Android device.
- *
- * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
- */
-@RunWith(AndroidJUnit4.class)
-public class ExampleInstrumentedTest
+public class HtmlGrapheasKamvaAndroidJni
 {
-  @Test
-  public void useAppContext()
-      throws Exception
-  {
-    // Context of the app under test.
-    Context appContext = InstrumentationRegistry.getTargetContext();
+  public native static void drawIntoBitmap(Bitmap bitmap);
 
-    assertEquals(
-        "ru.feographia.htmlgrapheas.test", appContext.getPackageName());
+  static {
+    try {
+      System.loadLibrary("htmlgrapheaskamvaandroid");
+    } catch (UnsatisfiedLinkError e) {
+      System.err.println("Native code library failed to load. \n" + e);
+      System.exit(1);
+    }
   }
 }

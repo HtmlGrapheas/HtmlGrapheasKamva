@@ -21,21 +21,36 @@
  *    along with this program. If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
 
-package ru.feographia.htmlgrapheas;
+package ru.feographia.htmlgrapheaskamva;
 
+import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.view.View;
 
 
-public class HtmlGrapheasKamvaAndroidJni
+public class HtmlGrapheasView
+    extends View
 {
-  public native static void drawIntoBitmap(Bitmap bitmap);
+  Bitmap mBitmap;
 
-  static {
-    try {
-      System.loadLibrary("htmlgrapheaskamvaandroid");
-    } catch (UnsatisfiedLinkError e) {
-      System.err.println("Native code library failed to load. \n" + e);
-      System.exit(1);
-    }
+  public HtmlGrapheasView(Context context)
+  {
+    super(context);
+  }
+
+  @Override
+  protected void onSizeChanged(
+      int w, int h, int oldw, int oldh)
+  {
+    mBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+//    mBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.RGB_565);
+  }
+
+  @Override
+  protected void onDraw(Canvas canvas)
+  {
+    HtmlGrapheasKamvaAndroidJni.drawIntoBitmap(mBitmap);
+    canvas.drawBitmap(mBitmap, 0, 0, null);
   }
 }

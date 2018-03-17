@@ -134,12 +134,14 @@ set_target_properties(${hgk_LIB_NAME} PROPERTIES
 )
 # Export HtmlGrapheasKamva includes.
 target_include_directories(${hgk_LIB_NAME} PUBLIC ${hgk_SRC_DIR})
-target_include_directories(${hgk_LIB_NAME} PRIVATE
-  ${EXTERNAL_INSTALL_DIR}/include
-)
 
 # HtmlGrapheas
 target_link_libraries(${hgk_LIB_NAME} PUBLIC htmlgrapheas)
+
+# External includes
+target_include_directories(${hgk_LIB_NAME} PRIVATE
+  ${EXTERNAL_INSTALL_DIR}/include
+)
 
 # FontConfig
 target_include_directories(${hgk_LIB_NAME} PRIVATE ${FONTCONFIG_INCLUDE_DIR})
