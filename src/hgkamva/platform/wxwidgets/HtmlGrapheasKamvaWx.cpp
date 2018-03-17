@@ -42,7 +42,7 @@
 #include "agg_rendering_buffer.h"
 #include "agg_trans_affine.h"
 
-#include "agg_freetype_harfbuzz.h"
+#include "hgkamva/agg_freetype_harfbuzz.h"
 
 namespace GUI
 {

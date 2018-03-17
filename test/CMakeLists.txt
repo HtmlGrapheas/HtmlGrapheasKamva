@@ -33,7 +33,7 @@ if(BUILD_TESTING)
   # HgFont tests.
   set(test_NAME "HgFont_test")
   add_executable(${test_NAME}
-    ${HtmlGrapheas_DIR}/src/hg/containers/htmlgrapheas/HgFont_test.cpp
+    ${hgk_SRC_DIR}/hgkamva/container/HgFont_test.cpp
   )
   target_link_libraries(${test_NAME} PRIVATE
     htmlgrapheaskamva
@@ -41,10 +41,10 @@ if(BUILD_TESTING)
   )
   add_test(NAME ${test_NAME} COMMAND ${test_NAME})
 
-  # AggContainer tests.
+  # HgContainer tests.
   set(test_NAME "HgContainer_test")
   add_executable(${test_NAME}
-    ${HtmlGrapheas_DIR}/src/hg/containers/htmlgrapheas/HgContainer_test.cpp
+    ${hgk_SRC_DIR}/hgkamva/container/HgContainer_test.cpp
   )
   target_link_libraries(${test_NAME} PRIVATE
     htmlgrapheaskamva

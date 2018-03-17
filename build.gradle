@@ -29,20 +29,20 @@ import org.gradle.internal.os.OperatingSystem;
 
 apply plugin: 'com.android.library'
 
+def String rootModulePath = "${projectDir}/src/hgkamva/platform/android"
+
 android {
   compileSdkVersion 26
-  buildToolsVersion "27.0.2"
+  buildToolsVersion "27.0.3"
 
   defaultConfig {
-    minSdkVersion 14
+    minSdkVersion 16
     targetSdkVersion 26
     versionCode 1
     versionName "1.0"
 
     testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
   }
-
-  def String rootModulePath = "src/hgk/platform/android"
 
   buildTypes {
     release {
@@ -112,6 +112,7 @@ android {
 //        targets "cmaketarget1", "cmaketarget2", "cmaketarget3" // TODO:
 
         def String downloadDir = "${rootDir}/.downloads"
+        def String installDir = "${buildDir}/install"
 
         // STUB_NOT_USED_CMAKE_VAR is a stub to simply turn off the underlying variables.
         arguments "-DSTUB_NOT_USED_CMAKE_VAR=OFF",
@@ -119,7 +120,8 @@ android {
             "-DHtmlGrapheasKamva_DIR=${projectDir}",
             "-DEXTERNAL_DOWNLOAD_DIR=${downloadDir}",
             "-DEXTERNAL_UNPACKED_SRC_DIR=${downloadDir}/external_unpacked",
-            "-DCMAKE_INSTALL_PREFIX=${buildDir}/install",
+            "-DCMAKE_INSTALL_PREFIX=${installDir}",
+            "-DEXTERNAL_INSTALL_DIR=${installDir}",
 
 //            "-DCMAKE_VERBOSE_MAKEFILE=TRUE",
 
@@ -159,7 +161,7 @@ android {
   externalNativeBuild {
     cmake {
       path =
-          "${projectDir}/src/hgk/platform/android/main/cpp/HtmlGrapheasKamvaAndroid/CMakeLists.txt"
+          "${rootModulePath}/main/cpp/HtmlGrapheasKamvaAndroid/CMakeLists.txt"
       // https://google.github.io/android-gradle-dsl/current/com.android.build.gradle.internal.dsl.CmakeOptions.html
       buildStagingDirectory =
           "${rootDir}/build_android/build_native/${rootProject.name}/${project.name}"
@@ -201,47 +203,47 @@ android {
 // Copy a native bindings to the java source tree
 //-----------------------------------------------------------------------
 
-def String buildConfig = android.defaultPublishConfig.toString()
-//def String buildConfig = "debug"
-def String buildConfigUpper = buildConfig.substring(0, 1).toUpperCase() +
-    buildConfig.substring(1, buildConfig.length())
-
-android {
-//  def String srcJavaDir = "${rootDir}/libname/bindings/java"
-  def String genSrcJavaDir = "${projectDir}/.externalNativeBuild/cmake/${buildConfig}" +
-      "/${cmAndroidAbis.get(0)}/libname/libname2/bindings"
-
-  task cmCopyJSources(type: Copy) {
-    description "Copy java files."
-
-//    from(new File(srcJavaDir)) { include "*.java" }
-    from(new File(genSrcJavaDir)) { include "*.java" }
-    into new File("src/main/java/ru/firmname/libname/bindings")
-  }
-
-  cmCopyJSources.dependsOn {
-    // TODO: set from buildType
-    // externalNativeBuildDebug is before externalNativeBuildRelease
-    // if externalNativeBuildDebug is enabled then externalNativeBuildDebug else externalNativeBuildRelease
-    tasks.findAll {
-      task -> task.name.contains("externalNativeBuild${buildConfigUpper}")
-    }
-  }
-
-  task cmMoveJSources(type: Delete, dependsOn: cmCopyJSources) {
-    delete fileTree(new File(genSrcJavaDir)) { include "*.java" }
-  }
-}
-
-def String dependedTask = "compile${buildConfigUpper}JavaWithJavac"
-
-tasks.all {
-  task ->
-    if (task.name.contains(dependedTask)) {
-// TODO: uncomment it. Copy java files binded to jni
-//      task.dependsOn cmMoveJSources
-    }
-}
+//def String buildConfig = android.defaultPublishConfig.toString()
+////def String buildConfig = "debug"
+//def String buildConfigUpper = buildConfig.substring(0, 1).toUpperCase() +
+//    buildConfig.substring(1, buildConfig.length())
+//
+//android {
+////  def String srcJavaDir = "${rootDir}/libname/bindings/java"
+//  def String genSrcJavaDir = "${projectDir}/.externalNativeBuild/cmake/${buildConfig}" +
+//      "/${cmAndroidAbis.get(0)}/libname/libname2/bindings"
+//
+//  task cmCopyJSources(type: Copy) {
+//    description "Copy java files."
+//
+////    from(new File(srcJavaDir)) { include "*.java" }
+//    from(new File(genSrcJavaDir)) { include "*.java" }
+//    into new File("src/main/java/ru/firmname/libname/bindings")
+//  }
+//
+//  cmCopyJSources.dependsOn {
+//    // TODO: set from buildType
+//    // externalNativeBuildDebug is before externalNativeBuildRelease
+//    // if externalNativeBuildDebug is enabled then externalNativeBuildDebug else externalNativeBuildRelease
+//    tasks.findAll {
+//      task -> task.name.contains("externalNativeBuild${buildConfigUpper}")
+//    }
+//  }
+//
+//  task cmMoveJSources(type: Delete, dependsOn: cmCopyJSources) {
+//    delete fileTree(new File(genSrcJavaDir)) { include "*.java" }
+//  }
+//}
+//
+//def String dependedTask = "compile${buildConfigUpper}JavaWithJavac"
+//
+//tasks.all {
+//  task ->
+//    if (task.name.contains(dependedTask)) {
+//// TODO: uncomment it. Copy java files binded to jni
+////      task.dependsOn cmMoveJSources
+//    }
+//}
 
 //-----------------------------------------------------------------------
 // Useful functions

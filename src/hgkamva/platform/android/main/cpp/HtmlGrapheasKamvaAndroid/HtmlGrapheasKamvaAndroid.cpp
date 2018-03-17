@@ -36,7 +36,7 @@
 #include "agg_renderer_scanline.h"
 #include "agg_trans_affine.h"
 
-#include "agg_freetype_harfbuzz.h"
+#include "hgkamva/agg_freetype_harfbuzz.h"
 
 namespace fgr
 {

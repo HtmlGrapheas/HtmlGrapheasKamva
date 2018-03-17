@@ -25,6 +25,7 @@ cmake_minimum_required(VERSION 3.2 FATAL_ERROR)
 
 project(HtmlGrapheasKamva CXX)
 set(hgk_LIB_NAME "htmlgrapheaskamva")
+set(hgk_SRC_DIR "${PROJECT_SOURCE_DIR}/src")
 
 
 #-----------------------------------------------------------------------
@@ -113,17 +114,17 @@ add_subdirectory(${HtmlGrapheas_DIR})
 
 # HtmlGrapheasKamva
 set(hgk_HEADERS
-  ${HtmlGrapheas_DIR}/src/hg/containers/htmlgrapheas/HgContainer.h
-  ${HtmlGrapheas_DIR}/src/hg/containers/htmlgrapheas/HgFont.h
+  ${hgk_SRC_DIR}/hgkamva/container/HgContainer.h
+  ${hgk_SRC_DIR}/hgkamva/container/HgFont.h
 
-  ${PROJECT_SOURCE_DIR}/src/hgk/agg_freetype_harfbuzz.h
+  ${hgk_SRC_DIR}/hgkamva/agg_freetype_harfbuzz.h
 )
 
 set(hgk_SOURCES
-  ${HtmlGrapheas_DIR}/src/hg/containers/htmlgrapheas/HgContainer.cpp
-  ${HtmlGrapheas_DIR}/src/hg/containers/htmlgrapheas/HgFont.cpp
+  ${hgk_SRC_DIR}/hgkamva/container/HgContainer.cpp
+  ${hgk_SRC_DIR}/hgkamva/container/HgFont.cpp
 
-  ${PROJECT_SOURCE_DIR}/src/hgk/dummy.cpp
+  ${hgk_SRC_DIR}/hgkamva/dummy.cpp
 )
 
 add_library(${hgk_LIB_NAME} ${hgk_SOURCES} ${hgk_HEADERS})
@@ -132,7 +133,10 @@ set_target_properties(${hgk_LIB_NAME} PROPERTIES
   C_STANDARD 11
 )
 # Export HtmlGrapheasKamva includes.
-target_include_directories(${hgk_LIB_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/src/hgk)
+target_include_directories(${hgk_LIB_NAME} PUBLIC ${hgk_SRC_DIR})
+target_include_directories(${hgk_LIB_NAME} PRIVATE
+  ${EXTERNAL_INSTALL_DIR}/include
+)
 
 # HtmlGrapheas
 target_link_libraries(${hgk_LIB_NAME} PUBLIC htmlgrapheas)
