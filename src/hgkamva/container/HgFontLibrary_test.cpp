@@ -21,35 +21,45 @@
  *    along with this program. If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
 
-#include "hgkamva/container/HgFont.h"
+#include "hgkamva/container/HgFontLibrary.h"
 
 #include <cstdlib>
 
 #include "gtest/gtest.h"
 
-#include "hgkamva/container/HgFontLibrary.h"
 #include "hgkamva/util/StringUtil.h"
 
-TEST(HgFontTest, createFtFace)
+TEST(HgFontLibraryTest, getFontFilePath)
 {
+  //const char* testDir = std::getenv("HGRAPH_TEST_DIR");
+  //EXPECT_TRUE(testDir);
   const char* fontDir = std::getenv("HGRAPH_TEST_FONT_DIR");
   EXPECT_TRUE(fontDir);
 
   hg::HgFontLibrary hgFontLibrary;
-  hg::HgFont hgFont(hgFontLibrary.ftLibrary());
-  int pixelSize = 16;
-  int weight = 400;
-  litehtml::font_style fontStyle = litehtml::font_style::fontStyleNormal;
+
+  uint_least8_t result;
+  std::string filePath;
 
   EXPECT_TRUE(hgFontLibrary.addFontDir(fontDir));
 
-  uint_least8_t result;
-  std::string filePath = hgFontLibrary.getFontFilePath(
-      "Tinos", pixelSize, weight, fontStyle, &result);
+  filePath = hgFontLibrary.getFontFilePath("Some Unknown Font, Tinos", 16, 400,
+      litehtml::font_style::fontStyleNormal, &result);
   EXPECT_EQ(hg::HgFontLibrary::FontMatches::allMatched, result);
   EXPECT_TRUE(hg::StringUtil::endsWith(filePath, "Tinos-Regular.ttf"));
 
-  EXPECT_TRUE(hgFont.createFtFace(filePath, pixelSize));
-  EXPECT_EQ(hg::HgFont::f26Dot6ToInt(hgFont.xHeight()), 8);
-  EXPECT_TRUE(hgFont.destroyFtFace());
+  filePath = hgFontLibrary.getFontFilePath("Some Unknown Font, Tinos", 16, 400,
+      litehtml::font_style::fontStyleItalic, &result);
+  EXPECT_EQ(hg::HgFontLibrary::FontMatches::allMatched, result);
+  EXPECT_TRUE(hg::StringUtil::endsWith(filePath, "Tinos-Italic.ttf"));
+
+  filePath = hgFontLibrary.getFontFilePath("Some Unknown Font, Tinos", 16, 700,
+      litehtml::font_style::fontStyleNormal, &result);
+  EXPECT_EQ(hg::HgFontLibrary::FontMatches::allMatched, result);
+  EXPECT_TRUE(hg::StringUtil::endsWith(filePath, "Tinos-Bold.ttf"));
+
+  filePath = hgFontLibrary.getFontFilePath("Some Unknown Font, Tinos", 16, 700,
+      litehtml::font_style::fontStyleItalic, &result);
+  EXPECT_EQ(hg::HgFontLibrary::FontMatches::allMatched, result);
+  EXPECT_TRUE(hg::StringUtil::endsWith(filePath, "Tinos-BoldItalic.ttf"));
 }

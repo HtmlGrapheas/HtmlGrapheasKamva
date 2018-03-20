@@ -21,35 +21,29 @@
  *    along with this program. If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
 
-#include "hgkamva/container/HgFont.h"
+#ifndef STRING_UTIL_H
+#define STRING_UTIL_H
 
-#include <cstdlib>
+#include <string>
 
-#include "gtest/gtest.h"
-
-#include "hgkamva/container/HgFontLibrary.h"
-#include "hgkamva/util/StringUtil.h"
-
-TEST(HgFontTest, createFtFace)
+namespace hg
 {
-  const char* fontDir = std::getenv("HGRAPH_TEST_FONT_DIR");
-  EXPECT_TRUE(fontDir);
+class StringUtil
+{
+public:
+  static bool endsWith(std::string const& value, std::string const& ending);
+};
 
-  hg::HgFontLibrary hgFontLibrary;
-  hg::HgFont hgFont(hgFontLibrary.ftLibrary());
-  int pixelSize = 16;
-  int weight = 400;
-  litehtml::font_style fontStyle = litehtml::font_style::fontStyleNormal;
-
-  EXPECT_TRUE(hgFontLibrary.addFontDir(fontDir));
-
-  uint_least8_t result;
-  std::string filePath = hgFontLibrary.getFontFilePath(
-      "Tinos", pixelSize, weight, fontStyle, &result);
-  EXPECT_EQ(hg::HgFontLibrary::FontMatches::allMatched, result);
-  EXPECT_TRUE(hg::StringUtil::endsWith(filePath, "Tinos-Regular.ttf"));
-
-  EXPECT_TRUE(hgFont.createFtFace(filePath, pixelSize));
-  EXPECT_EQ(hg::HgFont::f26Dot6ToInt(hgFont.xHeight()), 8);
-  EXPECT_TRUE(hgFont.destroyFtFace());
+// https://stackoverflow.com/a/2072890
+// static
+inline bool StringUtil::endsWith(
+    std::string const& value, std::string const& ending)
+{
+  if(ending.size() > value.size())
+    return false;
+  return std::equal(ending.rbegin(), ending.rend(), value.rbegin());
 }
+
+}  // namespace hg
+
+#endif  // STRING_UTIL_H

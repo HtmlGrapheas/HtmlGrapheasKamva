@@ -80,6 +80,18 @@ if(BUILD_TESTING)
     )
   endmacro()
 
+  # StringUtil tests.
+  add_hg_test("StringUtil_test" 
+    ${hgk_SRC_DIR}/hgkamva/util/StringUtil_test.cpp
+    htmlgrapheaskamva
+  )
+
+  # HgFontLibrary tests.
+  add_hg_test("HgFontLibrary_test" 
+    ${hgk_SRC_DIR}/hgkamva/container/HgFontLibrary_test.cpp
+    htmlgrapheaskamva
+  )
+
   # HgFont tests.
   add_hg_test("HgFont_test" 
     ${hgk_SRC_DIR}/hgkamva/container/HgFont_test.cpp

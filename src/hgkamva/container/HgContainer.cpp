@@ -23,13 +23,16 @@
 
 #include "hgkamva/container/HgContainer.h"
 
+#include "hgkamva/container/HgFontLibrary.h"
 #include "hgkamva/container/HgFont.h"
 
 namespace hg
 {
 HgContainer::HgContainer(void)
 {
-  mHgFont = std::shared_ptr<HgFont>(new HgFont());
+  // TODO: fonts can be different in one text!
+  mHgFontLibrary = std::shared_ptr<HgFontLibrary>(new HgFontLibrary());
+  mHgFont = std::shared_ptr<HgFont>(new HgFont(mHgFontLibrary->ftLibrary()));
 }
 
 HgContainer::~HgContainer(void)
@@ -38,9 +41,8 @@ HgContainer::~HgContainer(void)
 
 bool HgContainer::addFontDir(const std::string& dirPath)
 {
-  return mHgFont->addFontDir(dirPath);
+  return mHgFontLibrary->addFontDir(dirPath);
 }
-
 
 litehtml::uint_ptr HgContainer::create_font(const litehtml::tchar_t* faceName,
     int size,
@@ -55,9 +57,9 @@ litehtml::uint_ptr HgContainer::create_font(const litehtml::tchar_t* faceName,
 
   uint_least8_t result;
   std::string filePath =
-      mHgFont->getFontFilePath(faceName, size, weight, italic, &result);
+      mHgFontLibrary->getFontFilePath(faceName, size, weight, italic, &result);
 
-  if(hg::HgFont::FontMatches::allMatched != result) {
+  if(HgFontLibrary::FontMatches::allMatched != result) {
     return nullptr;
   }
   if(filePath.size() == 0) {
@@ -113,7 +115,8 @@ int HgContainer::get_default_font_size() const
 
 const litehtml::tchar_t* HgContainer::get_default_font_name() const
 {
-  return "Times New Roman";
+	// TODO: set by constructor's parameter.
+  return "Tinos";
 }
 
 void HgContainer::draw_list_marker(

@@ -27,6 +27,7 @@
 
 namespace hg
 {
+class HgFontLibrary;
 class HgFont;
 
 class HgContainer : public litehtml::document_container
@@ -101,6 +102,7 @@ public:
   //      const litehtml::tstring& color) const override;
 
 private:
+  std::shared_ptr<HgFontLibrary> mHgFontLibrary;
   std::shared_ptr<HgFont> mHgFont;
 };  // class HgContainer
 

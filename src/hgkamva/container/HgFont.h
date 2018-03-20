@@ -24,8 +24,6 @@
 #ifndef HG_FONT_H
 #define HG_FONT_H
 
-#include <cstdint>
-#include <memory>
 #include <string>
 
 #include <ft2build.h>
@@ -36,8 +34,6 @@
 #include <hb-ft.h>
 #include <hb.h>
 
-#include <fontconfig/fontconfig.h>
-
 #include "litehtml.h"
 
 namespace hg
@@ -45,25 +41,9 @@ namespace hg
 class HgFont
 {
 public:
-  enum FontMatches : uint_least8_t
-  {
-    allMatched = 0,
-    notMatchedFaceName = 1 << 0,
-    notMatchedFontStyle = 1 << 1,
-    notMatchedPixelSize = 1 << 2,
-    notMatchedWeight = 1 << 3,
-  };
-
-  explicit HgFont();
+  explicit HgFont() = delete;
+  explicit HgFont(FT_Library ftLibrary);
   virtual ~HgFont();
-
-  bool addFontDir(const std::string& dirPath);
-
-  std::string getFontFilePath(const std::string& names,
-      int pixelSize,
-      int weight,
-      litehtml::font_style fontStyle,
-      uint_least8_t* result) const;
 
   virtual bool createFtFace(const std::string& fontFilePath, int pixelSize);
   virtual bool destroyFtFace();
@@ -75,12 +55,6 @@ public:
   static int f26Dot6ToInt(FT_F26Dot6 f26Dot6Pixels);
 
 private:
-  int weightToFcWeight(int weigh) const;
-  int fontStyleToFcSlant(litehtml::font_style fontStyle) const;
-
-private:
-  FcConfig* mFcConfig;
-
   FT_Library mFtLibrary;
   FT_Face mFtFace;
 
@@ -100,41 +74,6 @@ private:
   bool mStrikeout;
   bool mUnderline;
 };  // class HgFont
-
-inline int HgFont::weightToFcWeight(int weight) const
-{
-  if(weight >= 0 && weight < 150)
-    return FC_WEIGHT_THIN;
-  else if(weight >= 150 && weight < 250)
-    return FC_WEIGHT_EXTRALIGHT;
-  else if(weight >= 250 && weight < 350)
-    return FC_WEIGHT_LIGHT;
-  else if(weight >= 350 && weight < 450)
-    return FC_WEIGHT_NORMAL;
-  else if(weight >= 450 && weight < 550)
-    return FC_WEIGHT_MEDIUM;
-  else if(weight >= 550 && weight < 650)
-    return FC_WEIGHT_SEMIBOLD;
-  else if(weight >= 650 && weight < 750)
-    return FC_WEIGHT_BOLD;
-  else if(weight >= 750 && weight < 850)
-    return FC_WEIGHT_EXTRABOLD;
-  else if(weight >= 950)
-    return FC_WEIGHT_BLACK;
-  else
-    return FC_WEIGHT_NORMAL;
-}
-
-inline int HgFont::fontStyleToFcSlant(litehtml::font_style fontStyle) const
-{
-  switch(fontStyle) {
-    case litehtml::fontStyleItalic:
-      return FC_SLANT_ITALIC;
-    case litehtml::fontStyleNormal:
-    default:
-      return FC_SLANT_ROMAN;
-  }
-}
 
 inline FT_F26Dot6 HgFont::intToF26Dot6(int pixelSize)
 {
