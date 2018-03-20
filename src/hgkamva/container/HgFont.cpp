@@ -45,6 +45,12 @@ HgFont::~HgFont()
   FcConfigDestroy(mFcConfig);
 }
 
+bool HgFont::addFontDir(const std::string& dirPath)
+{
+  const FcChar8* dir = reinterpret_cast<const FcChar8*>(dirPath.c_str());
+  return FcConfigAppFontAddDir(mFcConfig, dir);
+}
+
 std::string HgFont::getFontFilePath(const std::string& names,
     int pixelSize,
     int weight,

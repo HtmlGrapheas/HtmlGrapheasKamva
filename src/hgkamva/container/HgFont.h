@@ -57,6 +57,8 @@ public:
   explicit HgFont();
   virtual ~HgFont();
 
+  bool addFontDir(const std::string& dirPath);
+
   std::string getFontFilePath(const std::string& names,
       int pixelSize,
       int weight,

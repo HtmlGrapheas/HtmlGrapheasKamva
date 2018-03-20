@@ -25,32 +25,72 @@
 if(BUILD_TESTING)
   include(build_googletest)
 
+  set(HGRAPH_TEST_DIR "${CMAKE_CURRENT_BINARY_DIR}")
+  set(HGRAPH_TEST_FONT_DIR "${HGRAPH_TEST_DIR}/fonts")
+  
+  add_custom_target(clean_test_temp_dir ALL
+    COMMAND
+      ${CMAKE_COMMAND} -E remove_directory "${HGRAPH_TEST_DIR}/temp"
+  )
+
+  add_custom_target(prepare_test_fonts ALL
+    COMMAND
+      ${CMAKE_COMMAND} -E make_directory "${HGRAPH_TEST_FONT_DIR}"
+
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+      # Arimo font files
+      "${PROJECT_SOURCE_DIR}/fonts/Arimo/Arimo-BoldItalic.ttf"
+      "${PROJECT_SOURCE_DIR}/fonts/Arimo/Arimo-Bold.ttf"
+      "${PROJECT_SOURCE_DIR}/fonts/Arimo/Arimo-Italic.ttf"
+      "${PROJECT_SOURCE_DIR}/fonts/Arimo/Arimo-Regular.ttf"
+
+      # Tinos font files
+      "${PROJECT_SOURCE_DIR}/fonts/Tinos/Tinos-BoldItalic.ttf"
+      "${PROJECT_SOURCE_DIR}/fonts/Tinos/Tinos-Bold.ttf"
+      "${PROJECT_SOURCE_DIR}/fonts/Tinos/Tinos-Italic.ttf"
+      "${PROJECT_SOURCE_DIR}/fonts/Tinos/Tinos-Regular.ttf"
+
+      # To dir 'fonts'
+      "${HGRAPH_TEST_FONT_DIR}"
+  )
+
   # TODO: rewrite AGG's CMake scripts to exclude link_directories().
   # AGG_LIBRARY_DIRS is cache var from AggConfig.cmake
   # by find_package(Agg REQUIRED CONFIG) in HtmlGrapheasKamva.
   link_directories(${AGG_LIBRARY_DIRS})
 
+  macro(add_hg_test test_NAME test_SRC_FILES test_LIBS)
+    add_executable(${test_NAME} ${test_SRC_FILES})
+    set_target_properties(${test_NAME} PROPERTIES
+      CXX_STANDARD 11
+      C_STANDARD 11
+    )
+    target_link_libraries(${test_NAME} PRIVATE
+      ${test_LIBS}
+      GTest::GTest GTest::Main
+    )
+    add_test(NAME ${test_NAME} COMMAND ${test_NAME})
+    set_property(TEST ${test_NAME} PROPERTY
+      ENVIRONMENT
+        HGRAPH_TEST_DIR=${HGRAPH_TEST_DIR}
+    )
+    set_property(TEST ${test_NAME} APPEND PROPERTY
+      ENVIRONMENT
+        HGRAPH_TEST_FONT_DIR=${HGRAPH_TEST_FONT_DIR}
+    )
+  endmacro()
+
   # HgFont tests.
-  set(test_NAME "HgFont_test")
-  add_executable(${test_NAME}
+  add_hg_test("HgFont_test" 
     ${hgk_SRC_DIR}/hgkamva/container/HgFont_test.cpp
-  )
-  target_link_libraries(${test_NAME} PRIVATE
     htmlgrapheaskamva
-    GTest::GTest GTest::Main
   )
-  add_test(NAME ${test_NAME} COMMAND ${test_NAME})
 
   # HgContainer tests.
-  set(test_NAME "HgContainer_test")
-  add_executable(${test_NAME}
+  add_hg_test("HgContainer_test" 
     ${hgk_SRC_DIR}/hgkamva/container/HgContainer_test.cpp
-  )
-  target_link_libraries(${test_NAME} PRIVATE
     htmlgrapheaskamva
-    GTest::GTest GTest::Main
   )
-  add_test(NAME ${test_NAME} COMMAND ${test_NAME})
 endif()
 
 

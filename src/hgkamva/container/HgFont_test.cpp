@@ -23,6 +23,8 @@
 
 #include "hgkamva/container/HgFont.h"
 
+#include <cstdlib>
+
 #include "gtest/gtest.h"
 
 // https://stackoverflow.com/a/2072890
@@ -35,46 +37,58 @@ inline bool ends_with(std::string const& value, std::string const& ending)
 
 TEST(HgFontTest, getFontFilePath)
 {
+//  const char* testDir = std::getenv("HGRAPH_TEST_DIR");
+//  EXPECT_TRUE(testDir);
+  const char* fontDir = std::getenv("HGRAPH_TEST_FONT_DIR");
+  EXPECT_TRUE(fontDir);
+
   hg::HgFont hgFont;
 
   uint_least8_t result;
   std::string filePath;
 
-  filePath = hgFont.getFontFilePath("Some Unknown Font, Noto Sans", 16, 400,
+  EXPECT_TRUE(hgFont.addFontDir(fontDir));
+
+  filePath = hgFont.getFontFilePath("Some Unknown Font, Tinos", 16, 400,
       litehtml::font_style::fontStyleNormal, &result);
   EXPECT_EQ(hg::HgFont::FontMatches::allMatched, result);
-  EXPECT_TRUE(ends_with(filePath, "NotoSans-Regular.ttf"));
+  EXPECT_TRUE(ends_with(filePath, "Tinos-Regular.ttf"));
 
-  filePath = hgFont.getFontFilePath("Some Unknown Font, Noto Sans", 16, 400,
+  filePath = hgFont.getFontFilePath("Some Unknown Font, Tinos", 16, 400,
       litehtml::font_style::fontStyleItalic, &result);
   EXPECT_EQ(hg::HgFont::FontMatches::allMatched, result);
-  EXPECT_TRUE(ends_with(filePath, "NotoSans-Italic.ttf"));
+  EXPECT_TRUE(ends_with(filePath, "Tinos-Italic.ttf"));
 
-  filePath = hgFont.getFontFilePath("Some Unknown Font, Noto Sans", 16, 700,
+  filePath = hgFont.getFontFilePath("Some Unknown Font, Tinos", 16, 700,
       litehtml::font_style::fontStyleNormal, &result);
   EXPECT_EQ(hg::HgFont::FontMatches::allMatched, result);
-  EXPECT_TRUE(ends_with(filePath, "NotoSans-Bold.ttf"));
+  EXPECT_TRUE(ends_with(filePath, "Tinos-Bold.ttf"));
 
-  filePath = hgFont.getFontFilePath("Some Unknown Font, Noto Sans", 16, 700,
+  filePath = hgFont.getFontFilePath("Some Unknown Font, Tinos", 16, 700,
       litehtml::font_style::fontStyleItalic, &result);
   EXPECT_EQ(hg::HgFont::FontMatches::allMatched, result);
-  EXPECT_TRUE(ends_with(filePath, "NotoSans-BoldItalic.ttf"));
+  EXPECT_TRUE(ends_with(filePath, "Tinos-BoldItalic.ttf"));
 }
 
 TEST(HgFontTest, createFtFace)
 {
+  const char* fontDir = std::getenv("HGRAPH_TEST_FONT_DIR");
+  EXPECT_TRUE(fontDir);
+
   hg::HgFont hgFont;
   int pixelSize = 16;
   int weight = 400;
   litehtml::font_style fontStyle = litehtml::font_style::fontStyleNormal;
 
+  EXPECT_TRUE(hgFont.addFontDir(fontDir));
+
   uint_least8_t result;
   std::string filePath = hgFont.getFontFilePath(
-      "Noto Sans", pixelSize, weight, fontStyle, &result);
+      "Tinos", pixelSize, weight, fontStyle, &result);
   EXPECT_EQ(hg::HgFont::FontMatches::allMatched, result);
-  EXPECT_TRUE(ends_with(filePath, "NotoSans-Regular.ttf"));
+  EXPECT_TRUE(ends_with(filePath, "Tinos-Regular.ttf"));
 
   EXPECT_TRUE(hgFont.createFtFace(filePath, pixelSize));
-  EXPECT_EQ(hg::HgFont::f26Dot6ToInt(hgFont.xHeight()), 9);
+  EXPECT_EQ(hg::HgFont::f26Dot6ToInt(hgFont.xHeight()), 8);
   EXPECT_TRUE(hgFont.destroyFtFace());
 }
