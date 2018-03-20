@@ -36,6 +36,12 @@ HgContainer::~HgContainer(void)
 {
 }
 
+bool HgContainer::addFontDir(const std::string& dirPath)
+{
+  return mHgFont->addFontDir(dirPath);
+}
+
+
 litehtml::uint_ptr HgContainer::create_font(const litehtml::tchar_t* faceName,
     int size,
     int weight,
@@ -43,13 +49,13 @@ litehtml::uint_ptr HgContainer::create_font(const litehtml::tchar_t* faceName,
     unsigned int decoration,
     litehtml::font_metrics* fm)
 {
-  if (!fm) {
+  if(!fm) {
     return nullptr;
   }
 
   uint_least8_t result;
-  std::string filePath = mHgFont->getFontFilePath(
-      faceName, size, weight, italic, &result);
+  std::string filePath =
+      mHgFont->getFontFilePath(faceName, size, weight, italic, &result);
 
   if(hg::HgFont::FontMatches::allMatched != result) {
     return nullptr;

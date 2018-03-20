@@ -37,8 +37,8 @@ inline bool ends_with(std::string const& value, std::string const& ending)
 
 TEST(HgFontTest, getFontFilePath)
 {
-//  const char* testDir = std::getenv("HGRAPH_TEST_DIR");
-//  EXPECT_TRUE(testDir);
+  //const char* testDir = std::getenv("HGRAPH_TEST_DIR");
+  //EXPECT_TRUE(testDir);
   const char* fontDir = std::getenv("HGRAPH_TEST_FONT_DIR");
   EXPECT_TRUE(fontDir);
 
@@ -83,8 +83,8 @@ TEST(HgFontTest, createFtFace)
   EXPECT_TRUE(hgFont.addFontDir(fontDir));
 
   uint_least8_t result;
-  std::string filePath = hgFont.getFontFilePath(
-      "Tinos", pixelSize, weight, fontStyle, &result);
+  std::string filePath =
+      hgFont.getFontFilePath("Tinos", pixelSize, weight, fontStyle, &result);
   EXPECT_EQ(hg::HgFont::FontMatches::allMatched, result);
   EXPECT_TRUE(ends_with(filePath, "Tinos-Regular.ttf"));
 

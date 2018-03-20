@@ -35,6 +35,8 @@ public:
   HgContainer();
   virtual ~HgContainer();
 
+  bool addFontDir(const std::string& dirPath);
+
   // litehtml::document_container interface.
   virtual litehtml::uint_ptr create_font(const litehtml::tchar_t* faceName,
       int size,
@@ -100,6 +102,6 @@ public:
 
 private:
   std::shared_ptr<HgFont> mHgFont;
-}; // class HgContainer
+};  // class HgContainer
 
 }  // namespace hg
