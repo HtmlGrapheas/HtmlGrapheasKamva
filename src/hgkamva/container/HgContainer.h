@@ -103,7 +103,6 @@ public:
 
 private:
   std::shared_ptr<HgFontLibrary> mHgFontLibrary;
-  std::shared_ptr<HgFont> mHgFont;
 };  // class HgContainer
 
 }  // namespace hg

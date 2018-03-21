@@ -34,7 +34,7 @@ TEST(HgFontLibraryTest, getFontFilePath)
   //const char* testDir = std::getenv("HGRAPH_TEST_DIR");
   //EXPECT_TRUE(testDir);
   const char* fontDir = std::getenv("HGRAPH_TEST_FONT_DIR");
-  EXPECT_TRUE(fontDir);
+  EXPECT_NE(fontDir, nullptr);
 
   hg::HgFontLibrary hgFontLibrary;
 

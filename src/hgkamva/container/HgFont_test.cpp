@@ -33,7 +33,7 @@
 TEST(HgFontTest, createFtFace)
 {
   const char* fontDir = std::getenv("HGRAPH_TEST_FONT_DIR");
-  EXPECT_TRUE(fontDir);
+  EXPECT_NE(fontDir, nullptr);
 
   hg::HgFontLibrary hgFontLibrary;
   hg::HgFont hgFont(hgFontLibrary.ftLibrary());

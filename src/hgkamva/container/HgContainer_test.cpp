@@ -33,8 +33,8 @@ TEST(HgContainerTest, create_font)
   litehtml::font_metrics fm;
   hg::HgContainer container;
   container.addFontDir(fontDir);
-  litehtml::uint_ptr ptr = container.create_font(
+  litehtml::uint_ptr hFont = container.create_font(
       "Tinos", 16, 400, litehtml::font_style::fontStyleNormal, 0, &fm);
-  EXPECT_NE(ptr, nullptr);
-  container.delete_font(ptr);
+  EXPECT_NE(hFont, nullptr);
+  container.delete_font(hFont);
 }
