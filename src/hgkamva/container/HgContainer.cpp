@@ -76,6 +76,13 @@ litehtml::uint_ptr HgContainer::create_font(const litehtml::tchar_t* faceName,
   fm->descent = HgFont::f26Dot6ToInt(ftSize->metrics.descender);
   fm->height = HgFont::f26Dot6ToInt(ftSize->metrics.height);
   fm->x_height = HgFont::f26Dot6ToInt(hgFont->xHeight());
+  if(italic == litehtml::fontStyleItalic || decoration)
+  {
+    fm->draw_spaces = true;
+  } else
+  {
+    fm->draw_spaces = false;
+  }
 
   hgFont->setPixelSize(size);
   hgFont->setStrikeout(decoration & litehtml::font_decoration_linethrough);
