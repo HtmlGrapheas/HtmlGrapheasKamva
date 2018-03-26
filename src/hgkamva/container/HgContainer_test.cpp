@@ -28,13 +28,23 @@
 TEST(HgContainerTest, create_font)
 {
   const char* fontDir = std::getenv("HGRAPH_TEST_FONT_DIR");
-  EXPECT_TRUE(fontDir);
+  EXPECT_NE(fontDir, nullptr);
 
   litehtml::font_metrics fm;
   hg::HgContainer container;
-  container.addFontDir(fontDir);
+  EXPECT_TRUE(container.addFontDir(fontDir));
   litehtml::uint_ptr hFont = container.create_font(
       "Tinos", 16, 400, litehtml::font_style::fontStyleNormal, 0, &fm);
   EXPECT_NE(hFont, nullptr);
+
+  EXPECT_EQ(fm.ascent, 15);
+  EXPECT_EQ(fm.descent, -4);
+  EXPECT_EQ(fm.height, 18);
+  EXPECT_EQ(fm.x_height, 8);
+  EXPECT_FALSE(fm.draw_spaces);
+
+  EXPECT_EQ(container.text_width("This is some english text", hFont), 226);
+  EXPECT_EQ(container.text_width("some english", hFont), 72);
+
   container.delete_font(hFont);
 }

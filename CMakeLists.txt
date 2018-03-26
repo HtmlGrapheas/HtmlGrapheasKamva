@@ -124,7 +124,6 @@ set(hgk_HEADERS
 
 set(hgk_SOURCES
   ${hgk_SRC_DIR}/hgkamva/container/HgContainer.cpp
-  ${hgk_SRC_DIR}/hgkamva/container/HgFont.cpp
   ${hgk_SRC_DIR}/hgkamva/container/HgFontLibrary.cpp
   ${hgk_SRC_DIR}/hgkamva/util/StringUtil.cpp
 

@@ -23,11 +23,14 @@
 
 #include "hgkamva/container/HgContainer.h"
 
-#include "hgkamva/container/HgFontLibrary.h"
 #include "hgkamva/container/HgFont.h"
+#include "hgkamva/container/HgFontLibrary.h"
 
 namespace hg
 {
+// TODO: replace int to corresponding type.
+using PixelFormat = int;
+
 HgContainer::HgContainer()
 {
   mHgFontLibrary = std::shared_ptr<HgFontLibrary>(new HgFontLibrary());
@@ -53,7 +56,8 @@ litehtml::uint_ptr HgContainer::create_font(const litehtml::tchar_t* faceName,
     return nullptr;
   }
 
-  HgFont* hgFont = new HgFont(mHgFontLibrary->ftLibrary());
+  HgFont<PixelFormat>* hgFont =
+      new HgFont<PixelFormat>(mHgFontLibrary->ftLibrary());
 
   uint_least8_t result;
   std::string filePath =
@@ -72,15 +76,13 @@ litehtml::uint_ptr HgContainer::create_font(const litehtml::tchar_t* faceName,
   // Note: for font metric precision (in particular for TTF) see
   // https://www.freetype.org/freetype2/docs/reference/ft2-base_interface.html#FT_Size_Metrics
   FT_Size ftSize = hgFont->ftFace()->size;
-  fm->ascent = HgFont::f26Dot6ToInt(ftSize->metrics.ascender);
-  fm->descent = HgFont::f26Dot6ToInt(ftSize->metrics.descender);
-  fm->height = HgFont::f26Dot6ToInt(ftSize->metrics.height);
-  fm->x_height = HgFont::f26Dot6ToInt(hgFont->xHeight());
-  if(italic == litehtml::fontStyleItalic || decoration)
-  {
+  fm->ascent = HgFont<PixelFormat>::f26Dot6ToInt(ftSize->metrics.ascender);
+  fm->descent = HgFont<PixelFormat>::f26Dot6ToInt(ftSize->metrics.descender);
+  fm->height = HgFont<PixelFormat>::f26Dot6ToInt(ftSize->metrics.height);
+  fm->x_height = HgFont<PixelFormat>::f26Dot6ToInt(hgFont->xHeight());
+  if(italic == litehtml::fontStyleItalic || decoration) {
     fm->draw_spaces = true;
-  } else
-  {
+  } else {
     fm->draw_spaces = false;
   }
 
@@ -93,14 +95,28 @@ litehtml::uint_ptr HgContainer::create_font(const litehtml::tchar_t* faceName,
 
 void HgContainer::delete_font(litehtml::uint_ptr hFont)
 {
-  HgFont* hgFont = static_cast<HgFont*>(hFont);
-  hgFont->destroyFtFace();
-  delete hgFont;
+  HgFont<PixelFormat>* hgFont = static_cast<HgFont<PixelFormat>*>(hFont);
+  if(hgFont) {
+    hgFont->destroyFtFace();
+    delete hgFont;
+  }
 }
 
 int HgContainer::text_width(
     const litehtml::tchar_t* text, litehtml::uint_ptr hFont)
 {
+  HgFont<PixelFormat>* hgFont = static_cast<HgFont<PixelFormat>*>(hFont);
+  if(hgFont) {
+    hgFont->resetBuffer();
+
+    // TODO: set Direction, Script and Language through HgContainer's methods.
+    hgFont->setDirection(HB_DIRECTION_LTR);
+    hgFont->setScript(HB_SCRIPT_LATIN);
+    hgFont->setLanguage("eng");
+
+    hgFont->layoutText(text);
+    return hgFont->getBbox().mBboxW;
+  }
   return 0;
 }
 
@@ -124,7 +140,7 @@ int HgContainer::get_default_font_size() const
 
 const litehtml::tchar_t* HgContainer::get_default_font_name() const
 {
-	// TODO: set by new method set_default_font_name().
+  // TODO: set by new method set_default_font_name().
   return "Tinos";
 }
 
@@ -224,7 +240,7 @@ void HgContainer::get_language(
   culture = _t("");
 }
 
-//virtual litehtml::tstring HgContainer::resolve_color(
+//litehtml::tstring HgContainer::resolve_color(
 //    const litehtml::tstring& color) const
 //{
 //  return litehtml::tstring();

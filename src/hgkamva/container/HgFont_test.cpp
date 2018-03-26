@@ -30,13 +30,16 @@
 #include "hgkamva/container/HgFontLibrary.h"
 #include "hgkamva/util/StringUtil.h"
 
-TEST(HgFontTest, createFtFace)
+TEST(HgFontTest, layoutText)
 {
+  // TODO: replace int to corresponding type.
+  using PixelFormat = int;
+
   const char* fontDir = std::getenv("HGRAPH_TEST_FONT_DIR");
   EXPECT_NE(fontDir, nullptr);
 
   hg::HgFontLibrary hgFontLibrary;
-  hg::HgFont hgFont(hgFontLibrary.ftLibrary());
+  hg::HgFont<PixelFormat> hgFont(hgFontLibrary.ftLibrary());
   int pixelSize = 16;
   int weight = 400;
   litehtml::font_style fontStyle = litehtml::font_style::fontStyleNormal;
@@ -50,6 +53,39 @@ TEST(HgFontTest, createFtFace)
   EXPECT_TRUE(hg::StringUtil::endsWith(filePath, "Tinos-Regular.ttf"));
 
   EXPECT_TRUE(hgFont.createFtFace(filePath, pixelSize));
-  EXPECT_EQ(hg::HgFont::f26Dot6ToInt(hgFont.xHeight()), 8);
+
+  hgFont.setDirection(HB_DIRECTION_LTR);
+  hgFont.setScript(HB_SCRIPT_LATIN);
+  hgFont.setLanguage("eng");
+  hgFont.layoutText("This is some english text");
+
+  hg::HgFont<PixelFormat>::TextBbox bbox = hgFont.getBbox();
+  EXPECT_EQ(bbox.mMinX, 0);
+  EXPECT_EQ(bbox.mMaxX, 226);
+  EXPECT_EQ(bbox.mMinY, 0);
+  EXPECT_EQ(bbox.mMaxY, 10);
+  EXPECT_EQ(bbox.mBboxW, 226);
+  EXPECT_EQ(bbox.mBboxH, 10);
+  EXPECT_EQ(bbox.mBaselineShift, 0);
+  EXPECT_EQ(bbox.mBaselineOffset, 10);
+
+  hgFont.resetBuffer();
+
+  hgFont.setDirection(HB_DIRECTION_LTR);
+  hgFont.setScript(HB_SCRIPT_LATIN);
+  hgFont.setLanguage("eng");
+  hgFont.layoutText("some english");
+
+  bbox = hgFont.getBbox();
+  EXPECT_EQ(bbox.mMinX, 0);
+  EXPECT_EQ(bbox.mMaxX, 72);
+  EXPECT_EQ(bbox.mMinY, 0);
+  EXPECT_EQ(bbox.mMaxY, 7);
+  EXPECT_EQ(bbox.mBboxW, 72);
+  EXPECT_EQ(bbox.mBboxH, 7);
+  EXPECT_EQ(bbox.mBaselineShift, 0);
+  EXPECT_EQ(bbox.mBaselineOffset, 7);
+
+  EXPECT_EQ(hg::HgFont<PixelFormat>::f26Dot6ToInt(hgFont.xHeight()), 8);
   EXPECT_TRUE(hgFont.destroyFtFace());
 }

@@ -28,7 +28,6 @@
 namespace hg
 {
 class HgFontLibrary;
-class HgFont;
 
 class HgContainer : public litehtml::document_container
 {
