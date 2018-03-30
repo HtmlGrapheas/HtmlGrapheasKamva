@@ -170,9 +170,12 @@ TEST(HgFontTest, HgFontTest)
 
   // Set text position.
   FT_Size ftSize = hgFont.ftFace()->size;
+  int x = 10;
+  //int ascender =
+  //    hg::HgFont<PixelFormat>::f26Dot6ToInt(ftSize->metrics.ascender);
+  //int y = 10 + ascender;
   int descent =
       hg::HgFont<PixelFormat>::f26Dot6ToInt(ftSize->metrics.descender);
-  int x = 10;
   int y = frameHeight - 10 + descent;
 
   // drawText()
