@@ -43,8 +43,8 @@ TEST(HgContainerTest, create_font)
   EXPECT_EQ(fm.x_height, 8);
   EXPECT_FALSE(fm.draw_spaces);
 
-  EXPECT_EQ(container.text_width("This is some english text", hFont), 226);
-  EXPECT_EQ(container.text_width("some english", hFont), 72);
+  EXPECT_EQ(container.text_width("This is some english text", hFont), 155);
+  EXPECT_EQ(container.text_width("some english", hFont), 82);
 
   container.delete_font(hFont);
 }

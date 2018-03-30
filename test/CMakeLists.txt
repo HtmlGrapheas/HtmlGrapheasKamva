@@ -27,6 +27,7 @@ if(BUILD_TESTING)
 
   set(HGRAPH_TEST_DIR "${CMAKE_CURRENT_BINARY_DIR}")
   set(HGRAPH_TEST_FONT_DIR "${HGRAPH_TEST_DIR}/fonts")
+  set(HGRAPH_TEST_DATA_DIR "${HGRAPH_TEST_DIR}/data")
   
   add_custom_target(clean_test_temp_dir ALL
     COMMAND
@@ -54,6 +55,18 @@ if(BUILD_TESTING)
       "${HGRAPH_TEST_FONT_DIR}"
   )
 
+  add_custom_target(prepare_test_data ALL
+    COMMAND
+      ${CMAKE_COMMAND} -E make_directory "${HGRAPH_TEST_DATA_DIR}"
+
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+      "${PROJECT_SOURCE_DIR}/test/data/HgFontTest_1.ppm"
+      "${PROJECT_SOURCE_DIR}/test/data/HgFontTest_2.ppm"
+
+      # To dir 'data'
+      "${HGRAPH_TEST_DATA_DIR}"
+  )
+
   # TODO: rewrite AGG's CMake scripts to exclude link_directories().
   # AGG_LIBRARY_DIRS is cache var from AggConfig.cmake
   # by find_package(Agg REQUIRED CONFIG) in HtmlGrapheasKamva.
@@ -77,6 +90,10 @@ if(BUILD_TESTING)
     set_property(TEST ${test_NAME} APPEND PROPERTY
       ENVIRONMENT
         HGRAPH_TEST_FONT_DIR=${HGRAPH_TEST_FONT_DIR}
+    )
+    set_property(TEST ${test_NAME} APPEND PROPERTY
+      ENVIRONMENT
+        HGRAPH_TEST_DATA_DIR=${HGRAPH_TEST_DATA_DIR}
     )
   endmacro()
 

@@ -88,12 +88,14 @@ public:
   bool destroyFtFace();
 
   void resetBuffer();
+  void clearBuffer();
   void setDirection(hb_direction_t direction);
   void setScript(hb_script_t script);
   void setLanguage(const std::string& language);
 
   void layoutText(const std::string& text);
   TextBbox getBbox();
+  void drawText(agg::renderer_base<PixelFormat>* rbase, int x, int y);
 
   int forceUcs2Charmap(FT_Face ftf);
 
@@ -111,8 +113,8 @@ private:
   hb_font_t* mHbFont;
 
   unsigned int mGlyphCount;
-  hb_glyph_info_t* mGlyphInfos;
-  hb_glyph_position_t* mGlyphPositions;
+  hb_glyph_info_t* mGlyphInfo;
+  hb_glyph_position_t* mGlyphPos;
 
   AggSpannerBaton mSpannerBaton;
   FT_Raster_Params mFtRasterParams;
@@ -149,8 +151,8 @@ HgFont<PixelFormat>::HgFont(FT_Library ftLibrary)
     , mFtFace(nullptr)
     , mHbFont(nullptr)
     , mGlyphCount(0)
-    , mGlyphInfos(nullptr)
-    , mGlyphPositions(nullptr)
+    , mGlyphInfo(nullptr)
+    , mGlyphPos(nullptr)
     , mPixelSize(0)
     , mStrikeout(false)
     , mUnderline(false)
@@ -214,6 +216,13 @@ void HgFont<PixelFormat>::resetBuffer()
 }
 
 template <class PixelFormat>
+void HgFont<PixelFormat>::clearBuffer()
+{
+  // Clean up the buffer, but don't kill it just yet.
+  hb_buffer_clear_contents(mHbBuffer);
+}
+
+template <class PixelFormat>
 void HgFont<PixelFormat>::setDirection(hb_direction_t direction)
 {
   // NOTE: see also hb_script_get_horizontal_direction()
@@ -243,8 +252,8 @@ void HgFont<PixelFormat>::layoutText(const std::string& text)
   // Layout the text
   hb_buffer_add_utf8(mHbBuffer, text.c_str(), text.size(), 0, text.size());
   hb_shape(mHbFont, mHbBuffer, NULL, 0);
-  mGlyphInfos = hb_buffer_get_glyph_infos(mHbBuffer, &mGlyphCount);
-  mGlyphPositions = hb_buffer_get_glyph_positions(mHbBuffer, &mGlyphCount);
+  mGlyphInfo = hb_buffer_get_glyph_infos(mHbBuffer, &mGlyphCount);
+  mGlyphPos = hb_buffer_get_glyph_positions(mHbBuffer, &mGlyphCount);
 }
 
 template <class PixelFormat>
@@ -285,16 +294,17 @@ typename HgFont<PixelFormat>::TextBbox HgFont<PixelFormat>::getBbox()
 
   FT_Error ftErr;
   for(unsigned j = 0; j < mGlyphCount; ++j) {
-    if((ftErr = FT_Load_Glyph(mFtFace, mGlyphInfos->codepoint, 0))) {
+    if((ftErr = FT_Load_Glyph(mFtFace, mGlyphInfo[j].codepoint, 0))) {
       std::printf(
-          "load %08x failed fterr=%d.\n", mGlyphInfos->codepoint, ftErr);
+          "load %08x failed ftErr=%d.\n", mGlyphInfo[j].codepoint, ftErr);
     } else {
       if(mFtFace->glyph->format != FT_GLYPH_FORMAT_OUTLINE) {
-        std::printf("glyph->format = %4s\n", (char*) &mFtFace->glyph->format);
+        std::printf("glyph->format = %4s\n",
+            reinterpret_cast<char*>(&mFtFace->glyph->format));
       } else {
-        int gx = sizerX + (mGlyphPositions->x_offset / FT_64);
+        int gx = sizerX + (mGlyphPos[j].x_offset / FT_64);
         /* note how the sign differs from the rendering pass */
-        int gy = sizerY + (mGlyphPositions->y_offset / FT_64);
+        int gy = sizerY + (mGlyphPos[j].y_offset / FT_64);
 
         mSpannerBaton.mMinSpanX = Int_MAX;
         mSpannerBaton.mMaxSpanX = Int_MIN;
@@ -334,9 +344,9 @@ typename HgFont<PixelFormat>::TextBbox HgFont<PixelFormat>::getBbox()
       }
     }
 
-    sizerX += mGlyphPositions->x_advance / FT_64;
+    sizerX += mGlyphPos[j].x_advance / FT_64;
     /* note how the sign differs from the rendering pass */
-    sizerY += mGlyphPositions->y_advance / FT_64;
+    sizerY += mGlyphPos[j].y_advance / FT_64;
   }
   /* Still have to take into account last glyph's advance. Or not? */
   if(bbox.mMinX > sizerX)
@@ -384,6 +394,45 @@ typename HgFont<PixelFormat>::TextBbox HgFont<PixelFormat>::getBbox()
   }
 
   return bbox;
+}
+
+template <class PixelFormat>
+void HgFont<PixelFormat>::drawText(
+    agg::renderer_base<PixelFormat>* rbase, int x, int y)
+{
+  // int x, int y:
+  /* The pen/baseline start coordinates in window coordinate system
+              - with those text placement in the window is controlled.
+              - note that for RTL scripts pen still goes LTR */
+
+  // Set rendering spanner.
+  mFtRasterParams.gray_spans = aggSpannerBlend;
+
+  // Initialize rendering part of the baton.
+  mSpannerBaton.mRenderBase = rbase;
+
+  // Render.
+  FT_Error ftErr;
+  for(unsigned j = 0; j < mGlyphCount; ++j) {
+    if((ftErr = FT_Load_Glyph(mFtFace, mGlyphInfo[j].codepoint, 0))) {
+      printf("load %08x failed ftErr=%d.\n", mGlyphInfo[j].codepoint, ftErr);
+    } else {
+      if(mFtFace->glyph->format != FT_GLYPH_FORMAT_OUTLINE) {
+        std::printf("glyph->format = %4s\n",
+            reinterpret_cast<char*>(&mFtFace->glyph->format));
+      } else {
+        mSpannerBaton.mGlyphX = x + (mGlyphPos[j].x_offset / FT_64);
+        mSpannerBaton.mGlyphY = y - (mGlyphPos[j].y_offset / FT_64);
+
+        if((ftErr = FT_Outline_Render(
+                mFtLibrary, &mFtFace->glyph->outline, &mFtRasterParams)))
+          printf("FT_Outline_Render() failed err=%d\n", ftErr);
+      }
+    }
+
+    x += mGlyphPos[j].x_advance / FT_64;
+    y -= mGlyphPos[j].y_advance / FT_64;
+  }
 }
 
 /*  See http://www.microsoft.com/typography/otspec/name.htm

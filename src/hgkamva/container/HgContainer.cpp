@@ -107,7 +107,7 @@ int HgContainer::text_width(
 {
   HgFont<PixelFormat>* hgFont = static_cast<HgFont<PixelFormat>*>(hFont);
   if(hgFont) {
-    hgFont->resetBuffer();
+    hgFont->clearBuffer();
 
     // TODO: set Direction, Script and Language through HgContainer's methods.
     hgFont->setDirection(HB_DIRECTION_LTR);
