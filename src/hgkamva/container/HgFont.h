@@ -25,6 +25,7 @@
 #define HG_FONT_H
 
 #include <cstdio>
+#include <functional>
 #include <limits>
 #include <string>
 
@@ -42,16 +43,22 @@
 
 namespace hg
 {
-// TODO: all with PixelFormat move to HgFontDrawable without FT, HB.
-template <typename PixelFormat>
 class HgFont
 {
+public:
+  using BlendHLineFunc = std::function<void(int x1,
+      int y,
+      int x2,
+      const litehtml::web_color& color,
+      unsigned char cover)>;
+
 private:
   static constexpr int FT_64 = 64;
 
-  struct AggFtRasterParamsUser
+  struct FtRasterParamsUser
   {
-    agg::renderer_base<PixelFormat>* mRenderBase;
+    BlendHLineFunc mBlendHLineFunc;
+
     int mGlyphX;
     int mGlyphY;
 
@@ -60,6 +67,8 @@ private:
     int mMaxSpanX;
     int mMinY;
     int mMaxY;
+
+    litehtml::web_color mColor;
   };
 
   static void aggSpannerBlend(
@@ -96,7 +105,8 @@ public:
 
   void layoutText(const std::string& text);
   TextBbox getBbox();
-  void drawText(agg::renderer_base<PixelFormat>* rbase, int x, int y);
+  void drawText(
+      BlendHLineFunc blendHLineFunc, int x, int y, litehtml::web_color color);
 
   int forceUcs2Charmap(FT_Face ftf);
 
@@ -109,16 +119,14 @@ public:
 private:
   FT_Library mFtLibrary;
   FT_Face mFtFace;
+  FT_Raster_Params mFtRasterParams;
+  FtRasterParamsUser mFtRasterParamsUser;
 
   hb_buffer_t* mHbBuffer;
   hb_font_t* mHbFont;
-
   unsigned int mGlyphCount;
   hb_glyph_info_t* mGlyphInfo;
   hb_glyph_position_t* mGlyphPos;
-
-  AggFtRasterParamsUser mFtRasterParamsUser;
-  FT_Raster_Params mFtRasterParams;
 
   // TODO: get size, strikeout and underline from FT structs if possible, remove it here.
 public:
@@ -134,20 +142,17 @@ private:
   bool mUnderline;
 };  // class HgFont
 
-template <typename PixelFormat>
-inline FT_F26Dot6 HgFont<PixelFormat>::intToF26Dot6(int pixelSize)
+inline FT_F26Dot6 HgFont::intToF26Dot6(int pixelSize)
 {
   return static_cast<FT_Long>(pixelSize) * FT_64;
 }
 
-template <typename PixelFormat>
-inline int HgFont<PixelFormat>::f26Dot6ToInt(FT_F26Dot6 f26Dot6Pixels)
+inline int HgFont::f26Dot6ToInt(FT_F26Dot6 f26Dot6Pixels)
 {
   return static_cast<int>(f26Dot6Pixels / FT_64);
 }
 
-template <typename PixelFormat>
-HgFont<PixelFormat>::HgFont(FT_Library ftLibrary)
+HgFont::HgFont(FT_Library ftLibrary)
     : mFtLibrary(ftLibrary)
     , mFtFace(nullptr)
     , mHbFont(nullptr)
@@ -161,16 +166,13 @@ HgFont<PixelFormat>::HgFont(FT_Library ftLibrary)
   mHbBuffer = hb_buffer_create();
 }
 
-template <typename PixelFormat>
-HgFont<PixelFormat>::~HgFont()
+HgFont::~HgFont()
 {
   destroyFtFace();
   hb_buffer_destroy(mHbBuffer);
 }
 
-template <typename PixelFormat>
-bool HgFont<PixelFormat>::createFtFace(
-    const std::string& fontFilePath, int pixelSize)
+bool HgFont::createFtFace(const std::string& fontFilePath, int pixelSize)
 {
   bool ret = destroyFtFace()
       && (FT_New_Face(mFtLibrary, fontFilePath.c_str(), 0, &mFtFace)
@@ -180,10 +182,7 @@ bool HgFont<PixelFormat>::createFtFace(
       && (mHbFont = hb_ft_font_create(mFtFace, NULL));
 
   if(ret) {
-    /* set up rendering via spanners */
-    //agg_spanner_baton_t<PixelFormat> mStuffbaton;
-
-    //FT_Raster_Params mFtRasterParams;
+    // Set up rendering via spanners.
     mFtRasterParams.target = 0;
     mFtRasterParams.flags = FT_RASTER_FLAG_DIRECT | FT_RASTER_FLAG_AA;
     mFtRasterParams.user = &mFtRasterParamsUser;
@@ -196,8 +195,7 @@ bool HgFont<PixelFormat>::createFtFace(
   return ret;
 }
 
-template <typename PixelFormat>
-bool HgFont<PixelFormat>::destroyFtFace()
+bool HgFont::destroyFtFace()
 {
   if(mHbFont) {
     hb_font_destroy(mHbFont);
@@ -210,34 +208,29 @@ bool HgFont<PixelFormat>::destroyFtFace()
   return true;
 }
 
-template <typename PixelFormat>
-void HgFont<PixelFormat>::resetBuffer()
+void HgFont::resetBuffer()
 {
   hb_buffer_reset(mHbBuffer);
 }
 
-template <typename PixelFormat>
-void HgFont<PixelFormat>::clearBuffer()
+void HgFont::clearBuffer()
 {
   // Clean up the buffer, but don't kill it just yet.
   hb_buffer_clear_contents(mHbBuffer);
 }
 
-template <typename PixelFormat>
-void HgFont<PixelFormat>::setDirection(hb_direction_t direction)
+void HgFont::setDirection(hb_direction_t direction)
 {
   // NOTE: see also hb_script_get_horizontal_direction()
   hb_buffer_set_direction(mHbBuffer, direction);
 }
 
-template <typename PixelFormat>
-void HgFont<PixelFormat>::setScript(hb_script_t script)
+void HgFont::setScript(hb_script_t script)
 {
   hb_buffer_set_script(mHbBuffer, script);  // see hb-unicode.h
 }
 
-template <typename PixelFormat>
-void HgFont<PixelFormat>::setLanguage(const std::string& language)
+void HgFont::setLanguage(const std::string& language)
 {
   // For ISO 639 Code see
   // http://www.loc.gov/standards/iso639-2/php/code_list.php
@@ -245,8 +238,7 @@ void HgFont<PixelFormat>::setLanguage(const std::string& language)
       mHbBuffer, hb_language_from_string(language.c_str(), language.size()));
 }
 
-template <typename PixelFormat>
-void HgFont<PixelFormat>::layoutText(const std::string& text)
+void HgFont::layoutText(const std::string& text)
 {
   // TODO: check buffer state.
 
@@ -257,31 +249,27 @@ void HgFont<PixelFormat>::layoutText(const std::string& text)
   mGlyphPos = hb_buffer_get_glyph_positions(mHbBuffer, &mGlyphCount);
 }
 
-template <typename PixelFormat>
-typename HgFont<PixelFormat>::TextBbox HgFont<PixelFormat>::getBbox()
+typename HgFont::TextBbox HgFont::getBbox()
 {
   // TODO: check buffer state.
 
   static constexpr int Int_MIN = std::numeric_limits<int>::min();
   static constexpr int Int_MAX = std::numeric_limits<int>::max();
 
-  /* Calculate string bounding box in pixels */
+  // Calculate string bounding box in pixels.
   mFtRasterParams.gray_spans = aggSpannerSizer;
 
-  /* See
-             http://www.freetype.org/freetype2/docs/glyphs/glyphs-3.html */
+  // See http://www.freetype.org/freetype2/docs/glyphs/glyphs-3.html
 
   TextBbox bbox;
 
-  /* largest coordinate a pixel has been set at,
-             or the pen was advanced to. */
+  // Largest coordinate a pixel has been set at, or the pen was advanced to.
   bbox.mMaxX = Int_MIN;
-  /* smallest coordinate a pixel has been set at,
-             or the pen was advanced to. */
+  // Smallest coordinate a pixel has been set at, or the pen was advanced to.
   bbox.mMinX = Int_MAX;
-  /* this is max topside bearing along the string. */
+  // This is max topside bearing along the string.
   bbox.mMaxY = Int_MIN;
-  /* this is max value of (height - topbearing) along the string. */
+  // This is max value of (height - topbearing) along the string.
   bbox.mMinY = Int_MAX;
   /*  Naturally, the above comments swap their meaning between
               horizontal and vertical scripts, since the pen changes the axis
@@ -291,7 +279,7 @@ typename HgFont<PixelFormat>::TextBbox HgFont<PixelFormat>::getBbox()
            */
 
   int sizerX = 0;
-  int sizerY = 0; /* in FT coordinate system. */
+  int sizerY = 0;  // In FT coordinate system.
 
   FT_Error ftErr;
   for(unsigned j = 0; j < mGlyphCount; ++j) {
@@ -304,7 +292,7 @@ typename HgFont<PixelFormat>::TextBbox HgFont<PixelFormat>::getBbox()
             reinterpret_cast<char*>(&mFtFace->glyph->format));
       } else {
         int gx = sizerX + (mGlyphPos[j].x_offset / FT_64);
-        /* note how the sign differs from the rendering pass */
+        // Note how the sign differs from the rendering pass.
         int gy = sizerY + (mGlyphPos[j].y_offset / FT_64);
 
         mFtRasterParamsUser.mMinSpanX = Int_MAX;
@@ -318,7 +306,7 @@ typename HgFont<PixelFormat>::TextBbox HgFont<PixelFormat>::getBbox()
         }
 
         if(mFtRasterParamsUser.mMinSpanX != INT_MAX) {
-          /* Update values if the spanner was actually called. */
+          // Update values if the spanner was actually called.
           if(bbox.mMinX > mFtRasterParamsUser.mMinSpanX + gx)
             bbox.mMinX = mFtRasterParamsUser.mMinSpanX + gx;
 
@@ -331,8 +319,7 @@ typename HgFont<PixelFormat>::TextBbox HgFont<PixelFormat>::getBbox()
           if(bbox.mMaxY < mFtRasterParamsUser.mMaxY + gy)
             bbox.mMaxY = mFtRasterParamsUser.mMaxY + gy;
         } else {
-          /* The spanner wasn't called at all - an empty glyph,
-                         like space. */
+          // The spanner wasn't called at all - an empty glyph, like space.
           if(bbox.mMinX > gx)
             bbox.mMinX = gx;
           if(bbox.mMaxX < gx)
@@ -346,10 +333,10 @@ typename HgFont<PixelFormat>::TextBbox HgFont<PixelFormat>::getBbox()
     }
 
     sizerX += mGlyphPos[j].x_advance / FT_64;
-    /* note how the sign differs from the rendering pass */
+    // Note how the sign differs from the rendering pass.
     sizerY += mGlyphPos[j].y_advance / FT_64;
   }
-  /* Still have to take into account last glyph's advance. Or not? */
+  // Still have to take into account last glyph's advance. Or not?
   if(bbox.mMinX > sizerX)
     bbox.mMinX = sizerX;
   if(bbox.mMaxX < sizerX)
@@ -359,7 +346,7 @@ typename HgFont<PixelFormat>::TextBbox HgFont<PixelFormat>::getBbox()
   if(bbox.mMaxY < sizerY)
     bbox.mMaxY = sizerY;
 
-  /* The bounding box */
+  // The bounding box.
   bbox.mBboxW = bbox.mMaxX - bbox.mMinX;
   bbox.mBboxH = bbox.mMaxY - bbox.mMinY;
 
@@ -397,20 +384,20 @@ typename HgFont<PixelFormat>::TextBbox HgFont<PixelFormat>::getBbox()
   return bbox;
 }
 
-template <typename PixelFormat>
-void HgFont<PixelFormat>::drawText(
-    agg::renderer_base<PixelFormat>* rbase, int x, int y)
+void HgFont::drawText(
+    BlendHLineFunc blendHLineFunc, int x, int y, litehtml::web_color color)
 {
-  // int x, int y:
-  /* The pen/baseline start coordinates in window coordinate system
+  /* About params int x and int y:
+     The pen/baseline start coordinates in window coordinate system
               - with those text placement in the window is controlled.
               - note that for RTL scripts pen still goes LTR */
 
   // Set rendering spanner.
   mFtRasterParams.gray_spans = aggSpannerBlend;
 
-  // Initialize rendering part of the baton.
-  mFtRasterParamsUser.mRenderBase = rbase;
+  // Initialize rendering part of the FtRasterParamsUser.
+  mFtRasterParamsUser.mBlendHLineFunc = blendHLineFunc;
+  mFtRasterParamsUser.mColor = color;
 
   // Render.
   FT_Error ftErr;
@@ -444,8 +431,7 @@ void HgFont<PixelFormat>::drawText(
     Freetype will select on face load (it promises most wide
     unicode, and if that will be slower that UCS-2 - left as
     an excercise to check. */
-template <typename PixelFormat>
-int HgFont<PixelFormat>::forceUcs2Charmap(FT_Face ftf)
+int HgFont::forceUcs2Charmap(FT_Face ftf)
 {
   for(int i = 0; i < ftf->num_charmaps; i++) {
     if(((ftf->charmaps[i]->platform_id == 0)
@@ -459,28 +445,14 @@ int HgFont<PixelFormat>::forceUcs2Charmap(FT_Face ftf)
 }
 
 // static
-template <typename PixelFormat>
-void HgFont<PixelFormat>::aggSpannerBlend(
-    int y, int count, const FT_Span* spans, void* user)
+void HgFont::aggSpannerBlend(int y, int count, const FT_Span* spans, void* user)
 {
-  using RenderBaseColorType =
-      typename agg::renderer_base<PixelFormat>::color_type;
-
-  AggFtRasterParamsUser* baton = static_cast<AggFtRasterParamsUser*>(user);
-
-  RenderBaseColorType color;
-  color.clear();
-
-  // TODO: set color outside.
-  color.opacity(1.0);
-  color.r = 128;
-  color.g = 128;
-  color.b = 128;
+  FtRasterParamsUser* ftUser = static_cast<FtRasterParamsUser*>(user);
 
   for(int i = 0; i < count; ++i) {
-    baton->mRenderBase->blend_hline(baton->mGlyphX + spans[i].x,
-        baton->mGlyphY - y, baton->mGlyphX + spans[i].x + spans[i].len - 1,
-        color, spans[i].coverage);
+    ftUser->mBlendHLineFunc(ftUser->mGlyphX + spans[i].x, ftUser->mGlyphY - y,
+        ftUser->mGlyphX + spans[i].x + spans[i].len - 1, ftUser->mColor,
+        spans[i].coverage);
   }
 }
 
@@ -488,26 +460,24 @@ void HgFont<PixelFormat>::aggSpannerBlend(
     Unfortunately this can't be done without rendering it (or pretending to).
     After this runs, we get min and max values of coordinates used. */
 // static
-template <typename PixelFormat>
-void HgFont<PixelFormat>::aggSpannerSizer(
-    int y, int count, const FT_Span* spans, void* user)
+void HgFont::aggSpannerSizer(int y, int count, const FT_Span* spans, void* user)
 {
-  AggFtRasterParamsUser* baton = static_cast<AggFtRasterParamsUser*>(user);
+  FtRasterParamsUser* ftUser = static_cast<FtRasterParamsUser*>(user);
 
-  if(y < baton->mMinY)
-    baton->mMinY = y;
-  if(y > baton->mMaxY)
-    baton->mMaxY = y;
+  if(y < ftUser->mMinY)
+    ftUser->mMinY = y;
+  if(y > ftUser->mMaxY)
+    ftUser->mMaxY = y;
+
   for(int i = 0; i < count; i++) {
-    if(spans[i].x + spans[i].len > baton->mMaxSpanX)
-      baton->mMaxSpanX = spans[i].x + spans[i].len;
-    if(spans[i].x < baton->mMinSpanX)
-      baton->mMinSpanX = spans[i].x;
+    if(spans[i].x + spans[i].len > ftUser->mMaxSpanX)
+      ftUser->mMaxSpanX = spans[i].x + spans[i].len;
+    if(spans[i].x < ftUser->mMinSpanX)
+      ftUser->mMinSpanX = spans[i].x;
   }
 }
 
-template <typename PixelFormat>
-FT_F26Dot6 HgFont<PixelFormat>::xHeight() const
+FT_F26Dot6 HgFont::xHeight() const
 {
   if(!mFtFace || FT_Load_Char(mFtFace, 'x', 0) != FT_Err_Ok) {
     return 0;

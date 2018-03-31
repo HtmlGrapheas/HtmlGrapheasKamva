@@ -103,6 +103,8 @@ TEST(HgFontTest, HgFontTest)
   // The AGG base renderer.
   using RendererBase = agg::renderer_base<PixelFormat>;
 
+  using RenderBaseColorType = typename RendererBase::color_type;
+
   //int frameWidth = bbox.mBboxW + 20;
   //int frameHeight = bbox.mBboxH + 20;
   int frameWidth = 250;
@@ -119,13 +121,14 @@ TEST(HgFontTest, HgFontTest)
 
   PixelFormat pixf(rbuf);
   RendererBase rbase(pixf);
-  rbase.clear(PixelFormat::color_type(0, 0, 0));
+  //rbase.clear(PixelFormat::color_type(0, 0, 0));
+  rbase.clear(RenderBaseColorType(0, 0, 0));
 
   //// HtmlGrapheasKamva init.
 
   // Create HgFontLibrary and HgFont with it.
   hg::HgFontLibrary hgFontLibrary;
-  hg::HgFont<PixelFormat> hgFont(hgFontLibrary.ftLibrary());
+  hg::HgFont hgFont(hgFontLibrary.ftLibrary());
 
   //////// Test HgFontLibrary::addFontDir().
 
@@ -156,7 +159,7 @@ TEST(HgFontTest, HgFontTest)
 
   //////// Test HgFont::getBbox().
 
-  hg::HgFont<PixelFormat>::TextBbox bbox = hgFont.getBbox();
+  hg::HgFont::TextBbox bbox = hgFont.getBbox();
   EXPECT_EQ(bbox.mMinX, 0);
   EXPECT_EQ(bbox.mMaxX, 155);
   EXPECT_EQ(bbox.mMinY, -3);
@@ -171,15 +174,28 @@ TEST(HgFontTest, HgFontTest)
   // Set text position.
   FT_Size ftSize = hgFont.ftFace()->size;
   int x = 10;
-  //int ascender =
-  //    hg::HgFont<PixelFormat>::f26Dot6ToInt(ftSize->metrics.ascender);
+  //int ascender = hg::HgFont::f26Dot6ToInt(ftSize->metrics.ascender);
   //int y = 10 + ascender;
-  int descent =
-      hg::HgFont<PixelFormat>::f26Dot6ToInt(ftSize->metrics.descender);
+  int descent = hg::HgFont::f26Dot6ToInt(ftSize->metrics.descender);
   int y = frameHeight - 10 + descent;
 
+  // Set text color.
+  litehtml::web_color color(128, 128, 128, 255);
+
+  // Make BlendHLineFunc for drawText() to binding with rbase.blend_hline().
+  hg::HgFont::BlendHLineFunc blendHLineFunc = [&rbase](int x1, int y, int x2,
+      const litehtml::web_color& color, unsigned char cover) -> void {
+    RenderBaseColorType rbaseColor;
+    rbaseColor.clear();
+    rbaseColor.opacity(color.alpha / 255.0);
+    rbaseColor.r = color.red;
+    rbaseColor.g = color.green;
+    rbaseColor.b = color.blue;
+    rbase.blend_hline(x1, y, x2, rbaseColor, cover);
+  };
+
   // drawText()
-  hgFont.drawText(&rbase, x, y);
+  hgFont.drawText(blendHLineFunc, x, y, color);
 
   // Write our picture to file.
   std::string fileName1 = "HgFontTest_1.ppm";
@@ -194,7 +210,8 @@ TEST(HgFontTest, HgFontTest)
 
   // Make cleaning before new text.
   hgFont.clearBuffer();
-  rbase.clear(PixelFormat::color_type(0, 0, 0));
+  //rbase.clear(PixelFormat::color_type(0, 0, 0));
+  rbase.clear(RenderBaseColorType(0, 0, 0));
 
   // layoutText().
   hgFont.setDirection(HB_DIRECTION_LTR);
@@ -214,7 +231,7 @@ TEST(HgFontTest, HgFontTest)
   EXPECT_EQ(bbox.mBaselineOffset, 10);
 
   // drawText().
-  hgFont.drawText(&rbase, x, y);
+  hgFont.drawText(blendHLineFunc, x, y, color);
 
   // Write our picture to file.
   std::string fileName2 = "HgFontTest_2.ppm";
@@ -227,7 +244,7 @@ TEST(HgFontTest, HgFontTest)
 
   //////// Test HgFont::xHeight().
 
-  EXPECT_EQ(hg::HgFont<PixelFormat>::f26Dot6ToInt(hgFont.xHeight()), 8);
+  EXPECT_EQ(hg::HgFont::f26Dot6ToInt(hgFont.xHeight()), 8);
 
   //////// Deinit part.
 

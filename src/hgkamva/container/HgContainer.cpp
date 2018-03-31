@@ -28,9 +28,6 @@
 
 namespace hg
 {
-// TODO: replace int to corresponding type.
-using PixelFormat = int;
-
 HgContainer::HgContainer()
 {
   mHgFontLibrary = std::shared_ptr<HgFontLibrary>(new HgFontLibrary());
@@ -56,8 +53,7 @@ litehtml::uint_ptr HgContainer::create_font(const litehtml::tchar_t* faceName,
     return nullptr;
   }
 
-  HgFont<PixelFormat>* hgFont =
-      new HgFont<PixelFormat>(mHgFontLibrary->ftLibrary());
+  HgFont* hgFont = new HgFont(mHgFontLibrary->ftLibrary());
 
   uint_least8_t result;
   std::string filePath =
@@ -76,10 +72,10 @@ litehtml::uint_ptr HgContainer::create_font(const litehtml::tchar_t* faceName,
   // Note: for font metric precision (in particular for TTF) see
   // https://www.freetype.org/freetype2/docs/reference/ft2-base_interface.html#FT_Size_Metrics
   FT_Size ftSize = hgFont->ftFace()->size;
-  fm->ascent = HgFont<PixelFormat>::f26Dot6ToInt(ftSize->metrics.ascender);
-  fm->descent = HgFont<PixelFormat>::f26Dot6ToInt(ftSize->metrics.descender);
-  fm->height = HgFont<PixelFormat>::f26Dot6ToInt(ftSize->metrics.height);
-  fm->x_height = HgFont<PixelFormat>::f26Dot6ToInt(hgFont->xHeight());
+  fm->ascent = HgFont::f26Dot6ToInt(ftSize->metrics.ascender);
+  fm->descent = HgFont::f26Dot6ToInt(ftSize->metrics.descender);
+  fm->height = HgFont::f26Dot6ToInt(ftSize->metrics.height);
+  fm->x_height = HgFont::f26Dot6ToInt(hgFont->xHeight());
   if(italic == litehtml::fontStyleItalic || decoration) {
     fm->draw_spaces = true;
   } else {
@@ -95,7 +91,7 @@ litehtml::uint_ptr HgContainer::create_font(const litehtml::tchar_t* faceName,
 
 void HgContainer::delete_font(litehtml::uint_ptr hFont)
 {
-  HgFont<PixelFormat>* hgFont = static_cast<HgFont<PixelFormat>*>(hFont);
+  HgFont* hgFont = static_cast<HgFont*>(hFont);
   if(hgFont) {
     hgFont->destroyFtFace();
     delete hgFont;
@@ -105,7 +101,7 @@ void HgContainer::delete_font(litehtml::uint_ptr hFont)
 int HgContainer::text_width(
     const litehtml::tchar_t* text, litehtml::uint_ptr hFont)
 {
-  HgFont<PixelFormat>* hgFont = static_cast<HgFont<PixelFormat>*>(hFont);
+  HgFont* hgFont = static_cast<HgFont*>(hFont);
   if(hgFont) {
     hgFont->clearBuffer();
 
