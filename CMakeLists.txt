@@ -96,7 +96,6 @@ endif()
 include(build_expat)
 include(build_freetype_with_harfbuzz)
 include(build_fontconfig)
-include(build_agg)
 
 
 #-----------------------------------------------------------------------
@@ -117,18 +116,24 @@ set(hgk_HEADERS
   ${hgk_SRC_DIR}/hgkamva/container/HgContainer.h
   ${hgk_SRC_DIR}/hgkamva/container/HgFont.h
   ${hgk_SRC_DIR}/hgkamva/container/HgFontLibrary.h
+  ${hgk_SRC_DIR}/hgkamva/container/HgRenderer.h
+  ${hgk_SRC_DIR}/hgkamva/util/FileUtil.h
   ${hgk_SRC_DIR}/hgkamva/util/StringUtil.h
 
-  ${hgk_SRC_DIR}/hgkamva/agg_freetype_harfbuzz.h
+# TODO: remove it from disk
+#  ${hgk_SRC_DIR}/hgkamva/agg_freetype_harfbuzz.h
 )
 
 set(hgk_SOURCES
   ${hgk_SRC_DIR}/hgkamva/container/HgContainer.cpp
   ${hgk_SRC_DIR}/hgkamva/container/HgFont.cpp
   ${hgk_SRC_DIR}/hgkamva/container/HgFontLibrary.cpp
+  ${hgk_SRC_DIR}/hgkamva/container/HgRenderer.cpp
+  ${hgk_SRC_DIR}/hgkamva/util/FileUtil.cpp
   ${hgk_SRC_DIR}/hgkamva/util/StringUtil.cpp
 
-  ${hgk_SRC_DIR}/hgkamva/dummy.cpp
+# TODO: remove it from disk
+#  ${hgk_SRC_DIR}/hgkamva/dummy.cpp
 )
 
 add_library(${hgk_LIB_NAME} ${hgk_SOURCES} ${hgk_HEADERS})
@@ -168,11 +173,6 @@ if(WITH_HarfBuzz)
   target_link_libraries(${hgk_LIB_NAME} PRIVATE
     ${HARFBUZZ_LIBRARIES} ${FREETYPE_LIBRARIES})
 endif()
-
-# AGG
-# Export AGG includes.
-target_include_directories(${hgk_LIB_NAME} PUBLIC ${AGG_INCLUDE_DIRS})
-target_link_libraries(${hgk_LIB_NAME} PRIVATE ${AGG_LIBRARIES})
 
 
 #-----------------------------------------------------------------------

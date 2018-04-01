@@ -21,7 +21,7 @@
  *    along with this program. If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
 
-#include "hgkamva/util/StringUtil.h"
+#include "hgkamva/container/HgRenderer.h"
 
 namespace hg
 {

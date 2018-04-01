@@ -23,11 +23,6 @@
 
 #include "hgkamva/container/HgFont.h"
 
-#include <algorithm>
-#include <cstdio>
-#include <cstdlib>
-#include <fstream>
-#include <iterator>
 #include <string>
 
 #include "gtest/gtest.h"
@@ -36,47 +31,9 @@
 #include "agg_renderer_base.h"
 
 #include "hgkamva/container/HgFontLibrary.h"
+#include "hgkamva/util/FileUtil.h"
 #include "hgkamva/util/StringUtil.h"
 
-// Writing the buffer to a .PPM file, assuming it has RGB-structure, one byte
-// per color component.
-// http://www.antigrain.com/doc/basic_renderers/basic_renderers.agdoc.html
-bool writePpmFile(const unsigned char* buf,
-    unsigned width,
-    unsigned height,
-    const char* file_name)
-{
-  FILE* fd = fopen(file_name, "wb");
-  if(fd) {
-    fprintf(fd, "P6 %d %d 255 ", width, height);
-    fwrite(buf, 1, width * height * 3, fd);
-    fclose(fd);
-    return true;
-  }
-  return false;
-}
-
-//https://stackoverflow.com/a/37575457
-bool compareFiles(const std::string& filePath1, const std::string& filePath2)
-{
-  std::ifstream f1(filePath1, std::ifstream::binary | std::ifstream::ate);
-  std::ifstream f2(filePath2, std::ifstream::binary | std::ifstream::ate);
-
-  if(f1.fail() || f2.fail()) {
-    return false;  // File problem.
-  }
-
-  if(f1.tellg() != f2.tellg()) {
-    return false;  // Size mismatch.
-  }
-
-  // Seek back to beginning and use std::equal to compare contents.
-  f1.seekg(0, std::ifstream::beg);
-  f2.seekg(0, std::ifstream::beg);
-  return std::equal(std::istreambuf_iterator<char>(f1.rdbuf()),
-      std::istreambuf_iterator<char>(),
-      std::istreambuf_iterator<char>(f2.rdbuf()));
-}
 
 TEST(HgFontTest, HgFontTest)
 {
@@ -125,6 +82,20 @@ TEST(HgFontTest, HgFontTest)
   rbase.clear(RenderBaseColorType(0, 0, 0));
 
   //// HtmlGrapheasKamva init.
+
+  hg::HgRenderer hgRenderer;
+  // Set BlendHLineFunc to binding with rbase.blend_hline().
+  hgRenderer.setBlendHLineFunc(
+      [&rbase](int x1, int y, int x2, const litehtml::web_color& color,
+          unsigned char cover) -> void {
+        RenderBaseColorType rbaseColor;
+        rbaseColor.clear();
+        rbaseColor.opacity(color.alpha / 255.0);
+        rbaseColor.r = color.red;
+        rbaseColor.g = color.green;
+        rbaseColor.b = color.blue;
+        rbase.blend_hline(x1, y, x2, rbaseColor, cover);
+      });
 
   // Create HgFontLibrary and HgFont with it.
   hg::HgFontLibrary hgFontLibrary;
@@ -182,29 +153,18 @@ TEST(HgFontTest, HgFontTest)
   // Set text color.
   litehtml::web_color color(128, 128, 128, 255);
 
-  // Make BlendHLineFunc for drawText() to binding with rbase.blend_hline().
-  hg::HgFont::BlendHLineFunc blendHLineFunc = [&rbase](int x1, int y, int x2,
-      const litehtml::web_color& color, unsigned char cover) -> void {
-    RenderBaseColorType rbaseColor;
-    rbaseColor.clear();
-    rbaseColor.opacity(color.alpha / 255.0);
-    rbaseColor.r = color.red;
-    rbaseColor.g = color.green;
-    rbaseColor.b = color.blue;
-    rbase.blend_hline(x1, y, x2, rbaseColor, cover);
-  };
-
   // drawText()
-  hgFont.drawText(blendHLineFunc, x, y, color);
+  hgFont.drawText(&hgRenderer, x, y, color);
 
   // Write our picture to file.
   std::string fileName1 = "HgFontTest_1.ppm";
   std::string fileOutTest1 = std::string(testDir) + "/" + fileName1;
-  writePpmFile(frameBuf, frameWidth, frameHeight, fileOutTest1.c_str());
+  hg::FileUtil::writePpmFile(
+      frameBuf, frameWidth, frameHeight, fileOutTest1.c_str());
 
   // Compare our file with prototype.
   std::string fileTest1 = std::string(dataDir) + "/" + fileName1;
-  EXPECT_TRUE(compareFiles(fileTest1, fileOutTest1));
+  EXPECT_TRUE(hg::FileUtil::compareFiles(fileTest1, fileOutTest1));
 
   //////// Repeat tests for new text.
 
@@ -231,16 +191,17 @@ TEST(HgFontTest, HgFontTest)
   EXPECT_EQ(bbox.mBaselineOffset, 10);
 
   // drawText().
-  hgFont.drawText(blendHLineFunc, x, y, color);
+  hgFont.drawText(&hgRenderer, x, y, color);
 
   // Write our picture to file.
   std::string fileName2 = "HgFontTest_2.ppm";
   std::string fileOutTest2 = std::string(testDir) + "/" + fileName2;
-  writePpmFile(frameBuf, frameWidth, frameHeight, fileOutTest2.c_str());
+  hg::FileUtil::writePpmFile(
+      frameBuf, frameWidth, frameHeight, fileOutTest2.c_str());
 
   // Compare our file with prototype.
   std::string fileTest2 = std::string(dataDir) + "/" + fileName2;
-  EXPECT_TRUE(compareFiles(fileTest2, fileOutTest2));
+  EXPECT_TRUE(hg::FileUtil::compareFiles(fileTest2, fileOutTest2));
 
   //////// Test HgFont::xHeight().
 

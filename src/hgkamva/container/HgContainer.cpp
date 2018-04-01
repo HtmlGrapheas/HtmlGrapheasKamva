@@ -25,6 +25,7 @@
 
 #include "hgkamva/container/HgFont.h"
 #include "hgkamva/container/HgFontLibrary.h"
+#include "hgkamva/container/HgRenderer.h"
 
 namespace hg
 {
@@ -102,18 +103,20 @@ int HgContainer::text_width(
     const litehtml::tchar_t* text, litehtml::uint_ptr hFont)
 {
   HgFont* hgFont = static_cast<HgFont*>(hFont);
-  if(hgFont) {
-    hgFont->clearBuffer();
-
-    // TODO: set Direction, Script and Language through HgContainer's methods.
-    hgFont->setDirection(HB_DIRECTION_LTR);
-    hgFont->setScript(HB_SCRIPT_LATIN);
-    hgFont->setLanguage("eng");
-
-    hgFont->layoutText(text);
-    return hgFont->getBbox().mBboxW;
+  if(!hgFont) {
+    return 0;
   }
-  return 0;
+
+  hgFont->clearBuffer();
+
+  // TODO: set Direction, Script and Language through HgContainer's methods.
+  hgFont->setDirection(HB_DIRECTION_LTR);
+  hgFont->setScript(HB_SCRIPT_LATIN);
+  hgFont->setLanguage("eng");
+
+  // TODO: make layoutText() for text_width() and draw_text() only once.
+  hgFont->layoutText(text);
+  return hgFont->getBbox().mBboxW;
 }
 
 void HgContainer::draw_text(litehtml::uint_ptr hdc,
@@ -122,6 +125,53 @@ void HgContainer::draw_text(litehtml::uint_ptr hdc,
     litehtml::web_color color,
     const litehtml::position& pos)
 {
+  HgRenderer* hgRenderer = static_cast<HgRenderer*>(hdc);
+  if(!hgRenderer) {
+    return;
+  }
+
+  if(!text) {
+    return;
+  }
+
+  HgFont* hgFont = static_cast<HgFont*>(hFont);
+  if(!hgFont) {
+    return;
+  }
+
+  FT_Size ftSize = hgFont->ftFace()->size;
+  int descent = hg::HgFont::f26Dot6ToInt(ftSize->metrics.descender);
+  int x = pos.left();
+  int y = pos.bottom() + descent;
+
+  hgFont->clearBuffer();
+
+  // TODO: set Direction, Script and Language through HgContainer's methods.
+  hgFont->setDirection(HB_DIRECTION_LTR);
+  hgFont->setScript(HB_SCRIPT_LATIN);
+  hgFont->setLanguage("eng");
+
+  // TODO: make layoutText() for text_width() and draw_text() only once.
+  hgFont->layoutText(text);
+  hgFont->drawText(hgRenderer, x, y, color);
+
+  if(hgFont->underline() || hgFont->strikeout()) {
+    int tw = 0;
+    tw = text_width(text, hFont);
+
+    if(hgFont->underline()) {
+      // TODO: set line width by font's height.
+      //hgRenderer->copyHLine(x, y + 1.5, x + tw, color);
+      hgRenderer->copyHLine(x, y + 2, x + tw, color);
+    }
+
+    if(hgFont->strikeout()) {
+      int lnY = y - hgFont->xHeight() / 2.0;
+      // TODO: set line width by font's height.
+      //hgRenderer->copyHLine(x, lnY - 0.5, x + tw, color);
+      hgRenderer->copyHLine(x, lnY - 1, x + tw, color);
+    }
+  }
 }
 
 int HgContainer::pt_to_px(int pt)

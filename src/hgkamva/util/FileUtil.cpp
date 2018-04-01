@@ -1,0 +1,76 @@
+/*****************************************************************************
+ * Project:  Feographia
+ * Purpose:  A program to work with the biblical text
+ * Author:   NikitaFeodonit, nfeodonit@yandex.com
+ *****************************************************************************
+ *   Copyright (c) 2015-2017 NikitaFeodonit
+ *
+ *    This file is part of the Feographia project.
+ *
+ *    This program is free software: you can redistribute it and/or modify
+ *    it under the terms of the GNU General Public License as published
+ *    by the Free Software Foundation, either version 3 of the License,
+ *    or (at your option) any later version.
+ *
+ *    This program is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *    See the GNU General Public License for more details.
+ *
+ *    You should have received a copy of the GNU General Public License
+ *    along with this program. If not, see <http://www.gnu.org/licenses/>.
+ ****************************************************************************/
+
+#include "hgkamva/util/FileUtil.h"
+
+#include <algorithm>
+#include <cstdio>
+#include <fstream>
+#include <iterator>
+
+namespace hg
+{
+// Writing the buffer to a .PPM file, assuming it has RGB-structure, one byte
+// per color component.
+// http://www.antigrain.com/doc/basic_renderers/basic_renderers.agdoc.html
+// static
+bool FileUtil::writePpmFile(const unsigned char* buf,
+    unsigned width,
+    unsigned height,
+    const char* file_name)
+{
+  FILE* fd = fopen(file_name, "wb");
+  if(fd) {
+    fprintf(fd, "P6 %d %d 255 ", width, height);
+    fwrite(buf, 1, width * height * 3, fd);
+    fclose(fd);
+    return true;
+  }
+  return false;
+}
+
+//https://stackoverflow.com/a/37575457
+// static
+bool FileUtil::compareFiles(
+    const std::string& filePath1, const std::string& filePath2)
+{
+  std::ifstream f1(filePath1, std::ifstream::binary | std::ifstream::ate);
+  std::ifstream f2(filePath2, std::ifstream::binary | std::ifstream::ate);
+
+  if(f1.fail() || f2.fail()) {
+    return false;  // File problem.
+  }
+
+  if(f1.tellg() != f2.tellg()) {
+    return false;  // Size mismatch.
+  }
+
+  // Seek back to beginning and use std::equal to compare contents.
+  f1.seekg(0, std::ifstream::beg);
+  f2.seekg(0, std::ifstream::beg);
+  return std::equal(std::istreambuf_iterator<char>(f1.rdbuf()),
+      std::istreambuf_iterator<char>(),
+      std::istreambuf_iterator<char>(f2.rdbuf()));
+}
+
+}  // namespace hg

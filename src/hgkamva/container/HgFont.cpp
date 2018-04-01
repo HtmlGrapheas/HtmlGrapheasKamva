@@ -282,7 +282,7 @@ typename HgFont::TextBbox HgFont::getBbox()
 }
 
 void HgFont::drawText(
-    BlendHLineFunc blendHLineFunc, int x, int y, litehtml::web_color color)
+    HgRenderer* hgRenderer, int x, int y, litehtml::web_color color)
 {
   /* About params int x and int y:
      The pen/baseline start coordinates in window coordinate system
@@ -293,7 +293,7 @@ void HgFont::drawText(
   mFtRasterParams.gray_spans = aggSpannerBlend;
 
   // Initialize rendering part of the FtRasterParamsUser.
-  mFtRasterParamsUser.mBlendHLineFunc = blendHLineFunc;
+  mFtRasterParamsUser.mHgRenderer = hgRenderer;
   mFtRasterParamsUser.mColor = color;
 
   // Render.
@@ -347,9 +347,9 @@ void HgFont::aggSpannerBlend(int y, int count, const FT_Span* spans, void* user)
   FtRasterParamsUser* ftUser = static_cast<FtRasterParamsUser*>(user);
 
   for(int i = 0; i < count; ++i) {
-    ftUser->mBlendHLineFunc(ftUser->mGlyphX + spans[i].x, ftUser->mGlyphY - y,
-        ftUser->mGlyphX + spans[i].x + spans[i].len - 1, ftUser->mColor,
-        spans[i].coverage);
+    ftUser->mHgRenderer->blendHLine(ftUser->mGlyphX + spans[i].x,
+        ftUser->mGlyphY - y, ftUser->mGlyphX + spans[i].x + spans[i].len - 1,
+        ftUser->mColor, spans[i].coverage);
   }
 }
 

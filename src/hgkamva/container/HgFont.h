@@ -37,23 +37,18 @@
 
 #include "litehtml.h"
 
+#include "hgkamva/container/HgRenderer.h"
+
 namespace hg
 {
 class HgFont
 {
-public:
-  using BlendHLineFunc = std::function<void(int x1,
-      int y,
-      int x2,
-      const litehtml::web_color& color,
-      unsigned char cover)>;
-
 private:
   static constexpr int FT_64 = 64;
 
   struct FtRasterParamsUser
   {
-    BlendHLineFunc mBlendHLineFunc;
+    HgRenderer* mHgRenderer;
 
     int mGlyphX;
     int mGlyphY;
@@ -101,8 +96,7 @@ public:
 
   void layoutText(const std::string& text);
   TextBbox getBbox();
-  void drawText(
-      BlendHLineFunc blendHLineFunc, int x, int y, litehtml::web_color color);
+  void drawText(HgRenderer* hgRenderer, int x, int y, litehtml::web_color color);
 
   int forceUcs2Charmap(FT_Face ftf);
 

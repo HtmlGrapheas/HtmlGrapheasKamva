@@ -1,11 +1,11 @@
 /*****************************************************************************
- * Project:  HtmlGrapheas
- * Purpose:  HTML text editor library
+ * Project:  Feographia
+ * Purpose:  A program to work with the biblical text
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  *****************************************************************************
- *   Copyright (c) 2017-2018 NikitaFeodonit
+ *   Copyright (c) 2015-2017 NikitaFeodonit
  *
- *    This file is part of the HtmlGrapheas project.
+ *    This file is part of the Feographia project.
  *
  *    This program is free software: you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published
@@ -21,8 +21,25 @@
  *    along with this program. If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
 
-#include "hgkamva/util/StringUtil.h"
+#ifndef FILEUTIL_H
+#define FILEUTIL_H
+
+#include <string>
 
 namespace hg
 {
+class FileUtil
+{
+public:
+  static bool writePpmFile(const unsigned char* buf,
+      unsigned width,
+      unsigned height,
+      const char* file_name);
+
+  static bool compareFiles(
+      const std::string& filePath1, const std::string& filePath2);
+};
+
 }  // namespace hg
+
+#endif  // FILEUTIL_H

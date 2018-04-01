@@ -21,8 +21,59 @@
  *    along with this program. If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
 
-#include "hgkamva/util/StringUtil.h"
+#ifndef HG_RENDERER_H
+#define HG_RENDERER_H
+
+#include <functional>
+
+#include "litehtml.h"
 
 namespace hg
 {
+class HgRenderer
+{
+public:
+  using BlendHLineFunc = std::function<void(int x1,
+      int y,
+      int x2,
+      const litehtml::web_color& color,
+      unsigned char cover)>;
+
+  using CopyHLineFunc = std::function<void(
+      int x1, int y, int x2, const litehtml::web_color& color)>;
+
+  explicit HgRenderer() {}
+  virtual ~HgRenderer() {}
+
+  void setBlendHLineFunc(BlendHLineFunc blendHLineFunc)
+  {
+    mBlendHLineFunc = blendHLineFunc;
+  }
+
+  void blendHLine(int x1,
+      int y,
+      int x2,
+      const litehtml::web_color& color,
+      unsigned char cover)
+  {
+    return mBlendHLineFunc(x1, y, x2, color, cover);
+  }
+
+  void setCopyHLineFunc(CopyHLineFunc copyHLineFunc)
+  {
+    mCopyHLineFunc = copyHLineFunc;
+  }
+
+  void copyHLine(int x1, int y, int x2, const litehtml::web_color& color)
+  {
+    return mCopyHLineFunc(x1, y, x2, color);
+  }
+
+private:
+  BlendHLineFunc mBlendHLineFunc;
+  CopyHLineFunc mCopyHLineFunc;
+};  // class HgRenderer
+
 }  // namespace hg
+
+#endif  // HG_RENDERER_H
