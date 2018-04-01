@@ -161,15 +161,17 @@ void HgContainer::draw_text(litehtml::uint_ptr hdc,
 
     if(hgFont->underline()) {
       // TODO: set line width by font's height.
+      // TODO: set line position by font's parameters.
       //hgRenderer->copyHLine(x, y + 1.5, x + tw, color);
-      hgRenderer->copyHLine(x, y + 2, x + tw, color);
+      hgRenderer->copyHLine(x, y + 3, x + tw, color);
     }
 
     if(hgFont->strikeout()) {
-      int lnY = y - hgFont->xHeight() / 2.0;
       // TODO: set line width by font's height.
+      //int lnY = y - HgFont::f26Dot6ToInt(hgFont->xHeight()) / 2.0;
       //hgRenderer->copyHLine(x, lnY - 0.5, x + tw, color);
-      hgRenderer->copyHLine(x, lnY - 1, x + tw, color);
+      int lnY = y - HgFont::f26Dot6ToInt(hgFont->xHeight()) / 2;
+      hgRenderer->copyHLine(x, lnY, x + tw, color);
     }
   }
 }

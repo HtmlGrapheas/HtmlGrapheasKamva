@@ -67,6 +67,7 @@ TEST(HgContainerTest, draw_text)
   const char* dataDir = std::getenv("HGRAPH_TEST_DATA_DIR");
   EXPECT_NE(dataDir, nullptr);
 
+  // TODO: move to common file.h
   //// AGG init.
 
   enum
@@ -127,8 +128,11 @@ TEST(HgContainerTest, draw_text)
   litehtml::font_metrics fm;
   hg::HgContainer container;
   EXPECT_TRUE(container.addFontDir(fontDir));
-  litehtml::uint_ptr hFont = container.create_font(
-      "Tinos", 16, 400, litehtml::font_style::fontStyleNormal, 0, &fm);
+  litehtml::uint_ptr hFont = container.create_font("Tinos", 16, 400,
+      litehtml::font_style::fontStyleNormal,
+      litehtml::font_decoration_linethrough
+          | litehtml::font_decoration_underline,
+      &fm);
   EXPECT_NE(hFont, nullptr);
 
   //////// Test HgContainer::draw_text().
@@ -152,7 +156,7 @@ TEST(HgContainerTest, draw_text)
       frameBuf, frameWidth, frameHeight, fileOutTest1.c_str());
 
   // Compare our file with prototype.
-  std::string fileTest1 = std::string(dataDir) + "/" + "HgFontTest_1.ppm";
+  std::string fileTest1 = std::string(dataDir) + "/" + fileName1;
   EXPECT_TRUE(hg::FileUtil::compareFiles(fileTest1, fileOutTest1));
 
   //////// Repeat tests for new text.
@@ -170,7 +174,7 @@ TEST(HgContainerTest, draw_text)
       frameBuf, frameWidth, frameHeight, fileOutTest2.c_str());
 
   // Compare our file with prototype.
-  std::string fileTest2 = std::string(dataDir) + "/" + "HgFontTest_2.ppm";
+  std::string fileTest2 = std::string(dataDir) + "/" + fileName2;
   EXPECT_TRUE(hg::FileUtil::compareFiles(fileTest2, fileOutTest2));
 
   //////// Deinit part.
