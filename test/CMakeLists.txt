@@ -24,7 +24,6 @@
 # Testing with Google Test.
 if(BUILD_TESTING)
   include(build_googletest)
-  include(build_agg)
 
   set(HGRAPH_TEST_DIR "${CMAKE_CURRENT_BINARY_DIR}")
   set(HGRAPH_TEST_FONT_DIR "${HGRAPH_TEST_DIR}/fonts")
@@ -85,10 +84,6 @@ if(BUILD_TESTING)
       ${test_LIBS}
       GTest::GTest GTest::Main
     )
-    
-    # AGG
-    target_include_directories(${test_NAME} PRIVATE ${AGG_INCLUDE_DIRS})
-    target_link_libraries(${test_NAME} PRIVATE ${AGG_LIBRARIES})
     
     add_test(NAME ${test_NAME} COMMAND ${test_NAME})
     set_property(TEST ${test_NAME} PROPERTY

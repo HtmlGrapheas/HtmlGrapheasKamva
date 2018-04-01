@@ -62,9 +62,9 @@ private:
     litehtml::web_color mColor;
   };
 
-  static void aggSpannerBlend(
+  static void blendFtSpanFunc(
       int y, int count, const FT_Span* spans, void* user);
-  static void aggSpannerSizer(
+  static void sizerFtSpanFunc(
       int y, int count, const FT_Span* spans, void* user);
 
 public:
@@ -96,7 +96,8 @@ public:
 
   void layoutText(const std::string& text);
   TextBbox getBbox();
-  void drawText(HgRenderer* hgRenderer, int x, int y, litehtml::web_color color);
+  void drawText(
+      HgRenderer* hgRenderer, int x, int y, litehtml::web_color color);
 
   int forceUcs2Charmap(FT_Face ftf);
 

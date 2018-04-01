@@ -21,8 +21,8 @@
  *    along with this program. If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
 
-#ifndef FILEUTIL_H
-#define FILEUTIL_H
+#ifndef HG_FILEUTIL_H
+#define HG_FILEUTIL_H
 
 #include <string>
 
@@ -42,4 +42,4 @@ public:
 
 }  // namespace hg
 
-#endif  // FILEUTIL_H
+#endif  // HG_FILEUTIL_H

@@ -25,4 +25,8 @@
 
 namespace hg
 {
+HgRenderer::HgRenderer()
+{
+}
+
 }  // namespace hg

@@ -26,9 +26,8 @@
 #include "gtest/gtest.h"
 
 #include "agg_pixfmt_rgb.h"
-#include "agg_renderer_base.h"
 
-#include "hgkamva/container/HgRenderer.h"
+#include "hgkamva/container/HgAggRenderer.h"
 #include "hgkamva/util/FileUtil.h"
 
 TEST(HgContainerTest, create_font)
@@ -67,7 +66,6 @@ TEST(HgContainerTest, draw_text)
   const char* dataDir = std::getenv("HGRAPH_TEST_DATA_DIR");
   EXPECT_NE(dataDir, nullptr);
 
-  // TODO: move to common file.h
   //// AGG init.
 
   enum
@@ -78,52 +76,22 @@ TEST(HgContainerTest, draw_text)
   // The AGG pixel format.
   using PixelFormat = agg::pixfmt_rgb24;
 
-  // The AGG base renderer.
-  using RendererBase = agg::renderer_base<PixelFormat>;
-
-  using RenderBaseColorType = typename RendererBase::color_type;
-
-  int frameWidth = 250;
-  int frameHeight = 50;
+  unsigned int frameWidth = 250;
+  unsigned int frameHeight = 50;
   int stride = frameWidth * BYTES_PER_PIXEL;
 
-  unsigned char* frameBuf = new unsigned char[frameWidth * frameHeight * 3];
+  unsigned char* frameBuf =
+      new unsigned char[frameWidth * frameHeight * BYTES_PER_PIXEL];
   EXPECT_NE(frameBuf, nullptr);
 
-  agg::rendering_buffer rbuf;
-  rbuf.attach(frameBuf, frameWidth, frameHeight, stride);
+  hg::HgAggRenderer<PixelFormat> hgAggRenderer(
+      frameBuf, frameWidth, frameHeight, stride);
 
-  PixelFormat pixf(rbuf);
-  RendererBase rbase(pixf);
-  rbase.clear(RenderBaseColorType(0, 0, 0));
+  litehtml::web_color backgroundColor(0, 0, 0);
+  hgAggRenderer.setRendererColor(backgroundColor);
+  hgAggRenderer.clear();
 
   //// HtmlGrapheasKamva init.
-
-  hg::HgRenderer hgRenderer;
-  hgRenderer.setBlendHLineFunc(
-      [&rbase](int x1, int y, int x2, const litehtml::web_color& color,
-          unsigned char cover) -> void {
-        RenderBaseColorType rbaseColor;
-        rbaseColor.clear();
-        rbaseColor.opacity(color.alpha / 255.0);
-        rbaseColor.r = color.red;
-        rbaseColor.g = color.green;
-        rbaseColor.b = color.blue;
-
-        rbase.blend_hline(x1, y, x2, rbaseColor, cover);
-      });
-
-  hgRenderer.setCopyHLineFunc([&rbase](int x1, int y, int x2,
-                                  const litehtml::web_color& color) -> void {
-    RenderBaseColorType rbaseColor;
-    rbaseColor.clear();
-    rbaseColor.opacity(color.alpha / 255.0);
-    rbaseColor.r = color.red;
-    rbaseColor.g = color.green;
-    rbaseColor.b = color.blue;
-
-    rbase.copy_hline(x1, y, x2, rbaseColor);
-  });
 
   litehtml::font_metrics fm;
   hg::HgContainer container;
@@ -143,11 +111,11 @@ TEST(HgContainerTest, draw_text)
   litehtml::position pos(x, 0, 0, y);
 
   // Set text color.
-  litehtml::web_color color(128, 128, 128, 255);
+  litehtml::web_color textColor(128, 128, 128);
 
   // draw_text()
   container.draw_text(
-      &hgRenderer, "This is some english text", hFont, color, pos);
+      &hgAggRenderer, "This is some english text", hFont, textColor, pos);
 
   // Write our picture to file.
   std::string fileName1 = "HgContainer_1.ppm";
@@ -162,10 +130,11 @@ TEST(HgContainerTest, draw_text)
   //////// Repeat tests for new text.
 
   // Make cleaning before new text.
-  rbase.clear(RenderBaseColorType(0, 0, 0));
+  hgAggRenderer.setRendererColor(backgroundColor);
+  hgAggRenderer.clear();
 
   // draw_text()
-  container.draw_text(&hgRenderer, "some english", hFont, color, pos);
+  container.draw_text(&hgAggRenderer, "some english", hFont, textColor, pos);
 
   // Write our picture to file.
   std::string fileName2 = "HgContainer_2.ppm";

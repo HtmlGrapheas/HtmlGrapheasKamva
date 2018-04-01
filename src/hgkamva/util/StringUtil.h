@@ -21,8 +21,8 @@
  *    along with this program. If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
 
-#ifndef STRING_UTIL_H
-#define STRING_UTIL_H
+#ifndef HG_STRING_UTIL_H
+#define HG_STRING_UTIL_H
 
 #include <string>
 
@@ -46,4 +46,4 @@ inline bool StringUtil::endsWith(
 
 }  // namespace hg
 
-#endif  // STRING_UTIL_H
+#endif  // HG_STRING_UTIL_H

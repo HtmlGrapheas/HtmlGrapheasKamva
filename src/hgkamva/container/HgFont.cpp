@@ -154,7 +154,7 @@ typename HgFont::TextBbox HgFont::getBbox()
   static constexpr int Int_MAX = std::numeric_limits<int>::max();
 
   // Calculate string bounding box in pixels.
-  mFtRasterParams.gray_spans = aggSpannerSizer;
+  mFtRasterParams.gray_spans = sizerFtSpanFunc;
 
   // See http://www.freetype.org/freetype2/docs/glyphs/glyphs-3.html
 
@@ -290,7 +290,7 @@ void HgFont::drawText(
               - note that for RTL scripts pen still goes LTR */
 
   // Set rendering spanner.
-  mFtRasterParams.gray_spans = aggSpannerBlend;
+  mFtRasterParams.gray_spans = blendFtSpanFunc;
 
   // Initialize rendering part of the FtRasterParamsUser.
   mFtRasterParamsUser.mHgRenderer = hgRenderer;
@@ -324,7 +324,7 @@ void HgFont::drawText(
     Unfortunately this can't be done without rendering it (or pretending to).
     After this runs, we get min and max values of coordinates used. */
 // static
-void HgFont::aggSpannerSizer(int y, int count, const FT_Span* spans, void* user)
+void HgFont::sizerFtSpanFunc(int y, int count, const FT_Span* spans, void* user)
 {
   FtRasterParamsUser* ftUser = static_cast<FtRasterParamsUser*>(user);
 
@@ -342,14 +342,15 @@ void HgFont::aggSpannerSizer(int y, int count, const FT_Span* spans, void* user)
 }
 
 // static
-void HgFont::aggSpannerBlend(int y, int count, const FT_Span* spans, void* user)
+void HgFont::blendFtSpanFunc(int y, int count, const FT_Span* spans, void* user)
 {
   FtRasterParamsUser* ftUser = static_cast<FtRasterParamsUser*>(user);
+  ftUser->mHgRenderer->setRendererColor(ftUser->mColor);
 
   for(int i = 0; i < count; ++i) {
     ftUser->mHgRenderer->blendHLine(ftUser->mGlyphX + spans[i].x,
         ftUser->mGlyphY - y, ftUser->mGlyphX + spans[i].x + spans[i].len - 1,
-        ftUser->mColor, spans[i].coverage);
+        spans[i].coverage);
   }
 }
 

@@ -96,6 +96,7 @@ endif()
 include(build_expat)
 include(build_freetype_with_harfbuzz)
 include(build_fontconfig)
+include(build_agg)
 
 
 #-----------------------------------------------------------------------
@@ -113,6 +114,7 @@ add_subdirectory(${HtmlGrapheas_DIR})
 
 # HtmlGrapheasKamva
 set(hgk_HEADERS
+  ${hgk_SRC_DIR}/hgkamva/container/HgAggRenderer.h
   ${hgk_SRC_DIR}/hgkamva/container/HgContainer.h
   ${hgk_SRC_DIR}/hgkamva/container/HgFont.h
   ${hgk_SRC_DIR}/hgkamva/container/HgFontLibrary.h
@@ -173,6 +175,11 @@ if(WITH_HarfBuzz)
   target_link_libraries(${hgk_LIB_NAME} PRIVATE
     ${HARFBUZZ_LIBRARIES} ${FREETYPE_LIBRARIES})
 endif()
+
+# AGG
+# Export AGG includes.
+target_include_directories(${hgk_LIB_NAME} PUBLIC ${AGG_INCLUDE_DIRS})
+target_link_libraries(${hgk_LIB_NAME} PRIVATE ${AGG_LIBRARIES})
 
 
 #-----------------------------------------------------------------------

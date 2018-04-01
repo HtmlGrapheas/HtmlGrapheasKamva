@@ -33,7 +33,7 @@ class HgContainer : public litehtml::document_container
 {
 public:
   HgContainer();
-  virtual ~HgContainer();
+  virtual ~HgContainer() = default;
 
   bool addFontDir(const std::string& dirPath);
 

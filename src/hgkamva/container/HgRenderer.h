@@ -24,8 +24,6 @@
 #ifndef HG_RENDERER_H
 #define HG_RENDERER_H
 
-#include <functional>
-
 #include "litehtml.h"
 
 namespace hg
@@ -33,45 +31,13 @@ namespace hg
 class HgRenderer
 {
 public:
-  using BlendHLineFunc = std::function<void(int x1,
-      int y,
-      int x2,
-      const litehtml::web_color& color,
-      unsigned char cover)>;
+  explicit HgRenderer();
+  virtual ~HgRenderer() = default;
 
-  using CopyHLineFunc = std::function<void(
-      int x1, int y, int x2, const litehtml::web_color& color)>;
-
-  explicit HgRenderer() {}
-  virtual ~HgRenderer() {}
-
-  void setBlendHLineFunc(BlendHLineFunc blendHLineFunc)
-  {
-    mBlendHLineFunc = blendHLineFunc;
-  }
-
-  void blendHLine(int x1,
-      int y,
-      int x2,
-      const litehtml::web_color& color,
-      unsigned char cover)
-  {
-    return mBlendHLineFunc(x1, y, x2, color, cover);
-  }
-
-  void setCopyHLineFunc(CopyHLineFunc copyHLineFunc)
-  {
-    mCopyHLineFunc = copyHLineFunc;
-  }
-
-  void copyHLine(int x1, int y, int x2, const litehtml::web_color& color)
-  {
-    return mCopyHLineFunc(x1, y, x2, color);
-  }
-
-private:
-  BlendHLineFunc mBlendHLineFunc;
-  CopyHLineFunc mCopyHLineFunc;
+  virtual void setRendererColor(const litehtml::web_color& color) = 0;
+  virtual void clear() = 0;
+  virtual void blendHLine(int x1, int y, int x2, unsigned char cover) = 0;
+  virtual void copyHLine(int x1, int y, int x2) = 0;
 };  // class HgRenderer
 
 }  // namespace hg

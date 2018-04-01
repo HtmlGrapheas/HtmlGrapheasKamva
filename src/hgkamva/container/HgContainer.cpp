@@ -34,10 +34,6 @@ HgContainer::HgContainer()
   mHgFontLibrary = std::shared_ptr<HgFontLibrary>(new HgFontLibrary());
 }
 
-HgContainer::~HgContainer()
-{
-}
-
 bool HgContainer::addFontDir(const std::string& dirPath)
 {
   return mHgFontLibrary->addFontDir(dirPath);
@@ -158,12 +154,13 @@ void HgContainer::draw_text(litehtml::uint_ptr hdc,
   if(hgFont->underline() || hgFont->strikeout()) {
     int tw = 0;
     tw = text_width(text, hFont);
+    hgRenderer->setRendererColor(color);
 
     if(hgFont->underline()) {
       // TODO: set line width by font's height.
       // TODO: set line position by font's parameters.
       //hgRenderer->copyHLine(x, y + 1.5, x + tw, color);
-      hgRenderer->copyHLine(x, y + 3, x + tw, color);
+      hgRenderer->copyHLine(x, y + 3, x + tw);
     }
 
     if(hgFont->strikeout()) {
@@ -171,7 +168,7 @@ void HgContainer::draw_text(litehtml::uint_ptr hdc,
       //int lnY = y - HgFont::f26Dot6ToInt(hgFont->xHeight()) / 2.0;
       //hgRenderer->copyHLine(x, lnY - 0.5, x + tw, color);
       int lnY = y - HgFont::f26Dot6ToInt(hgFont->xHeight()) / 2;
-      hgRenderer->copyHLine(x, lnY, x + tw, color);
+      hgRenderer->copyHLine(x, lnY, x + tw);
     }
   }
 }
