@@ -22,6 +22,7 @@
  ****************************************************************************/
 
 #include <memory>
+#include <string>
 
 #include "litehtml.h"
 
@@ -36,7 +37,10 @@ public:
   virtual ~HgContainer() = default;
 
   bool addFontDir(const std::string& dirPath);
-
+  void setScreenDpi(double screenDpi) { mScreenDpi = screenDpi; };
+  void setDefaultFontSize(int size) { mFontSize = size; }
+  void setDefaultFontName(const std::string& name) { mFontName = name; }
+  //
   // litehtml::document_container interface.
   virtual litehtml::uint_ptr create_font(const litehtml::tchar_t* faceName,
       int size,
@@ -102,6 +106,9 @@ public:
 
 private:
   std::shared_ptr<HgFontLibrary> mHgFontLibrary;
+  double mScreenDpi;
+  int mFontSize;
+  std::string mFontName;
 };  // class HgContainer
 
 }  // namespace hg

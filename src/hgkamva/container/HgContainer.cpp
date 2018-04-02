@@ -30,6 +30,9 @@
 namespace hg
 {
 HgContainer::HgContainer()
+    : mScreenDpi(96)
+    , mFontSize(16)
+    , mFontName("Times New Roman")
 {
   mHgFontLibrary = std::shared_ptr<HgFontLibrary>(new HgFontLibrary());
 }
@@ -175,18 +178,17 @@ void HgContainer::draw_text(litehtml::uint_ptr hdc,
 
 int HgContainer::pt_to_px(int pt)
 {
-  return 0;
+  return static_cast<int>(static_cast<double>(pt) * mScreenDpi / 72.0);
 }
 
 int HgContainer::get_default_font_size() const
 {
-  return 0;
+  return mFontSize;
 }
 
 const litehtml::tchar_t* HgContainer::get_default_font_name() const
 {
-  // TODO: set by new method set_default_font_name().
-  return "Tinos";
+  return mFontName.c_str();
 }
 
 void HgContainer::draw_list_marker(
