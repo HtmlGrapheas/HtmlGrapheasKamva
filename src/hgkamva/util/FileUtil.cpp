@@ -26,7 +26,9 @@
 #include <algorithm>
 #include <cstdio>
 #include <fstream>
+#include <ios>
 #include <iterator>
+#include <vector>
 
 namespace hg
 {
@@ -71,6 +73,25 @@ bool FileUtil::compareFiles(
   return std::equal(std::istreambuf_iterator<char>(f1.rdbuf()),
       std::istreambuf_iterator<char>(),
       std::istreambuf_iterator<char>(f2.rdbuf()));
+}
+
+// https://stackoverflow.com/a/525103
+// https://stackoverflow.com/a/43009155
+// static
+std::string FileUtil::readFile(const std::string& fileName)
+{
+  std::ifstream ifs(
+      fileName.c_str(), std::ios::in | std::ios::binary | std::ios::ate);
+
+  std::ifstream::pos_type fileSize = ifs.tellg();
+  if(fileSize < 0)
+    return std::string();
+
+  ifs.seekg(0, std::ios::beg);
+  std::vector<char> bytes(fileSize);
+  ifs.read(&bytes[0], fileSize);
+
+  return std::string(&bytes[0], fileSize);
 }
 
 }  // namespace hg

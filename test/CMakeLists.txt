@@ -64,6 +64,7 @@ if(BUILD_TESTING)
       "${PROJECT_SOURCE_DIR}/test/data/HgContainer_2.ppm"
       "${PROJECT_SOURCE_DIR}/test/data/HgFontTest_1.ppm"
       "${PROJECT_SOURCE_DIR}/test/data/HgFontTest_2.ppm"
+      "${PROJECT_SOURCE_DIR}/test/data/master.css"
 
       # To dir 'data'
       "${HGRAPH_TEST_DATA_DIR}"
@@ -86,6 +87,8 @@ if(BUILD_TESTING)
     )
     
     add_test(NAME ${test_NAME} COMMAND ${test_NAME})
+    
+    # https://cmake.org/pipermail/cmake-developers/2013-June/019217.html
     set_property(TEST ${test_NAME} PROPERTY
       ENVIRONMENT
         HGRAPH_TEST_DIR=${HGRAPH_TEST_DIR}

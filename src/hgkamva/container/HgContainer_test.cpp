@@ -151,3 +151,96 @@ TEST(HgContainerTest, draw_text)
   container.delete_font(hFont);
   delete[] frameBuf;
 }
+
+TEST(HgContainerTest, drawHtmlDocument)
+{
+  //////// Init part.
+
+  // Get dirs from env vars.
+  const char* testDir = std::getenv("HGRAPH_TEST_DIR");
+  EXPECT_NE(testDir, nullptr);
+  const char* fontDir = std::getenv("HGRAPH_TEST_FONT_DIR");
+  EXPECT_NE(fontDir, nullptr);
+  const char* dataDir = std::getenv("HGRAPH_TEST_DATA_DIR");
+  EXPECT_NE(dataDir, nullptr);
+
+  //// AGG init.
+
+  enum
+  {
+    BYTES_PER_PIXEL = 3
+  };
+
+  // The AGG pixel format.
+  using PixelFormat = agg::pixfmt_rgb24;
+
+  unsigned int frameWidth = 640;
+  unsigned int frameHeight = 480;
+  int stride = frameWidth * BYTES_PER_PIXEL;
+
+  unsigned char* frameBuf =
+      new unsigned char[frameWidth * frameHeight * BYTES_PER_PIXEL];
+  EXPECT_NE(frameBuf, nullptr);
+
+  hg::HgAggRenderer<PixelFormat> hgAggRenderer(
+      frameBuf, frameWidth, frameHeight, stride);
+
+  litehtml::web_color backgroundColor(255, 255, 255);
+  hgAggRenderer.setRendererColor(backgroundColor);
+  hgAggRenderer.clear();
+
+  //// HtmlGrapheasKamva init.
+
+  hg::HgContainer container;
+  container.setDefaultFontName("Tinos");
+  container.setDefaultFontSize(16);
+  container.setScreenDpi(96);
+  EXPECT_TRUE(container.addFontDir(fontDir));
+
+  //////// Draw HTML document.
+
+  // Load master CSS.
+  std::string masterCss =
+      hg::FileUtil::readFile(std::string(dataDir) + "/" + "master.css");
+  EXPECT_GE(masterCss.size(), 0);
+
+  litehtml::context htmlContext;
+  htmlContext.load_master_stylesheet(masterCss.c_str());
+
+  // Create HTML document from UTF8 string.
+  std::string htmlText =
+      u8R"(
+        <html>
+          <body>
+            <h1>Test text</h1>
+            <h3>English text</h3>
+            This is <i>some</i> <br> <b>English</b> <b><i>text.</i></b>
+          </body>
+        </html>
+      )";
+  litehtml::document::ptr htmlDocument =
+      litehtml::document::createFromUTF8(htmlText.c_str(), &container,
+          &htmlContext /*, litehtml::css* user_styles = 0 */);
+
+  // Render HTML document.
+  int bestWidth = htmlDocument->render(frameWidth);
+  EXPECT_GE(bestWidth, 0);
+
+  // Draw HTML document.
+  litehtml::position clip(0, 0, frameWidth, frameHeight);
+  htmlDocument->draw(&hgAggRenderer, 0, 0, &clip);
+
+  // Write our picture to file.
+  std::string fileName1 = "HtmlDocument_1.ppm";
+  std::string fileOutTest1 = std::string(testDir) + "/" + fileName1;
+  hg::FileUtil::writePpmFile(
+      frameBuf, frameWidth, frameHeight, fileOutTest1.c_str());
+
+  // Compare our file with prototype.
+  std::string fileTest1 = std::string(dataDir) + "/" + fileName1;
+  EXPECT_TRUE(hg::FileUtil::compareFiles(fileTest1, fileOutTest1));
+
+  //////// Deinit part.
+
+  delete[] frameBuf;
+}

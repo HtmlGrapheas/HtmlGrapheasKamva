@@ -38,6 +38,8 @@ public:
 
   static bool compareFiles(
       const std::string& filePath1, const std::string& filePath2);
+
+  static std::string readFile(const std::string& fileName);
 };
 
 }  // namespace hg
