@@ -64,6 +64,7 @@ if(BUILD_TESTING)
       "${PROJECT_SOURCE_DIR}/test/data/HgContainer_2.ppm"
       "${PROJECT_SOURCE_DIR}/test/data/HgFontTest_1.ppm"
       "${PROJECT_SOURCE_DIR}/test/data/HgFontTest_2.ppm"
+      "${PROJECT_SOURCE_DIR}/test/data/HtmlDocument_1.ppm"
       "${PROJECT_SOURCE_DIR}/test/data/master.css"
 
       # To dir 'data'

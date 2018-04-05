@@ -37,10 +37,21 @@ public:
   virtual ~HgContainer() = default;
 
   bool addFontDir(const std::string& dirPath);
-  void setScreenDpi(double screenDpi) { mScreenDpi = screenDpi; };
-  void setDefaultFontSize(int size) { mFontSize = size; }
-  void setDefaultFontName(const std::string& name) { mFontName = name; }
-  //
+  void setDefaultFontName(const std::string& name);
+  void setDefaultFontSize(int size);
+
+  void setDeviceWidth(int width);
+  void setDeviceHeight(double height);
+  void setDeviceDpiX(double dpi);
+  void setDeviceDpiY(double dpi);
+  void setDisplayAreaWidth(int width);
+  void setDisplayAreaHeight(int height);
+
+  void setDeviceMonochromeBits(int bits);
+  void setDeviceColorBits(int bits);
+  void setDeviceColorIndex(int colorIndex);
+  void setDeviceMediaType(litehtml::media_type type);
+
   // litehtml::document_container interface.
   virtual litehtml::uint_ptr create_font(const litehtml::tchar_t* faceName,
       int size,
@@ -101,14 +112,117 @@ public:
       litehtml::media_features& media) const override;
   virtual void get_language(
       litehtml::tstring& language, litehtml::tstring& culture) const override;
-  //  virtual litehtml::tstring resolve_color(
-  //      const litehtml::tstring& color) const override;
+  //virtual litehtml::tstring resolve_color(
+  //    const litehtml::tstring& color) const override;
 
 private:
   std::shared_ptr<HgFontLibrary> mHgFontLibrary;
-  double mScreenDpi;
-  int mFontSize;
-  std::string mFontName;
+
+  std::string mFontDefaultName;
+  int mDefaultFontSize;
+
+  // (pixels) The width of the rendering surface of the output device.
+  // For continuous media, this is the width of the screen.
+  // For paged media, this is the width of the page sheet size.
+  int mDeviceWidth;
+
+  // (pixels) The height of the rendering surface of the output device.
+  // For continuous media, this is the height of the screen.
+  // For paged media, this is the height of the page sheet size.
+  int mDeviceHeight;
+
+  // The resolution of the output device of the axis X (in DPI).
+  double mDeviceDpiX;
+
+  // The resolution of the output device of the axis Y (in DPI).
+  double mDeviceDpiY;
+
+  // (pixels) The width of the targeted display area of the output device.
+  // For continuous media, this is the width of the viewport
+  // including the size of a rendered scroll bar (if any).
+  // For paged media, this is the width of the page box.
+  int mDisplayAreaWidth;
+
+  // (pixels) The height of the targeted display area of the output device.
+  // For continuous media, this is the height of the viewport
+  // including the size of a rendered scroll bar (if any).
+  // For paged media, this is the height of the page box.
+  int mDisplayAreaHeight;
+
+  // The number of bits per pixel in a monochrome frame buffer.
+  // If the device is not a monochrome device,
+  // the output device value will be 0.
+  int mDeviceMonochromeBits;
+
+  // The number of bits per color component of the output device.
+  // If the device is not a color device, the value is zero.
+  int mDeviceColorBits;
+
+  // The number of entries in the color lookup table of the output device.
+  // If the device does not use a color lookup table, the value is zero.
+  int mDeviceColorIndex;
+
+  litehtml::media_type mDeviceMediaType;
 };  // class HgContainer
+
+inline void HgContainer::setDefaultFontName(const std::string& name)
+{
+  mFontDefaultName = name;
+}
+
+inline void HgContainer::setDefaultFontSize(int size)
+{
+  mDefaultFontSize = size;
+}
+
+inline void HgContainer::setDeviceWidth(int width)
+{
+  mDeviceWidth = width;
+};
+
+inline void HgContainer::setDeviceHeight(double height)
+{
+  mDeviceHeight = height;
+};
+
+inline void HgContainer::setDeviceDpiX(double dpi)
+{
+  mDeviceDpiX = dpi;
+};
+
+inline void HgContainer::setDeviceDpiY(double dpi)
+{
+  mDeviceDpiY = dpi;
+};
+
+inline void HgContainer::setDisplayAreaWidth(int width)
+{
+  mDisplayAreaWidth = width;
+}
+
+inline void HgContainer::setDisplayAreaHeight(int height)
+{
+  mDisplayAreaHeight = height;
+}
+
+inline void HgContainer::setDeviceMonochromeBits(int bits)
+{
+  mDeviceMonochromeBits = bits;
+}
+
+inline void HgContainer::setDeviceColorBits(int bits)
+{
+  mDeviceColorBits = bits;
+}
+
+inline void HgContainer::setDeviceColorIndex(int colorIndex)
+{
+  mDeviceColorIndex = colorIndex;
+}
+
+inline void HgContainer::setDeviceMediaType(litehtml::media_type type)
+{
+  mDeviceMediaType = type;
+}
 
 }  // namespace hg

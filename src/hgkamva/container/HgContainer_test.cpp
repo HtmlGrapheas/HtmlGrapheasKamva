@@ -192,10 +192,23 @@ TEST(HgContainerTest, drawHtmlDocument)
   //// HtmlGrapheasKamva init.
 
   hg::HgContainer container;
-  container.setDefaultFontName("Tinos");
-  container.setDefaultFontSize(16);
-  container.setScreenDpi(96);
+
+  // Set fonts.
   EXPECT_TRUE(container.addFontDir(fontDir));
+  container.setDefaultFontName("Tinos");
+  container.setDefaultFontSize(24);
+
+  // Set device parameters.
+  container.setDeviceWidth(frameWidth);
+  container.setDeviceHeight(frameHeight);
+  container.setDeviceDpiX(96);
+  container.setDeviceDpiY(96);
+  container.setDisplayAreaWidth(frameWidth);
+  container.setDisplayAreaHeight(frameHeight);
+  container.setDeviceMonochromeBits(0);
+  container.setDeviceColorBits(8);
+  container.setDeviceColorIndex(256);
+  container.setDeviceMediaType(litehtml::media_type_screen);
 
   //////// Draw HTML document.
 
@@ -212,9 +225,10 @@ TEST(HgContainerTest, drawHtmlDocument)
       u8R"(
         <html>
           <body>
-            <h1>Test text</h1>
-            <h3>English text</h3>
-            This is <i>some</i> <br> <b>English</b> <b><i>text.</i></b>
+            <center><h1>Tile text</h1></center>
+            <center><h3>Subtitle text</h3></center>
+            This is <i>some</i> <b>English</b> <b><i>text</i></b>
+            <blockquote>for HTML renderer test.</blockquote>
           </body>
         </html>
       )";

@@ -30,9 +30,18 @@
 namespace hg
 {
 HgContainer::HgContainer()
-    : mScreenDpi(96)
-    , mFontSize(16)
-    , mFontName("Times New Roman")
+    : mFontDefaultName("Times New Roman")
+    , mDefaultFontSize(16)
+    , mDeviceWidth(320)
+    , mDeviceHeight(240)
+    , mDeviceDpiX(96)
+    , mDeviceDpiY(96)
+    , mDisplayAreaWidth(320)
+    , mDisplayAreaHeight(240)
+    , mDeviceMonochromeBits(0)
+    , mDeviceColorBits(8)
+    , mDeviceColorIndex(256)
+    , mDeviceMediaType(litehtml::media_type_screen)
 {
   mHgFontLibrary = std::shared_ptr<HgFontLibrary>(new HgFontLibrary());
 }
@@ -178,17 +187,17 @@ void HgContainer::draw_text(litehtml::uint_ptr hdc,
 
 int HgContainer::pt_to_px(int pt)
 {
-  return static_cast<int>(static_cast<double>(pt) * mScreenDpi / 72.0);
+  return static_cast<int>(static_cast<double>(pt) * mDeviceDpiY / 72.0);
 }
 
 int HgContainer::get_default_font_size() const
 {
-  return mFontSize;
+  return mDefaultFontSize;
 }
 
 const litehtml::tchar_t* HgContainer::get_default_font_name() const
 {
-  return mFontName.c_str();
+  return mFontDefaultName.c_str();
 }
 
 void HgContainer::draw_list_marker(
@@ -266,6 +275,8 @@ void HgContainer::del_clip()
 
 void HgContainer::get_client_rect(litehtml::position& client) const
 {
+  client.width = mDisplayAreaWidth;
+  client.height = mDisplayAreaHeight;
 }
 
 std::shared_ptr<litehtml::element> HgContainer::create_element(
@@ -278,6 +289,18 @@ std::shared_ptr<litehtml::element> HgContainer::create_element(
 
 void HgContainer::get_media_features(litehtml::media_features& media) const
 {
+  litehtml::position clientRect;
+  get_client_rect(clientRect);
+
+  media.type = mDeviceMediaType;
+  media.width = clientRect.width;
+  media.height = clientRect.height;
+  media.color = mDeviceColorBits;
+  media.color_index = mDeviceColorIndex;
+  media.monochrome = mDeviceMonochromeBits;
+  media.resolution = mDeviceDpiX;
+  media.device_width = mDeviceWidth;
+  media.device_height = mDeviceHeight;
 }
 
 void HgContainer::get_language(
