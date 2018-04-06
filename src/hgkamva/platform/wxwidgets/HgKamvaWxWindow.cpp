@@ -30,7 +30,7 @@
  * @link http://mrl.nyu.edu/~ajsecord/downloads/wxAGG-1.1.tgz
  */
 
-#include "HgKamvaWxWindow.h"
+#include "hgkamva/platform/wxwidgets/HgKamvaWxWindow.h"
 
 #include <cassert>
 #include <string>
@@ -46,8 +46,9 @@
 namespace hg
 {
 BEGIN_EVENT_TABLE(HgKamvaWxWindow, wxWindow)
-EVT_PAINT(HgKamvaWxWindow::onPaint)
 EVT_SIZE(HgKamvaWxWindow::onSize)
+EVT_PAINT(HgKamvaWxWindow::onPaint)
+EVT_SCROLLWIN(HgKamvaWxWindow::onScrolled)
 EVT_ERASE_BACKGROUND(HgKamvaWxWindow::onEraseBackground)
 END_EVENT_TABLE()
 
@@ -56,10 +57,19 @@ HgKamvaWxWindow::HgKamvaWxWindow(wxWindow* parent,
     const wxPoint& pos,
     const wxSize& size,
     long style)
-    : wxWindow(parent, id, pos, size, style, wxT("HtmlGrapheasKamvaWx"))
+    : wxScrolledCanvas(parent, id, pos, size, style, wxT("HgKamvaWxWindow"))
     , mBitmap(NULL)
+    , mScrollX(0)
+    , mScrollY(0)
+    , mNewScrollX(0)
+    , mNewScrollY(0)
 {
   initHgContainer();
+
+  // This part makes the scrollbars show up.
+  SetScrollRate(1, 1);
+  // Ask the sizer about the needed size.
+  FitInside();
 }
 
 HgKamvaWxWindow::~HgKamvaWxWindow()
@@ -117,15 +127,40 @@ void HgKamvaWxWindow::initHgContainer()
       htmlText.c_str(), &mHgContainer, &htmlContext);
 }
 
-void HgKamvaWxWindow::init(const int width, const int height)
+void HgKamvaWxWindow::renderHtml(const int width, const int height)
 {
+  if(mHtmlDocument && mHtmlDocument->width() == width) {
+    return;
+  }
+
+  mHgContainer.setDeviceWidth(width);
+  mHgContainer.setDeviceHeight(height);
+  mHgContainer.setDisplayAreaWidth(width);
+  mHgContainer.setDisplayAreaHeight(height);
+
+  // Render HTML document.
+  int bestWidth = mHtmlDocument->render(width);
+  assert(bestWidth);
+
+  SetVirtualSize(mHtmlDocument->width(), mHtmlDocument->height());
+  Refresh(false);
+}
+
+void HgKamvaWxWindow::drawHtml(const int width, const int height)
+{
+  if(mBitmap && mBitmap->GetWidth() == width && mBitmap->GetHeight() == height
+      && mScrollX == mNewScrollX && mScrollY == mNewScrollY) {
+    return;
+  }
+
   using PixelFormat = PixelFormatConvertor<wxNativePixelFormat>;
   using PixelData = wxPixelData<wxBitmap, PixelFormat::wxWidgetsType>;
 
-  int oldFrameWidth = 0;
+  mScrollX = mNewScrollX;
+  mScrollY = mNewScrollY;
+
   mMemoryDC.SelectObject(wxNullBitmap);
   if(mBitmap) {
-    oldFrameWidth = mBitmap->GetWidth();
     delete mBitmap;
   }
 
@@ -172,20 +207,9 @@ void HgKamvaWxWindow::init(const int width, const int height)
   hgAggRenderer.setRendererColor(backgroundColor);
   hgAggRenderer.clear();
 
-  mHgContainer.setDeviceWidth(frameWidth);
-  mHgContainer.setDeviceHeight(frameHeight);
-  mHgContainer.setDisplayAreaWidth(frameWidth);
-  mHgContainer.setDisplayAreaHeight(frameHeight);
-
-  // Render HTML document.
-  if(frameWidth != oldFrameWidth) {
-    int bestWidth = mHtmlDocument->render(frameWidth);
-    assert(bestWidth);
-  }
-
   // Draw HTML document.
   litehtml::position clip(0, 0, frameWidth, frameHeight);
-  mHtmlDocument->draw(&hgAggRenderer, 0, 0, &clip);
+  mHtmlDocument->draw(&hgAggRenderer, -mScrollX, -mScrollY, &clip);
 
   // Request a full redraw of the window.
   Refresh(false);
@@ -194,24 +218,15 @@ void HgKamvaWxWindow::init(const int width, const int height)
 void HgKamvaWxWindow::onSize(wxSizeEvent& event)
 {
   const wxSize size = GetClientSize();
-  if(mBitmap && size.GetWidth() == mBitmap->GetWidth()
-      && size.GetHeight() == mBitmap->GetHeight()) {
-    return;
-  }
-
-  init(size.GetWidth(), size.GetHeight());
+  renderHtml(size.GetWidth(), size.GetHeight());
 }
 
 void HgKamvaWxWindow::onPaint(wxPaintEvent& event)
 {
   wxPaintDC dc(this);
 
-  wxCoord width, height;
-  dc.GetSize(&width, &height);
-  if(!mBitmap || mBitmap->GetWidth() != width
-      || mBitmap->GetHeight() != height) {
-    init(width, height);
-  }
+  wxSize size = GetClientSize();
+  drawHtml(size.GetWidth(), size.GetHeight());
 
   // Iterate over regions needing repainting.
   wxRegionIterator regions(GetUpdateRegion());
@@ -222,6 +237,27 @@ void HgKamvaWxWindow::onPaint(wxPaintEvent& event)
         rect.x, rect.y, rect.width, rect.height, &mMemoryDC, rect.x, rect.y);
     ++regions;
   }
+}
+
+void HgKamvaWxWindow::onScrolled(wxScrollWinEvent& event)
+{
+  int xUnit;
+  int yUnit;
+  GetScrollPixelsPerUnit(&xUnit, &yUnit);
+
+  int orient = event.GetOrientation();
+  int pos = GetScrollPos(orient);
+
+  switch(orient) {
+    case wxHORIZONTAL:
+      mNewScrollX = pos * xUnit;
+      break;
+    case wxVERTICAL:
+      mNewScrollY = pos * yUnit;
+      break;
+  }
+
+  Refresh(false);
 }
 
 void HgKamvaWxWindow::onEraseBackground(wxEraseEvent& WXUNUSED(event))

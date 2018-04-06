@@ -37,7 +37,7 @@
 #include <wx/dcclient.h>
 #include <wx/dcmemory.h>
 #include <wx/rawbmp.h>
-#include <wx/window.h>
+#include <wx/scrolwin.h>
 
 #include "litehtml.h"
 
@@ -50,7 +50,7 @@ namespace hg
 /// entire panel and calls the virtual method draw() to draw to the bitmap.
 /// This should be useable anywhere a wxWindow can be, e.g. in actual windows,
 /// buttons, etc.
-class HgKamvaWxWindow : public wxWindow
+class HgKamvaWxWindow : public wxScrolledCanvas
 {
 public:
   /// Create an HtmlGrapheasKamvaWx.
@@ -68,14 +68,18 @@ public:
 protected:
   void initHgContainer();
 
+  void renderHtml(const int width, const int height);
+
   /// Create the bitmap given the current size.
-  void init(const int width, const int height);
+  void drawHtml(const int width, const int height);
+
+  /// Resize the bitmap to match the window.
+  void onSize(wxSizeEvent& event);
 
   /// Paint the bitmap onto the panel.
   void onPaint(wxPaintEvent& event);
 
-  /// Resize the bitmap to match the window.
-  void onSize(wxSizeEvent& event);
+  void onScrolled(wxScrollWinEvent& event);
 
   /// Handle the erase-background event.
   void onEraseBackground(wxEraseEvent& event);
@@ -86,6 +90,11 @@ private:
 
   HgContainer mHgContainer;
   litehtml::document::ptr mHtmlDocument;
+
+  int mScrollX;
+  int mScrollY;
+  int mNewScrollX;
+  int mNewScrollY;
 
   DECLARE_EVENT_TABLE()  /// Allocate wxWidgets storage for event handlers
 };  // class HtmlGrapheasKamvaWx
