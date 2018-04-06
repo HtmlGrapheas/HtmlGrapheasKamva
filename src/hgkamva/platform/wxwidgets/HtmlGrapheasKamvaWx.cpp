@@ -32,17 +32,16 @@
 
 #include "hgkamva/platform/wxwidgets/HtmlGrapheasKamvaWx.h"
 
+#include <cassert>
+#include <string>
+
+#include <wx/filename.h>
+#include <wx/stdpaths.h>
+
+#include "hgkamva/container/HgAggRenderer.h"
+#include "hgkamva/util/FileUtil.h"
+
 #include "hgkamva/platform/wxwidgets/PixelFormatConvertor.h"
-
-#include "agg_bounding_rect.h"
-#include "agg_pixfmt_rgb.h"
-#include "agg_renderer_base.h"
-#include "agg_renderer_primitives.h"
-#include "agg_renderer_scanline.h"
-#include "agg_rendering_buffer.h"
-#include "agg_trans_affine.h"
-
-#include "hgkamva/agg_freetype_harfbuzz.h"
 
 namespace GUI
 {
@@ -58,39 +57,81 @@ HtmlGrapheasKamvaWx::HtmlGrapheasKamvaWx(wxWindow* parent,
     const wxSize& size,
     long style)
     : wxWindow(parent, id, pos, size, style, wxT("HtmlGrapheasKamvaWx"))
-    , bitmap(NULL)
+    , mBitmap(NULL)
 {
+  initHgContainer();
 }
 
 HtmlGrapheasKamvaWx::~HtmlGrapheasKamvaWx()
 {
-  memDC.SelectObject(wxNullBitmap);
-  delete bitmap;
+  mMemoryDC.SelectObject(wxNullBitmap);
+  delete mBitmap;
+}
+
+void HtmlGrapheasKamvaWx::initHgContainer()
+{
+  wxFileName exeFile(wxStandardPaths::Get().GetExecutablePath());
+
+  wxFileName exeDir;
+  exeDir.AssignDir(exeFile.GetPath());
+
+  wxFileName dataDir(exeDir);
+  dataDir.AppendDir("data");
+
+  wxFileName fontDir(exeDir);
+  fontDir.AppendDir("fonts");
+
+  wxFileName masterCssFile(dataDir);
+  masterCssFile.SetFullName("master.css");
+
+  wxFileName htmlFile(dataDir);
+  htmlFile.SetFullName("test.html");
+
+  // Set fonts.
+  bool addedFontDir = mHgContainer.addFontDir(fontDir.GetPath().ToStdString());
+  assert(addedFontDir);
+
+  mHgContainer.setDefaultFontName("Tinos");
+  mHgContainer.setDefaultFontSize(24);
+
+  // Set device parameters.
+  mHgContainer.setDeviceDpiX(96);
+  mHgContainer.setDeviceDpiY(96);
+  mHgContainer.setDeviceMonochromeBits(0);
+  mHgContainer.setDeviceColorBits(8);
+  mHgContainer.setDeviceColorIndex(256);
+  mHgContainer.setDeviceMediaType(litehtml::media_type_screen);
+
+  std::string masterCss =
+      hg::FileUtil::readFile(masterCssFile.GetFullPath().ToStdString());
+  assert(masterCss.size());
+
+  litehtml::context htmlContext;
+  htmlContext.load_master_stylesheet(masterCss.c_str());
+
+  std::string htmlText =
+      hg::FileUtil::readFile(htmlFile.GetFullPath().ToStdString());
+  assert(htmlText.size());
+
+  mHtmlDocument = litehtml::document::createFromUTF8(
+      htmlText.c_str(), &mHgContainer, &htmlContext);
 }
 
 void HtmlGrapheasKamvaWx::init(const int width, const int height)
 {
-  // The conversion between wxWidgets' pixel format and AGG's pixel format.
-  typedef PixelFormatConvertor<wxNativePixelFormat> PixelFormat;
+  using PixelFormat = PixelFormatConvertor<wxNativePixelFormat>;
+  using PixelData = wxPixelData<wxBitmap, PixelFormat::wxWidgetsType>;
 
-  // The wxWidgets "pixel data" type, an accessor to the raw pixels.
-  typedef wxPixelData<wxBitmap, PixelFormat::wxWidgetsType> PixelData;
+  int oldFrameWidth = 0;
+  mMemoryDC.SelectObject(wxNullBitmap);
+  if(mBitmap) {
+    oldFrameWidth = mBitmap->GetWidth();
+    delete mBitmap;
+  }
 
-  // The AGG base renderer.
-  typedef agg::renderer_base<PixelFormat::AGGType> RendererBase;
-
-  // The AGG primitives renderer.
-  typedef agg::renderer_primitives<RendererBase> RendererPrimitives;
-
-  // The AGG solid renderer.
-  typedef agg::renderer_scanline_aa_solid<RendererBase> RendererSolid;
-
-  memDC.SelectObject(wxNullBitmap);
-  delete bitmap;
-
-  bitmap =
+  mBitmap =
       new wxBitmap(width, height, PixelFormat::wxWidgetsType::BitsPerPixel);
-  memDC.SelectObject(*bitmap);
+  mMemoryDC.SelectObject(*mBitmap);
 
   // Attach the AGG rendering buffer to the bitmap
   // and call the user draw() code.
@@ -98,14 +139,16 @@ void HtmlGrapheasKamvaWx::init(const int width, const int height)
   // Draw the bitmap.
   // Get raw access to the wxWidgets bitmap -- this locks the pixels and
   // unlocks on destruction.
-  PixelData data(*bitmap);
-  assert(data);
+  PixelData pixels(*mBitmap);
+  assert(pixels);
 
   // This cast looks like it is ignoring byte-ordering, but the
   // pixel format already explicitly handles that.
-  assert(data.GetPixels().IsOk());
-  wxAlphaPixelFormat::ChannelType* pd =
-      (wxAlphaPixelFormat::ChannelType*) &data.GetPixels().Data();
+  assert(pixels.GetPixels().IsOk());
+
+  wxAlphaPixelFormat::ChannelType* pData =
+      reinterpret_cast<wxAlphaPixelFormat::ChannelType*>(
+          &pixels.GetPixels().Data());
 
   // wxWidgets always returns a pointer to the first row of pixels, whether
   // that is stored at the beginning of the buffer (stride > 0) or at the
@@ -114,28 +157,35 @@ void HtmlGrapheasKamvaWx::init(const int width, const int height)
   // negative strides correctly.)
   // Upshot: if the stride is negative, rewind the pointer from the end of
   // the buffer to the beginning.
-  const int stride = data.GetRowStride();
-  if (stride < 0)
-    pd += (data.GetHeight() - 1) * stride;
+  const int stride = pixels.GetRowStride();
+  if(stride < 0) {
+    pData += (pixels.GetHeight() - 1) * stride;
+  }
 
-  // AGG's rendering buffer, pointing into the bitmap.
-  agg::rendering_buffer rbuf;
-  rbuf.attach(pd, data.GetWidth(), data.GetHeight(), stride);
+  int frameWidth = pixels.GetWidth();
+  int frameHeight = pixels.GetHeight();
 
-  // Draw into the bitmap using AGG.
-  PixelFormat::AGGType pixf(rbuf);
-  RendererBase rbase(pixf);
-  RendererPrimitives rprim(rbase);
-  RendererSolid rsolid(rbase);
+  hg::HgAggRenderer<PixelFormat::AGGType> hgAggRenderer(
+      pData, frameWidth, frameHeight, stride);
 
-  // Draw a rectangle against a background.
-  rbase.clear(PixelFormat::AGGType::color_type(0, 0, 0));
-  rprim.fill_color(PixelFormat::AGGType::color_type(64, 64, 200));
-  rprim.solid_rectangle(rbuf.width() / 4, rbuf.height() / 4,
-      3 * rbuf.width() / 4, 3 * rbuf.height() / 4);
+  litehtml::web_color backgroundColor(255, 255, 255);
+  hgAggRenderer.setRendererColor(backgroundColor);
+  hgAggRenderer.clear();
 
-  // Text drawing with FreeType and HarfBuzz to AGG buffer.
-  agg_ft_hb_draw<PixelFormat::AGGType>(rbase);
+  mHgContainer.setDeviceWidth(frameWidth);
+  mHgContainer.setDeviceHeight(frameHeight);
+  mHgContainer.setDisplayAreaWidth(frameWidth);
+  mHgContainer.setDisplayAreaHeight(frameHeight);
+
+  // Render HTML document.
+  if(frameWidth != oldFrameWidth) {
+    int bestWidth = mHtmlDocument->render(frameWidth);
+    assert(bestWidth);
+  }
+
+  // Draw HTML document.
+  litehtml::position clip(0, 0, frameWidth, frameHeight);
+  mHtmlDocument->draw(&hgAggRenderer, 0, 0, &clip);
 
   // Request a full redraw of the window.
   Refresh(false);
@@ -144,9 +194,10 @@ void HtmlGrapheasKamvaWx::init(const int width, const int height)
 void HtmlGrapheasKamvaWx::onSize(wxSizeEvent& event)
 {
   const wxSize size = GetClientSize();
-  if (bitmap && size.GetWidth() == bitmap->GetWidth()
-      && size.GetHeight() == bitmap->GetHeight())
+  if(mBitmap && size.GetWidth() == mBitmap->GetWidth()
+      && size.GetHeight() == mBitmap->GetHeight()) {
     return;
+  }
 
   init(size.GetWidth(), size.GetHeight());
 }
@@ -157,15 +208,18 @@ void HtmlGrapheasKamvaWx::onPaint(wxPaintEvent& event)
 
   wxCoord width, height;
   dc.GetSize(&width, &height);
-  if (!bitmap || bitmap->GetWidth() != width || bitmap->GetHeight() != height)
+  if(!mBitmap || mBitmap->GetWidth() != width
+      || mBitmap->GetHeight() != height) {
     init(width, height);
+  }
 
   // Iterate over regions needing repainting.
   wxRegionIterator regions(GetUpdateRegion());
   wxRect rect;
-  while (regions) {
+  while(regions) {
     rect = regions.GetRect();
-    dc.Blit(rect.x, rect.y, rect.width, rect.height, &memDC, rect.x, rect.y);
+    dc.Blit(
+        rect.x, rect.y, rect.width, rect.height, &mMemoryDC, rect.x, rect.y);
     ++regions;
   }
 }

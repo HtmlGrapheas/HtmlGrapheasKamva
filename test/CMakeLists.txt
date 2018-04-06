@@ -82,6 +82,10 @@ if(BUILD_TESTING)
       CXX_STANDARD 11
       C_STANDARD 11
     )
+    target_include_directories(${test_NAME} PRIVATE ${FREETYPE_INCLUDE_DIRS})
+    if(WITH_HarfBuzz)
+      target_include_directories(${test_NAME} PRIVATE ${HARFBUZZ_INCLUDE_DIRS})
+    endif()
     target_link_libraries(${test_NAME} PRIVATE
       ${test_LIBS}
       GTest::GTest GTest::Main

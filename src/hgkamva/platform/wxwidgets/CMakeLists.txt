@@ -68,7 +68,7 @@ set_property(TARGET ${lib_NAME} PROPERTY C_STANDARD 11)
 target_include_directories(${lib_NAME} PUBLIC ${PROJECT_SOURCE_DIR})
 
 # HtmlGrapheasKamva
-target_link_libraries(${lib_NAME} PRIVATE htmlgrapheaskamva)
+target_link_libraries(${lib_NAME} PUBLIC htmlgrapheaskamva)
 
 # wxWidgets
 if(USING_WX_SUB_DIR)

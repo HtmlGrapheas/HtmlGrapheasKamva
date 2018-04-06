@@ -133,9 +133,6 @@ set(hgk_SOURCES
   ${hgk_SRC_DIR}/hgkamva/container/HgRenderer.cpp
   ${hgk_SRC_DIR}/hgkamva/util/FileUtil.cpp
   ${hgk_SRC_DIR}/hgkamva/util/StringUtil.cpp
-
-# TODO: remove it from disk
-#  ${hgk_SRC_DIR}/hgkamva/dummy.cpp
 )
 
 add_library(${hgk_LIB_NAME} ${hgk_SOURCES} ${hgk_HEADERS})
@@ -149,7 +146,7 @@ target_include_directories(${hgk_LIB_NAME} PUBLIC ${hgk_SRC_DIR})
 # HtmlGrapheas
 target_link_libraries(${hgk_LIB_NAME} PUBLIC htmlgrapheas)
 
-# External includes
+# External includes (Expat)
 target_include_directories(${hgk_LIB_NAME} PRIVATE
   ${EXTERNAL_INSTALL_DIR}/include
 )
@@ -162,14 +159,12 @@ target_link_libraries(${hgk_LIB_NAME} PRIVATE ${FONTCONFIG_LIBRARY})
 target_link_libraries(${hgk_LIB_NAME} PRIVATE ${EXPAT_LIBRARY})
 
 # FreeType
-# TODO: PUBLIC change to PRIVATE for inc_dirs
-target_include_directories(${hgk_LIB_NAME} PUBLIC ${FREETYPE_INCLUDE_DIRS})
+target_include_directories(${hgk_LIB_NAME} PRIVATE ${FREETYPE_INCLUDE_DIRS})
 target_link_libraries(${hgk_LIB_NAME} PRIVATE ${FREETYPE_LIBRARIES})
 
 # HarfBuzz
 if(WITH_HarfBuzz)
-  # TODO: PUBLIC change to PRIVATE for inc_dirs
-  target_include_directories(${hgk_LIB_NAME} PUBLIC ${HARFBUZZ_INCLUDE_DIRS})
+  target_include_directories(${hgk_LIB_NAME} PRIVATE ${HARFBUZZ_INCLUDE_DIRS})
   # From <freetype sources>/docs/CHANGES:
   #  Note that HarfBuzz depends on FreeType.
   target_link_libraries(${hgk_LIB_NAME} PRIVATE

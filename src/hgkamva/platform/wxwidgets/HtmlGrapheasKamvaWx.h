@@ -39,6 +39,11 @@
 #include <wx/rawbmp.h>
 #include <wx/window.h>
 
+#include "litehtml.h"
+
+#include "hgkamva/container/HgContainer.h"
+
+// TODO: instead GUI use hg namespace.
 namespace GUI
 {
 /// A simple widget that displays a bitmap that AGG can draw on.
@@ -62,6 +67,8 @@ public:
   virtual ~HtmlGrapheasKamvaWx();
 
 protected:
+  void initHgContainer();
+
   /// Create the bitmap given the current size.
   void init(const int width, const int height);
 
@@ -75,8 +82,11 @@ protected:
   void onEraseBackground(wxEraseEvent& event);
 
 private:
-  wxBitmap* bitmap;  ///< wxWidgets bitmap for AGG to draw into
-  wxMemoryDC memDC;  ///< Memory "device context" for drawing the bitmap
+  wxBitmap* mBitmap;  ///< wxWidgets bitmap for AGG to draw into
+  wxMemoryDC mMemoryDC;  ///< Memory "device context" for drawing the bitmap
+
+  hg::HgContainer mHgContainer;
+  litehtml::document::ptr mHtmlDocument;
 
   DECLARE_EVENT_TABLE()  /// Allocate wxWidgets storage for event handlers
 };
