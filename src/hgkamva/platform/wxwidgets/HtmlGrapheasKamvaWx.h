@@ -43,8 +43,7 @@
 
 #include "hgkamva/container/HgContainer.h"
 
-// TODO: instead GUI use hg namespace.
-namespace GUI
+namespace hg
 {
 /// A simple widget that displays a bitmap that AGG can draw on.
 /// It reallocates the bitmap so that it always is the current size of the
@@ -85,11 +84,12 @@ private:
   wxBitmap* mBitmap;  ///< wxWidgets bitmap for AGG to draw into
   wxMemoryDC mMemoryDC;  ///< Memory "device context" for drawing the bitmap
 
-  hg::HgContainer mHgContainer;
+  HgContainer mHgContainer;
   litehtml::document::ptr mHtmlDocument;
 
   DECLARE_EVENT_TABLE()  /// Allocate wxWidgets storage for event handlers
-};
-}
+};  // class HtmlGrapheasKamvaWx
+
+}  // namespace hg
 
 #endif  // HTMLGRAPHEASKAMVAWX_H

@@ -43,7 +43,7 @@
 
 #include "hgkamva/platform/wxwidgets/PixelFormatConvertor.h"
 
-namespace GUI
+namespace hg
 {
 BEGIN_EVENT_TABLE(HtmlGrapheasKamvaWx, wxWindow)
 EVT_PAINT(HtmlGrapheasKamvaWx::onPaint)
@@ -103,14 +103,14 @@ void HtmlGrapheasKamvaWx::initHgContainer()
   mHgContainer.setDeviceMediaType(litehtml::media_type_screen);
 
   std::string masterCss =
-      hg::FileUtil::readFile(masterCssFile.GetFullPath().ToStdString());
+      FileUtil::readFile(masterCssFile.GetFullPath().ToStdString());
   assert(masterCss.size());
 
   litehtml::context htmlContext;
   htmlContext.load_master_stylesheet(masterCss.c_str());
 
   std::string htmlText =
-      hg::FileUtil::readFile(htmlFile.GetFullPath().ToStdString());
+      FileUtil::readFile(htmlFile.GetFullPath().ToStdString());
   assert(htmlText.size());
 
   mHtmlDocument = litehtml::document::createFromUTF8(
@@ -165,7 +165,7 @@ void HtmlGrapheasKamvaWx::init(const int width, const int height)
   int frameWidth = pixels.GetWidth();
   int frameHeight = pixels.GetHeight();
 
-  hg::HgAggRenderer<PixelFormat::AGGType> hgAggRenderer(
+  HgAggRenderer<PixelFormat::AGGType> hgAggRenderer(
       pData, frameWidth, frameHeight, stride);
 
   litehtml::web_color backgroundColor(255, 255, 255);
@@ -228,4 +228,5 @@ void HtmlGrapheasKamvaWx::onEraseBackground(wxEraseEvent& WXUNUSED(event))
 {
   // Do nothing to "avoid flashing in MSW"  Grr.
 }
-}
+
+}  // namespace hg

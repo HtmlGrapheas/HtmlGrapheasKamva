@@ -118,9 +118,10 @@ struct wxWidgetsToAGGHelper<unsigned char, 32, 3, 2, 1, 0>
 {
   typedef agg::pixfmt_abgr32 format;
 };
-}
 
-namespace GUI
+}  // namespace
+
+namespace hg
 {
 /// Convert between a wxWidgets pixel format class
 /// and an AGG pixel format class.
@@ -141,7 +142,8 @@ public:
           wxWidgetsPixelFormat::GREEN,
           wxWidgetsPixelFormat::BLUE,
           wxWidgetsPixelFormat::ALPHA>::format AGGType;
-};
-}  // namespace
+};  // class PixelFormatConvertor
+
+}  // namespace hg
 
 #endif  // WX_AGG_PIXEL_FORMAT_CONVERTOR_H
