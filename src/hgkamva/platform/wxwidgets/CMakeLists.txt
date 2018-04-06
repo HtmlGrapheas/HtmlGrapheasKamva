@@ -53,12 +53,12 @@ endif()
 #-----------------------------------------------------------------------
 
 set(lib_HEADERS
-  HtmlGrapheasKamvaWx.h
+  HgKamvaWxWindow.h
   PixelFormatConvertor.h
 )
 
 set(lib_SOURCES
-  HtmlGrapheasKamvaWx.cpp
+  HgKamvaWxWindow.cpp
 )
 
 add_library(${lib_NAME} ${lib_SOURCES} ${lib_HEADERS})

@@ -50,20 +50,20 @@ namespace hg
 /// entire panel and calls the virtual method draw() to draw to the bitmap.
 /// This should be useable anywhere a wxWindow can be, e.g. in actual windows,
 /// buttons, etc.
-class HtmlGrapheasKamvaWx : public wxWindow
+class HgKamvaWxWindow : public wxWindow
 {
 public:
   /// Create an HtmlGrapheasKamvaWx.
   /// Defaults are taken from wxWindow::wxWindow(), see that documentation
   /// for more information.
-  explicit HtmlGrapheasKamvaWx(wxWindow* parent,
+  explicit HgKamvaWxWindow(wxWindow* parent,
       wxWindowID id = wxID_ANY,
       const wxPoint& pos = wxDefaultPosition,
       const wxSize& size = wxDefaultSize,
       long style = wxTAB_TRAVERSAL);
 
   /// Clean up resources held.
-  virtual ~HtmlGrapheasKamvaWx();
+  virtual ~HgKamvaWxWindow();
 
 protected:
   void initHgContainer();

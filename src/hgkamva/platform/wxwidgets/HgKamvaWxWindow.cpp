@@ -30,7 +30,7 @@
  * @link http://mrl.nyu.edu/~ajsecord/downloads/wxAGG-1.1.tgz
  */
 
-#include "hgkamva/platform/wxwidgets/HtmlGrapheasKamvaWx.h"
+#include "HgKamvaWxWindow.h"
 
 #include <cassert>
 #include <string>
@@ -45,13 +45,13 @@
 
 namespace hg
 {
-BEGIN_EVENT_TABLE(HtmlGrapheasKamvaWx, wxWindow)
-EVT_PAINT(HtmlGrapheasKamvaWx::onPaint)
-EVT_SIZE(HtmlGrapheasKamvaWx::onSize)
-EVT_ERASE_BACKGROUND(HtmlGrapheasKamvaWx::onEraseBackground)
+BEGIN_EVENT_TABLE(HgKamvaWxWindow, wxWindow)
+EVT_PAINT(HgKamvaWxWindow::onPaint)
+EVT_SIZE(HgKamvaWxWindow::onSize)
+EVT_ERASE_BACKGROUND(HgKamvaWxWindow::onEraseBackground)
 END_EVENT_TABLE()
 
-HtmlGrapheasKamvaWx::HtmlGrapheasKamvaWx(wxWindow* parent,
+HgKamvaWxWindow::HgKamvaWxWindow(wxWindow* parent,
     wxWindowID id,
     const wxPoint& pos,
     const wxSize& size,
@@ -62,13 +62,13 @@ HtmlGrapheasKamvaWx::HtmlGrapheasKamvaWx(wxWindow* parent,
   initHgContainer();
 }
 
-HtmlGrapheasKamvaWx::~HtmlGrapheasKamvaWx()
+HgKamvaWxWindow::~HgKamvaWxWindow()
 {
   mMemoryDC.SelectObject(wxNullBitmap);
   delete mBitmap;
 }
 
-void HtmlGrapheasKamvaWx::initHgContainer()
+void HgKamvaWxWindow::initHgContainer()
 {
   wxFileName exeFile(wxStandardPaths::Get().GetExecutablePath());
 
@@ -117,7 +117,7 @@ void HtmlGrapheasKamvaWx::initHgContainer()
       htmlText.c_str(), &mHgContainer, &htmlContext);
 }
 
-void HtmlGrapheasKamvaWx::init(const int width, const int height)
+void HgKamvaWxWindow::init(const int width, const int height)
 {
   using PixelFormat = PixelFormatConvertor<wxNativePixelFormat>;
   using PixelData = wxPixelData<wxBitmap, PixelFormat::wxWidgetsType>;
@@ -191,7 +191,7 @@ void HtmlGrapheasKamvaWx::init(const int width, const int height)
   Refresh(false);
 }
 
-void HtmlGrapheasKamvaWx::onSize(wxSizeEvent& event)
+void HgKamvaWxWindow::onSize(wxSizeEvent& event)
 {
   const wxSize size = GetClientSize();
   if(mBitmap && size.GetWidth() == mBitmap->GetWidth()
@@ -202,7 +202,7 @@ void HtmlGrapheasKamvaWx::onSize(wxSizeEvent& event)
   init(size.GetWidth(), size.GetHeight());
 }
 
-void HtmlGrapheasKamvaWx::onPaint(wxPaintEvent& event)
+void HgKamvaWxWindow::onPaint(wxPaintEvent& event)
 {
   wxPaintDC dc(this);
 
@@ -224,7 +224,7 @@ void HtmlGrapheasKamvaWx::onPaint(wxPaintEvent& event)
   }
 }
 
-void HtmlGrapheasKamvaWx::onEraseBackground(wxEraseEvent& WXUNUSED(event))
+void HgKamvaWxWindow::onEraseBackground(wxEraseEvent& WXUNUSED(event))
 {
   // Do nothing to "avoid flashing in MSW"  Grr.
 }
