@@ -74,7 +74,7 @@ option(BUILD_SHARED_LIBS "Build shared libraries (DLLs)." OFF)
 option(
   gtest_force_shared_crt
   "Use shared (DLL) run-time lib even when Google Test is built as static lib."
-  OFF
+  ON
 )
 option(gtest_build_tests "Build all of gtest's own tests." OFF)
 option(gtest_build_samples "Build gtest's sample programs." OFF)
@@ -94,6 +94,13 @@ option(gmock_build_tests "Build all of Google Mock's own tests." OFF)
 #-----------------------------------------------------------------------
 # Build and install the Google Test.
 #-----------------------------------------------------------------------
+
+# From "FindGTest.cmake":
+#   If compiling with MSVC, this variable can be set to ``MT`` or
+#   ``MD`` (the default) to enable searching a GTest build tree
+if(MSVC)
+  set(GTEST_MSVC_SEARCH "MT")
+endif()
 
 # Try to find already installed lib.
 find_package(GTest QUIET)

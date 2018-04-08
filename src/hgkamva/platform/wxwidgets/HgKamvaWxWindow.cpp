@@ -209,7 +209,7 @@ void HgKamvaWxWindow::drawHtml(const int width, const int height)
 
   // Draw HTML document.
   litehtml::position clip(0, 0, frameWidth, frameHeight);
-  mHtmlDocument->draw(&hgAggRenderer, -mScrollX, -mScrollY, &clip);
+  mHtmlDocument->draw(reinterpret_cast<litehtml::uint_ptr>(&hgAggRenderer), -mScrollX, -mScrollY, &clip);
 
   // Request a full redraw of the window.
   Refresh(false);

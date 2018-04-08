@@ -40,7 +40,7 @@ TEST(HgContainerTest, create_font)
   EXPECT_TRUE(container.addFontDir(fontDir));
   litehtml::uint_ptr hFont = container.create_font(
       "Tinos", 16, 400, litehtml::font_style::fontStyleNormal, 0, &fm);
-  EXPECT_NE(hFont, nullptr);
+  EXPECT_NE(hFont, reinterpret_cast<litehtml::uint_ptr>(nullptr));
 
   EXPECT_EQ(fm.ascent, 15);
   EXPECT_EQ(fm.descent, -4);
@@ -101,7 +101,7 @@ TEST(HgContainerTest, draw_text)
       litehtml::font_decoration_linethrough
           | litehtml::font_decoration_underline,
       &fm);
-  EXPECT_NE(hFont, nullptr);
+  EXPECT_NE(hFont, reinterpret_cast<litehtml::uint_ptr>(nullptr));
 
   //////// Test HgContainer::draw_text().
 
@@ -115,7 +115,7 @@ TEST(HgContainerTest, draw_text)
 
   // draw_text()
   container.draw_text(
-      &hgAggRenderer, "This is some english text", hFont, textColor, pos);
+      reinterpret_cast<litehtml::uint_ptr>(&hgAggRenderer), "This is some english text", hFont, textColor, pos);
 
   // Write our picture to file.
   std::string fileName1 = "HgContainer_1.ppm";
@@ -134,7 +134,7 @@ TEST(HgContainerTest, draw_text)
   hgAggRenderer.clear();
 
   // draw_text()
-  container.draw_text(&hgAggRenderer, "some english", hFont, textColor, pos);
+  container.draw_text(reinterpret_cast<litehtml::uint_ptr>(&hgAggRenderer), "some english", hFont, textColor, pos);
 
   // Write our picture to file.
   std::string fileName2 = "HgContainer_2.ppm";
@@ -242,7 +242,7 @@ TEST(HgContainerTest, drawHtmlDocument)
 
   // Draw HTML document.
   litehtml::position clip(0, 0, frameWidth, frameHeight);
-  htmlDocument->draw(&hgAggRenderer, 0, 0, &clip);
+  htmlDocument->draw(reinterpret_cast<litehtml::uint_ptr>(&hgAggRenderer), 0, 0, &clip);
 
   // Write our picture to file.
   std::string fileName1 = "HtmlDocument_1.ppm";

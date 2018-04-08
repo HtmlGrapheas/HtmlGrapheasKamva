@@ -60,8 +60,10 @@ set(lib_SOURCES
 )
 
 add_library(${lib_NAME} ${lib_SOURCES} ${lib_HEADERS})
-set_property(TARGET ${lib_NAME} PROPERTY CXX_STANDARD 11)
-set_property(TARGET ${lib_NAME} PROPERTY C_STANDARD 11)
+set_target_properties(${lib_NAME} PROPERTIES
+  CXX_STANDARD 11
+  C_STANDARD 11
+)
 # Export HtmlGrapheasKamvaWx includes.
 target_include_directories(${lib_NAME} PUBLIC ${PROJECT_SOURCE_DIR})
 

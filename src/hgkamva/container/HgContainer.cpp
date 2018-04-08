@@ -59,7 +59,7 @@ litehtml::uint_ptr HgContainer::create_font(const litehtml::tchar_t* faceName,
     litehtml::font_metrics* fm)
 {
   if(!fm) {
-    return nullptr;
+    return reinterpret_cast<litehtml::uint_ptr>(nullptr);
   }
 
   HgFont* hgFont = new HgFont(mHgFontLibrary->ftLibrary());
@@ -69,13 +69,13 @@ litehtml::uint_ptr HgContainer::create_font(const litehtml::tchar_t* faceName,
       mHgFontLibrary->getFontFilePath(faceName, size, weight, italic, &result);
 
   if(HgFontLibrary::FontMatches::allMatched != result) {
-    return nullptr;
+    return reinterpret_cast<litehtml::uint_ptr>(nullptr);
   }
   if(filePath.size() == 0) {
-    return nullptr;
+    return reinterpret_cast<litehtml::uint_ptr>(nullptr);
   }
   if(!hgFont->createFtFace(filePath, size)) {
-    return nullptr;
+    return reinterpret_cast<litehtml::uint_ptr>(nullptr);
   }
 
   // Note: for font metric precision (in particular for TTF) see
@@ -95,12 +95,12 @@ litehtml::uint_ptr HgContainer::create_font(const litehtml::tchar_t* faceName,
   hgFont->setStrikeout(decoration & litehtml::font_decoration_linethrough);
   hgFont->setUnderline(decoration & litehtml::font_decoration_underline);
 
-  return static_cast<litehtml::uint_ptr>(hgFont);
+  return reinterpret_cast<litehtml::uint_ptr>(hgFont);
 }
 
 void HgContainer::delete_font(litehtml::uint_ptr hFont)
 {
-  HgFont* hgFont = static_cast<HgFont*>(hFont);
+  HgFont* hgFont = reinterpret_cast<HgFont*>(hFont);
   if(hgFont) {
     hgFont->destroyFtFace();
     delete hgFont;
@@ -110,7 +110,7 @@ void HgContainer::delete_font(litehtml::uint_ptr hFont)
 int HgContainer::text_width(
     const litehtml::tchar_t* text, litehtml::uint_ptr hFont)
 {
-  HgFont* hgFont = static_cast<HgFont*>(hFont);
+  HgFont* hgFont = reinterpret_cast<HgFont*>(hFont);
   if(!hgFont) {
     return 0;
   }
@@ -133,7 +133,7 @@ void HgContainer::draw_text(litehtml::uint_ptr hdc,
     litehtml::web_color color,
     const litehtml::position& pos)
 {
-  HgRenderer* hgRenderer = static_cast<HgRenderer*>(hdc);
+  HgRenderer* hgRenderer = reinterpret_cast<HgRenderer*>(hdc);
   if(!hgRenderer) {
     return;
   }
@@ -142,7 +142,7 @@ void HgContainer::draw_text(litehtml::uint_ptr hdc,
     return;
   }
 
-  HgFont* hgFont = static_cast<HgFont*>(hFont);
+  HgFont* hgFont = reinterpret_cast<HgFont*>(hFont);
   if(!hgFont) {
     return;
   }
