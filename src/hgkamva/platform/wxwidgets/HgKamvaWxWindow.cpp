@@ -48,7 +48,6 @@ namespace hg
 BEGIN_EVENT_TABLE(HgKamvaWxWindow, wxWindow)
 EVT_SIZE(HgKamvaWxWindow::onSize)
 EVT_PAINT(HgKamvaWxWindow::onPaint)
-EVT_SCROLLWIN(HgKamvaWxWindow::onScrolled)
 EVT_ERASE_BACKGROUND(HgKamvaWxWindow::onEraseBackground)
 END_EVENT_TABLE()
 
@@ -224,40 +223,28 @@ void HgKamvaWxWindow::onSize(wxSizeEvent& event)
 void HgKamvaWxWindow::onPaint(wxPaintEvent& event)
 {
   wxPaintDC dc(this);
+  DoPrepareDC(dc);
 
-  wxSize size = GetClientSize();
-  drawHtml(size.GetWidth(), size.GetHeight());
+  int width, height;
+  dc.GetSize(&width, &height);
+
+  // GetScrollPos() do not work on Windows with native scroll bars.
+  GetViewStart(&mNewScrollX, &mNewScrollY);
+
+  drawHtml(width, height);
 
   // Iterate over regions needing repainting.
   wxRegionIterator regions(GetUpdateRegion());
   wxRect rect;
   while(regions) {
     rect = regions.GetRect();
-    dc.Blit(
-        rect.x, rect.y, rect.width, rect.height, &mMemoryDC, rect.x, rect.y);
+    int xd = rect.x + mNewScrollX;
+    int yd = rect.y + mNewScrollY;
+    int xs = rect.x;
+    int ys = rect.y;
+    dc.Blit(xd, yd, rect.width, rect.height, &mMemoryDC, xs, ys);
     ++regions;
   }
-}
-
-void HgKamvaWxWindow::onScrolled(wxScrollWinEvent& event)
-{
-  int xUnit;
-  int yUnit;
-  GetScrollPixelsPerUnit(&xUnit, &yUnit);
-
-  int orient = event.GetOrientation();
-  int pos = GetScrollPos(orient);
-
-  switch(orient) {
-    case wxHORIZONTAL:
-      mNewScrollX = pos * xUnit;
-      break;
-    case wxVERTICAL:
-      mNewScrollY = pos * yUnit;
-      break;
-  }
-
-  Refresh(false);
 }
 
 void HgKamvaWxWindow::onEraseBackground(wxEraseEvent& WXUNUSED(event))

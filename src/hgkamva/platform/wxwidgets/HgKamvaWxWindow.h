@@ -79,8 +79,6 @@ protected:
   /// Paint the bitmap onto the panel.
   void onPaint(wxPaintEvent& event);
 
-  void onScrolled(wxScrollWinEvent& event);
-
   /// Handle the erase-background event.
   void onEraseBackground(wxEraseEvent& event);
 
