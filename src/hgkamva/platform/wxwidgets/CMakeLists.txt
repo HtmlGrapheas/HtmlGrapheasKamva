@@ -35,17 +35,15 @@ if(NOT HtmlGrapheasKamva_DIR)
     "Please set HtmlGrapheasKamva_DIR with path to HtmlGrapheasKamva library.")
 endif()
 
-if(NOT USING_WX_SUB_DIR)
-  add_subdirectory(
-    "${HtmlGrapheasKamva_DIR}"
-    "${PROJECT_BINARY_DIR}/HtmlGrapheasKamva"
-  )
-  
-  # TODO: rewrite AGG's CMake scripts to exclude link_directories().
-  # AGG_LIBRARY_DIRS is cache var from AggConfig.cmake
-  # by find_package(Agg REQUIRED CONFIG) in HtmlGrapheasKamva.
-  link_directories(${AGG_LIBRARY_DIRS})
-endif()
+add_subdirectory(
+  "${HtmlGrapheasKamva_DIR}"
+  "${PROJECT_BINARY_DIR}/HtmlGrapheasKamva"
+)
+
+# TODO: rewrite AGG's CMake scripts to exclude link_directories().
+# AGG_LIBRARY_DIRS is cache var from AggConfig.cmake
+# by find_package(Agg REQUIRED CONFIG) in HtmlGrapheasKamva.
+link_directories(${AGG_LIBRARY_DIRS})
 
 
 #-----------------------------------------------------------------------
@@ -71,13 +69,13 @@ target_include_directories(${lib_NAME} PUBLIC ${PROJECT_SOURCE_DIR})
 target_link_libraries(${lib_NAME} PUBLIC htmlgrapheaskamva)
 
 # wxWidgets
-if(USING_WX_SUB_DIR)
-  target_link_libraries(${lib_NAME} PRIVATE ${WX_lib_COMPONENTS})
-else()
-  target_compile_definitions(${lib_NAME} PRIVATE ${wxWidgets_DEFINITIONS})
-  target_include_directories(${lib_NAME} PRIVATE ${wxWidgets_INCLUDE_DIRS})
-  target_link_libraries(${lib_NAME} PRIVATE ${wxWidgets_LIBRARIES})
+if(WX_USE_FIND_PACKAGE_MODULE)
+  target_compile_definitions(${lib_NAME} PUBLIC ${wxWidgets_DEFINITIONS})
+  target_include_directories(${lib_NAME} PUBLIC ${wxWidgets_INCLUDE_DIRS})
+  target_link_libraries(${lib_NAME} PUBLIC ${wxWidgets_LIBRARIES})
   # TODO:
   #COMPILE_DEFINITIONS_DEBUG ${wxWidgets_DEFINITIONS_DEBUG}
   #wxWidgets_CXX_FLAGS
+else()
+  target_link_libraries(${lib_NAME} PUBLIC ${WX_lib_COMPONENTS})
 endif()
