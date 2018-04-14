@@ -36,6 +36,7 @@ public:
   HgContainer();
   virtual ~HgContainer() = default;
 
+  bool parseAndLoadFontConfig(const std::string& confFile, bool complain);
   bool addFontDir(const std::string& dirPath);
   void setDefaultFontName(const std::string& name);
   void setDefaultFontSize(int size);

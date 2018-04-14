@@ -96,6 +96,13 @@ void HgKamvaWxWindow::initHgContainer()
   wxFileName htmlFile(dataDir);
   htmlFile.SetFullName("test.html");
 
+  // Load font config.
+  wxFileName fontConfFile(fontDir);
+  fontConfFile.SetFullName("fonts.conf");
+  bool loadedFontConfig = mHgContainer.parseAndLoadFontConfig(
+      fontConfFile.GetFullPath().ToStdString(), true);
+  assert(loadedFontConfig);
+
   // Set fonts.
   bool addedFontDir = mHgContainer.addFontDir(fontDir.GetPath().ToStdString());
   assert(addedFontDir);
@@ -208,7 +215,8 @@ void HgKamvaWxWindow::drawHtml(const int width, const int height)
 
   // Draw HTML document.
   litehtml::position clip(0, 0, frameWidth, frameHeight);
-  mHtmlDocument->draw(reinterpret_cast<litehtml::uint_ptr>(&hgAggRenderer), -mScrollX, -mScrollY, &clip);
+  mHtmlDocument->draw(reinterpret_cast<litehtml::uint_ptr>(&hgAggRenderer),
+      -mScrollX, -mScrollY, &clip);
 
   // Request a full redraw of the window.
   Refresh(false);

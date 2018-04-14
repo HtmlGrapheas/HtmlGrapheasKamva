@@ -24,6 +24,7 @@
 #include "hgkamva/container/HgFontLibrary.h"
 
 #include <cstdlib>
+#include <string>
 
 #include "gtest/gtest.h"
 
@@ -38,10 +39,13 @@ TEST(HgFontLibraryTest, getFontFilePath)
 
   hg::HgFontLibrary hgFontLibrary;
 
-  uint_least8_t result;
-  std::string filePath;
+  std::string confFile = std::string(fontDir) + "/fonts.conf";
+  EXPECT_TRUE(hgFontLibrary.parseAndLoadConfig(confFile, true));
 
   EXPECT_TRUE(hgFontLibrary.addFontDir(fontDir));
+
+  uint_least8_t result;
+  std::string filePath;
 
   filePath = hgFontLibrary.getFontFilePath("Some Unknown Font, Tinos", 16, 400,
       litehtml::font_style::fontStyleNormal, &result);

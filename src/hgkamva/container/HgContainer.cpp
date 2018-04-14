@@ -46,6 +46,12 @@ HgContainer::HgContainer()
   mHgFontLibrary = std::shared_ptr<HgFontLibrary>(new HgFontLibrary());
 }
 
+bool HgContainer::parseAndLoadFontConfig(
+    const std::string& confFile, bool complain)
+{
+  return mHgFontLibrary->parseAndLoadConfig(confFile, complain);
+}
+
 bool HgContainer::addFontDir(const std::string& dirPath)
 {
   return mHgFontLibrary->addFontDir(dirPath);
@@ -229,13 +235,9 @@ void HgContainer::draw_borders(litehtml::uint_ptr hdc,
 {
 }
 
-void HgContainer::set_caption(const litehtml::tchar_t* caption)
-{
-}
+void HgContainer::set_caption(const litehtml::tchar_t* caption) {}
 
-void HgContainer::set_base_url(const litehtml::tchar_t* base_url)
-{
-}
+void HgContainer::set_base_url(const litehtml::tchar_t* base_url) {}
 
 void HgContainer::link(const std::shared_ptr<litehtml::document>& ptr,
     const litehtml::element::ptr& el)
@@ -247,9 +249,7 @@ void HgContainer::on_anchor_click(
 {
 }
 
-void HgContainer::set_cursor(const litehtml::tchar_t* cursor)
-{
-}
+void HgContainer::set_cursor(const litehtml::tchar_t* cursor) {}
 
 void HgContainer::transform_text(
     litehtml::tstring& text, litehtml::text_transform tt)
@@ -269,9 +269,7 @@ void HgContainer::set_clip(const litehtml::position& pos,
 {
 }
 
-void HgContainer::del_clip()
-{
-}
+void HgContainer::del_clip() {}
 
 void HgContainer::get_client_rect(litehtml::position& client) const
 {

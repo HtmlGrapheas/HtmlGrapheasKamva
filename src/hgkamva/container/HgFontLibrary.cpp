@@ -27,7 +27,7 @@ namespace hg
 {
 HgFontLibrary::HgFontLibrary()
 {
-  mFcConfig = FcInitLoadConfigAndFonts();
+  mFcConfig = FcConfigCreate();
   FT_Init_FreeType(&mFtLibrary);
 }
 
@@ -35,6 +35,14 @@ HgFontLibrary::~HgFontLibrary()
 {
   FT_Done_FreeType(mFtLibrary);
   FcConfigDestroy(mFcConfig);
+}
+
+bool HgFontLibrary::parseAndLoadConfig(
+    const std::string& confFile, bool complain)
+{
+  const FcChar8* file = reinterpret_cast<const FcChar8*>(confFile.c_str());
+  return FcConfigParseAndLoad(mFcConfig, file, complain)
+      && FcConfigSetCurrent(mFcConfig);
 }
 
 bool HgFontLibrary::addFontDir(const std::string& dirPath)

@@ -75,15 +75,13 @@ TEST(HgFontTest, HgFontTest)
 
   //// HtmlGrapheasKamva init.
 
-  // Create HgFontLibrary and HgFont with it.
+  // Init HgFontLibrary.
   hg::HgFontLibrary hgFontLibrary;
-  hg::HgFont hgFont(hgFontLibrary.ftLibrary());
 
-  //////// Test HgFontLibrary::addFontDir().
+  std::string confFile = std::string(fontDir) + "/fonts.conf";
+  EXPECT_TRUE(hgFontLibrary.parseAndLoadConfig(confFile, true));
 
   EXPECT_TRUE(hgFontLibrary.addFontDir(fontDir));
-
-  //////// Test HgFontLibrary::getFontFilePath().
 
   int pixelSize = 16;
   int weight = 400;
@@ -94,6 +92,9 @@ TEST(HgFontTest, HgFontTest)
       "Tinos", pixelSize, weight, fontStyle, &result);
   EXPECT_EQ(hg::HgFontLibrary::FontMatches::allMatched, result);
   EXPECT_TRUE(hg::StringUtil::endsWith(filePath, "Tinos-Regular.ttf"));
+
+  // Create HgFont with HgFontLibrary.
+  hg::HgFont hgFont(hgFontLibrary.ftLibrary());
 
   //////// Test HgFont::createFtFace().
 
