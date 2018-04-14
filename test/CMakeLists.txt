@@ -54,6 +54,14 @@ if(BUILD_TESTING)
       # To dir 'fonts'
       "${HGRAPH_TEST_FONT_DIR}"
   )
+  
+  add_custom_target(prepare_test_font_conf ALL
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+      "${CMAKE_INSTALL_PREFIX}/etc/fonts"
+
+      # To dir 'fonts'
+      "${HGRAPH_TEST_FONT_DIR}"
+  )
 
   add_custom_target(prepare_test_data ALL
     COMMAND
