@@ -63,16 +63,24 @@ if(BUILD_TESTING)
       "${HGRAPH_TEST_FONT_DIR}"
   )
 
+  set(HGRAPH_TEST_GRAPHICS_DIR "${PROJECT_SOURCE_DIR}/test/data")
+  if(MINGW)
+    set(HGRAPH_TEST_GRAPHICS_DIR "${HGRAPH_TEST_GRAPHICS_DIR}/MinGW")
+  endif()
+  
   add_custom_target(prepare_test_data ALL
     COMMAND
       ${CMAKE_COMMAND} -E make_directory "${HGRAPH_TEST_DATA_DIR}"
 
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
-      "${PROJECT_SOURCE_DIR}/test/data/HgContainer_1.ppm"
-      "${PROJECT_SOURCE_DIR}/test/data/HgContainer_2.ppm"
-      "${PROJECT_SOURCE_DIR}/test/data/HgFontTest_1.ppm"
-      "${PROJECT_SOURCE_DIR}/test/data/HgFontTest_2.ppm"
-      "${PROJECT_SOURCE_DIR}/test/data/HtmlDocument_1.ppm"
+      # Graphic data
+      "${HGRAPH_TEST_GRAPHICS_DIR}/HgContainer_1.ppm"
+      "${HGRAPH_TEST_GRAPHICS_DIR}/HgContainer_2.ppm"
+      "${HGRAPH_TEST_GRAPHICS_DIR}/HgFontTest_1.ppm"
+      "${HGRAPH_TEST_GRAPHICS_DIR}/HgFontTest_2.ppm"
+      "${HGRAPH_TEST_GRAPHICS_DIR}/HtmlDocument_1.ppm"
+
+      # master.css
       "${PROJECT_SOURCE_DIR}/test/data/master.css"
 
       # To dir 'data'
