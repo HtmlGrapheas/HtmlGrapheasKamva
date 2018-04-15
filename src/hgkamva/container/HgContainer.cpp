@@ -65,7 +65,7 @@ litehtml::uint_ptr HgContainer::create_font(const litehtml::tchar_t* faceName,
     litehtml::font_metrics* fm)
 {
   if(!fm) {
-    return reinterpret_cast<litehtml::uint_ptr>(nullptr);
+    return 0;
   }
 
   HgFont* hgFont = new HgFont(mHgFontLibrary->ftLibrary());
@@ -75,13 +75,13 @@ litehtml::uint_ptr HgContainer::create_font(const litehtml::tchar_t* faceName,
       mHgFontLibrary->getFontFilePath(faceName, size, weight, italic, &result);
 
   if(HgFontLibrary::FontMatches::allMatched != result) {
-    return reinterpret_cast<litehtml::uint_ptr>(nullptr);
+    return 0;
   }
   if(filePath.size() == 0) {
-    return reinterpret_cast<litehtml::uint_ptr>(nullptr);
+    return 0;
   }
   if(!hgFont->createFtFace(filePath, size)) {
-    return reinterpret_cast<litehtml::uint_ptr>(nullptr);
+    return 0;
   }
 
   // Note: for font metric precision (in particular for TTF) see

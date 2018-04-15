@@ -43,7 +43,7 @@ TEST(HgContainerTest, create_font)
   EXPECT_TRUE(container.addFontDir(fontDir));
   litehtml::uint_ptr hFont = container.create_font(
       "Tinos", 16, 400, litehtml::font_style::fontStyleNormal, 0, &fm);
-  EXPECT_NE(hFont, reinterpret_cast<litehtml::uint_ptr>(nullptr));
+  EXPECT_TRUE(hFont);
 
   EXPECT_EQ(fm.ascent, 15);
   EXPECT_EQ(fm.descent, -4);
@@ -104,7 +104,7 @@ TEST(HgContainerTest, draw_text)
       litehtml::font_decoration_linethrough
           | litehtml::font_decoration_underline,
       &fm);
-  EXPECT_NE(hFont, reinterpret_cast<litehtml::uint_ptr>(nullptr));
+  EXPECT_TRUE(hFont);
 
   //////// Test HgContainer::draw_text().
 
