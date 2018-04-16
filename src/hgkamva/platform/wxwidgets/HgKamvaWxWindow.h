@@ -33,6 +33,8 @@
 #ifndef HTMLGRAPHEASKAMVAWX_H
 #define HTMLGRAPHEASKAMVAWX_H
 
+#include <memory>
+
 #include <wx/bitmap.h>
 #include <wx/dcclient.h>
 #include <wx/dcmemory.h>
@@ -83,7 +85,7 @@ protected:
   void onEraseBackground(wxEraseEvent& event);
 
 private:
-  wxBitmap* mBitmap;  ///< wxWidgets bitmap for AGG to draw into
+  std::shared_ptr<wxBitmap> mBitmap;  ///< wxWidgets bitmap for AGG to draw into
   wxMemoryDC mMemoryDC;  ///< Memory "device context" for drawing the bitmap
 
   HgContainer mHgContainer;

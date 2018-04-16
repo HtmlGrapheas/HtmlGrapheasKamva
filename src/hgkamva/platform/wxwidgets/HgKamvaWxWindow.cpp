@@ -57,7 +57,7 @@ HgKamvaWxWindow::HgKamvaWxWindow(wxWindow* parent,
     const wxSize& size,
     long style)
     : wxScrolledCanvas(parent, id, pos, size, style, wxT("HgKamvaWxWindow"))
-    , mBitmap(NULL)
+    , mBitmap(nullptr)
     , mScrollX(0)
     , mScrollY(0)
     , mNewScrollX(0)
@@ -74,7 +74,6 @@ HgKamvaWxWindow::HgKamvaWxWindow(wxWindow* parent,
 HgKamvaWxWindow::~HgKamvaWxWindow()
 {
   mMemoryDC.SelectObject(wxNullBitmap);
-  delete mBitmap;
 }
 
 void HgKamvaWxWindow::initHgContainer()
@@ -166,12 +165,9 @@ void HgKamvaWxWindow::drawHtml(const int width, const int height)
   mScrollY = mNewScrollY;
 
   mMemoryDC.SelectObject(wxNullBitmap);
-  if(mBitmap) {
-    delete mBitmap;
-  }
 
-  mBitmap =
-      new wxBitmap(width, height, PixelFormat::wxWidgetsType::BitsPerPixel);
+  mBitmap = std::shared_ptr<wxBitmap>(
+      new wxBitmap(width, height, PixelFormat::wxWidgetsType::BitsPerPixel));
   mMemoryDC.SelectObject(*mBitmap);
 
   // Attach the AGG rendering buffer to the bitmap
