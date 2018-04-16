@@ -123,6 +123,11 @@ android {
             "-DCMAKE_INSTALL_PREFIX=${installDir}",
             "-DEXTERNAL_INSTALL_DIR=${installDir}",
 
+            // No effect on the build system, so turn off.
+            "-Dcmr_BUILD_MULTIPROC=OFF",
+//            "-Dcmr_BUILD_MULTIPROC_CNT=6",
+
+//            "-Dcmr_PRINT_DEBUG=ON",
 //            "-DCMAKE_VERBOSE_MAKEFILE=TRUE",
 
 //            "-DANDROID_PLATFORM=android-9", // ${getNdkPlatformLevel(abi)}
