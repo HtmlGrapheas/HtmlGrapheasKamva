@@ -119,7 +119,7 @@ android {
 
             "-DHtmlGrapheasKamva_DIR=${projectDir}",
             "-DEXTERNAL_DOWNLOAD_DIR=${downloadDir}",
-            "-DEXTERNAL_UNPACKED_SRC_DIR=${downloadDir}/.external_unpacked",
+            "-DEXTERNAL_UNPACKED_SRC_DIR=${downloadDir}/.unpacked_android",
             "-DCMAKE_INSTALL_PREFIX=${installDir}",
             "-DEXTERNAL_INSTALL_DIR=${installDir}",
 
