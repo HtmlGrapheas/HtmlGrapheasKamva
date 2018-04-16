@@ -38,7 +38,7 @@ extern "C" {
 #endif
 
 JNIEXPORT void JNICALL
-Java_ru_feographia_htmlgrapheas_HtmlGrapheasKamvaAndroidJni_drawIntoBitmap(
+Java_ru_feographia_htmlgrapheaskamva_HtmlGrapheasKamvaAndroidJni_drawIntoBitmap(
     JNIEnv* env, jclass type, jobject bitmap)
 {
   // https://github.com/AndroidDeveloperLB/AndroidJniBitmapOperations
@@ -50,12 +50,12 @@ Java_ru_feographia_htmlgrapheas_HtmlGrapheasKamvaAndroidJni_drawIntoBitmap(
 
   int ret;
   void* p_pixels;
-  if ((ret = AndroidBitmap_lockPixels(env, bitmap, &p_pixels)) < 0) {
+  if((ret = AndroidBitmap_lockPixels(env, bitmap, &p_pixels)) < 0) {
     //LOGE("AndroidBitmap_lockPixels() failed! Error=%d", ret);
     return;
   }
 
-  fgr::HtmlGrapheasKamvaAndroid::drawIntoBitmap(p_pixels, bitmapInfo.width,
+  hg::HtmlGrapheasKamvaAndroid::drawIntoBitmap(p_pixels, bitmapInfo.width,
       bitmapInfo.height, bitmapInfo.stride, bitmapInfo.format);
 
   AndroidBitmap_unlockPixels(env, bitmap);

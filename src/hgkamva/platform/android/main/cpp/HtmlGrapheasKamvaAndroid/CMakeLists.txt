@@ -24,6 +24,7 @@
 cmake_minimum_required(VERSION 3.2 FATAL_ERROR)
 
 project(HtmlGrapheasKamvaAndroid CXX)
+set(lib_NAME "htmlgrapheaskamvaandroid")
 
 #-----------------------------------------------------------------------
 # HtmlGrapheasKamva
@@ -39,12 +40,15 @@ add_subdirectory(
   "${PROJECT_BINARY_DIR}/HtmlGrapheasKamva"
 )
 
+# TODO: rewrite AGG's CMake scripts to exclude link_directories().
+# AGG_LIBRARY_DIRS is cache var from AggConfig.cmake
+# by find_package(Agg REQUIRED CONFIG) in HtmlGrapheasKamva.
+link_directories(${AGG_LIBRARY_DIRS})
+
 
 #-----------------------------------------------------------------------
 # Android platform
 #-----------------------------------------------------------------------
-
-set(lib_NAME "htmlgrapheaskamvaandroid")
 
 set(lib_HEADERS
   HtmlGrapheasKamvaAndroid.h
@@ -61,8 +65,10 @@ set(lib_SOURCES
 link_directories(${AGG_LIBRARY_DIRS})
 
 add_library(${lib_NAME} SHARED ${lib_SOURCES} ${lib_HEADERS})
-set_property(TARGET ${lib_NAME} PROPERTY CXX_STANDARD 11)
-set_property(TARGET ${lib_NAME} PROPERTY C_STANDARD 11)
+set_target_properties(${lib_NAME} PROPERTIES
+  CXX_STANDARD 11
+  C_STANDARD 11
+)
 
 # HtmlGrapheasKamva
 target_link_libraries(${lib_NAME} PRIVATE htmlgrapheaskamva)

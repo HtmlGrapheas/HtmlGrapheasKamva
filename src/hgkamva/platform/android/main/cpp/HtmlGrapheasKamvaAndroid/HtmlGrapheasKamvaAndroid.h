@@ -26,7 +26,7 @@
 
 #include <stdint.h>
 
-namespace fgr
+namespace hg
 {
 class HtmlGrapheasKamvaAndroid
 {
@@ -41,7 +41,8 @@ private:
   template <class PixelFormat>
   static bool drawIntoBitmap_pixfmt(
       void* p_pixels, uint32_t width, uint32_t height, uint32_t stride);
-};
-}
+};  // class HtmlGrapheasKamvaAndroid
+
+}  // namespace hg
 
 #endif  // HTMLGRAPHEASKAMVAANDROID_H

@@ -38,7 +38,7 @@
 
 #include "hgkamva/agg_freetype_harfbuzz.h"
 
-namespace fgr
+namespace hg
 {
 // static
 bool HtmlGrapheasKamvaAndroid::drawIntoBitmap(void* p_pixels,
@@ -47,7 +47,7 @@ bool HtmlGrapheasKamvaAndroid::drawIntoBitmap(void* p_pixels,
     uint32_t stride,
     uint32_t format)
 {
-  switch (format) {
+  switch(format) {
     case ANDROID_BITMAP_FORMAT_RGB_565: {
       return drawIntoBitmap_pixfmt<agg::pixfmt_rgb565>(
           p_pixels, width, height, stride);
@@ -92,4 +92,4 @@ bool HtmlGrapheasKamvaAndroid::drawIntoBitmap_pixfmt(
   return true;
 }
 
-}  // namespace fgr
+}  // namespace hg
