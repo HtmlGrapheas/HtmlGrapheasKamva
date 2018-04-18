@@ -29,19 +29,6 @@ set(hgk_SRC_DIR "${PROJECT_SOURCE_DIR}/src")
 
 
 #-----------------------------------------------------------------------
-# Configure to find_package.
-#-----------------------------------------------------------------------
-
-# Set CMake's search path for find_package(CONFIG mode), find_program(),
-# find_library(), find_file(), and find_path() commands.
-list(APPEND CMAKE_PREFIX_PATH "${EXTERNAL_INSTALL_DIR}")
-
-if(ANDROID)
-  list(APPEND CMAKE_FIND_ROOT_PATH "${EXTERNAL_INSTALL_DIR}")
-endif()
-
-
-#-----------------------------------------------------------------------
 # Configure external libs directories.
 #-----------------------------------------------------------------------
 
@@ -52,8 +39,25 @@ endif()
 if(NOT EXTERNAL_UNPACKED_SRC_DIR)
   set(EXTERNAL_UNPACKED_SRC_DIR "${PROJECT_BINARY_DIR}/external/sources")
 endif()
-set(EXTERNAL_BIN_DIR "${PROJECT_BINARY_DIR}/external/build")
-set(EXTERNAL_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}")
+if(NOT EXTERNAL_BIN_DIR)
+  set(EXTERNAL_BIN_DIR "${PROJECT_BINARY_DIR}/external/build")
+endif()
+if(NOT EXTERNAL_INSTALL_DIR)
+  set(EXTERNAL_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}")
+endif()
+
+
+#-----------------------------------------------------------------------
+# Configure to find_package.
+#-----------------------------------------------------------------------
+
+# Set CMake's search path for find_package(CONFIG mode), find_program(),
+# find_library(), find_file(), and find_path() commands.
+list(APPEND CMAKE_PREFIX_PATH "${EXTERNAL_INSTALL_DIR}")
+
+if(ANDROID)
+  list(APPEND CMAKE_FIND_ROOT_PATH "${EXTERNAL_INSTALL_DIR}")
+endif()
 
 
 #-----------------------------------------------------------------------
