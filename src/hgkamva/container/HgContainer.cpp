@@ -25,7 +25,7 @@
 
 #include "hgkamva/container/HgFont.h"
 #include "hgkamva/container/HgFontLibrary.h"
-#include "hgkamva/container/HgPaint.h"
+#include "hgkamva/container/HgPainter.h"
 
 namespace hg
 {
@@ -139,7 +139,7 @@ void HgContainer::draw_text(litehtml::uint_ptr hdc,
     litehtml::web_color color,
     const litehtml::position& pos)
 {
-  HgPaint* hgRenderer = reinterpret_cast<HgPaint*>(hdc);
+  HgPainter* hgRenderer = reinterpret_cast<HgPainter*>(hdc);
   if(!hgRenderer) {
     return;
   }

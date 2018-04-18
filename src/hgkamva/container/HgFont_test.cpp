@@ -29,7 +29,7 @@
 
 #include "agg_pixfmt_rgb.h"
 
-#include "hgkamva/container/HgAggPaint.h"
+#include "hgkamva/container/HgAggPainter.h"
 #include "hgkamva/container/HgFontLibrary.h"
 #include "hgkamva/util/FileUtil.h"
 #include "hgkamva/util/StringUtil.h"
@@ -66,7 +66,7 @@ TEST(HgFontTest, HgFontTest)
   unsigned char* frameBuf = new unsigned char[frameWidth * frameHeight * 3];
   EXPECT_NE(frameBuf, nullptr);
 
-  hg::HgAggPaint<PixelFormat> hgAggPainter;
+  hg::HgAggPainter<PixelFormat> hgAggPainter;
   hgAggPainter.attach(frameBuf, frameWidth, frameHeight, stride);
 
   litehtml::web_color backgroundColor(0, 0, 0);

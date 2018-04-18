@@ -28,12 +28,11 @@
 
 namespace hg
 {
-// TODO: HgPaint to HgPainter
-class HgPaint
+class HgPainter
 {
 public:
-  explicit HgPaint();
-  virtual ~HgPaint() = default;
+  explicit HgPainter();
+  virtual ~HgPainter() = default;
 
   virtual void attach(unsigned char* buffer,
       unsigned int width,

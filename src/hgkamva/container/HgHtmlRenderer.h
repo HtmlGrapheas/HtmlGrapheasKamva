@@ -30,14 +30,14 @@
 #include "litehtml.h"
 
 #include "hgkamva/container/HgContainer.h"
-#include "hgkamva/container/HgPaint.h"
+#include "hgkamva/container/HgPainter.h"
 
 namespace hg
 {
 class HgHtmlRenderer
 {
 public:
-  explicit HgHtmlRenderer(HgPaint* painter);
+  explicit HgHtmlRenderer(HgPainter* painter);
   virtual ~HgHtmlRenderer() = default;
 
   void createHtmlDocumentFromUtf8(const std::string& htmlText);
@@ -56,7 +56,7 @@ public:
   litehtml::document::ptr getHtmlDocument();
 
 private:
-  HgPaint* mHgPainter;
+  HgPainter* mHgPainter;
   litehtml::web_color mBackgroundColor;
 
   std::shared_ptr<HgContainer> mHgContainer;

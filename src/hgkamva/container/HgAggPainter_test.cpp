@@ -21,31 +21,4 @@
  *    along with this program. If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
 
-#ifndef HG_AGG_HTML_RENDERER_H
-#define HG_AGG_HTML_RENDERER_H
-
-#include "hgkamva/container/HgAggPainter.h"
-#include "hgkamva/container/HgHtmlRenderer.h"
-
-namespace hg
-{
-template <typename PixelFormat>
-class HgAggHtmlRenderer : public HgHtmlRenderer
-{
-public:
-  explicit HgAggHtmlRenderer();
-  virtual ~HgAggHtmlRenderer() = default;
-
-private:
-  HgAggPainter<PixelFormat> mHgAggPainter;
-};
-
-template <typename PixelFormat>
-HgAggHtmlRenderer<PixelFormat>::HgAggHtmlRenderer()
-    : HgHtmlRenderer(&mHgAggPainter)
-{
-}
-
-}  // namespace hg
-
-#endif  // HG_AGG_HTML_RENDERER_H
+#include <hgkamva/container/HgAggPainter.h>

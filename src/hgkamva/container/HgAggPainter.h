@@ -24,15 +24,14 @@
 #ifndef HG_AGG_PAINTER_H
 #define HG_AGG_PAINTER_H
 
+#include <hgkamva/container/HgPainter.h>
 #include "agg_renderer_base.h"
 
-#include "hgkamva/container/HgPaint.h"
 
 namespace hg
 {
-// TODO: HgAggPaint to HgAggPainter
 template <typename PixelFormat>
-class HgAggPaint : public HgPaint
+class HgAggPainter : public HgPainter
 {
 private:
   // The AGG base renderer.
@@ -41,8 +40,8 @@ private:
   using RendererColor = typename RendererBase::color_type;
 
 public:
-  explicit HgAggPaint();
-  virtual ~HgAggPaint() = default;
+  explicit HgAggPainter();
+  virtual ~HgAggPainter() = default;
 
   // HgRenderer interface.
   virtual void attach(unsigned char* buffer,
@@ -62,14 +61,14 @@ private:
 };  // class HgAggRenderer
 
 template <typename PixelFormat>
-HgAggPaint<PixelFormat>::HgAggPaint()
-    : HgPaint()
+HgAggPainter<PixelFormat>::HgAggPainter()
+    : HgPainter()
     , mPixelFormat(mRenderingBuffer)
 {
 }
 
 template <typename PixelFormat>
-inline void HgAggPaint<PixelFormat>::attach(
+inline void HgAggPainter<PixelFormat>::attach(
     unsigned char* buffer, unsigned int width, unsigned int height, int stride)
 {
   mRenderingBuffer.attach(buffer, width, height, stride);
@@ -77,7 +76,7 @@ inline void HgAggPaint<PixelFormat>::attach(
 }
 
 template <typename PixelFormat>
-inline void HgAggPaint<PixelFormat>::setRendererColor(
+inline void HgAggPainter<PixelFormat>::setRendererColor(
     const litehtml::web_color& color)
 {
   mRendererColor.clear();
@@ -88,20 +87,20 @@ inline void HgAggPaint<PixelFormat>::setRendererColor(
 }
 
 template <typename PixelFormat>
-inline void HgAggPaint<PixelFormat>::clear()
+inline void HgAggPainter<PixelFormat>::clear()
 {
   mRendererBase.clear(mRendererColor);
 }
 
 template <typename PixelFormat>
-inline void HgAggPaint<PixelFormat>::HgAggPaint::blendHLine(
+inline void HgAggPainter<PixelFormat>::HgAggPainter::blendHLine(
     int x1, int y, int x2, unsigned char cover)
 {
   mRendererBase.blend_hline(x1, y, x2, mRendererColor, cover);
 }
 
 template <typename PixelFormat>
-inline void HgAggPaint<PixelFormat>::HgAggPaint::copyHLine(
+inline void HgAggPainter<PixelFormat>::HgAggPainter::copyHLine(
     int x1, int y, int x2)
 {
   mRendererBase.copy_hline(x1, y, x2, mRendererColor);

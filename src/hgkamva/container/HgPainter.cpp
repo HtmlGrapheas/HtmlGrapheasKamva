@@ -21,11 +21,11 @@
  *    along with this program. If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
 
-#include "hgkamva/container/HgPaint.h"
+#include <hgkamva/container/HgPainter.h>
 
 namespace hg
 {
-HgPaint::HgPaint()
+HgPainter::HgPainter()
 {
 }
 

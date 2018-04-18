@@ -25,11 +25,9 @@
 
 #include <cassert>
 
-#include "hgkamva/container/HgPaint.h"
-
 namespace hg
 {
-HgHtmlRenderer::HgHtmlRenderer(HgPaint* painter)
+HgHtmlRenderer::HgHtmlRenderer(HgPainter* painter)
     : mHgPainter(painter)
     , mBackgroundColor(255, 255, 255)
     , mHtmlDocument(nullptr)
