@@ -29,7 +29,7 @@
 
 #include "agg_pixfmt_rgb.h"
 
-#include "hgkamva/container/HgAggPaint.h'
+#include "hgkamva/container/HgAggPaint.h"
 #include "hgkamva/container/HgFontLibrary.h"
 #include "hgkamva/util/FileUtil.h"
 #include "hgkamva/util/StringUtil.h"
