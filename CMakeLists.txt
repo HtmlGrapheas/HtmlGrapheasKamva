@@ -114,10 +114,12 @@ add_subdirectory(${HtmlGrapheas_DIR})
 
 # HtmlGrapheasKamva
 set(hgk_HEADERS
+  ${hgk_SRC_DIR}/hgkamva/container/HgAggHtmlRenderer.h
   ${hgk_SRC_DIR}/hgkamva/container/HgAggPaint.h
   ${hgk_SRC_DIR}/hgkamva/container/HgContainer.h
   ${hgk_SRC_DIR}/hgkamva/container/HgFont.h
   ${hgk_SRC_DIR}/hgkamva/container/HgFontLibrary.h
+  ${hgk_SRC_DIR}/hgkamva/container/HgHtmlRenderer.h
   ${hgk_SRC_DIR}/hgkamva/container/HgPaint.h
   ${hgk_SRC_DIR}/hgkamva/util/FileUtil.h
   ${hgk_SRC_DIR}/hgkamva/util/StringUtil.h
@@ -130,6 +132,7 @@ set(hgk_SOURCES
   ${hgk_SRC_DIR}/hgkamva/container/HgContainer.cpp
   ${hgk_SRC_DIR}/hgkamva/container/HgFont.cpp
   ${hgk_SRC_DIR}/hgkamva/container/HgFontLibrary.cpp
+  ${hgk_SRC_DIR}/hgkamva/container/HgHtmlRenderer.cpp
   ${hgk_SRC_DIR}/hgkamva/container/HgPaint.cpp
   ${hgk_SRC_DIR}/hgkamva/util/FileUtil.cpp
   ${hgk_SRC_DIR}/hgkamva/util/StringUtil.cpp

@@ -1,11 +1,11 @@
 /*****************************************************************************
- * Project:  Feographia
- * Purpose:  A program to work with the biblical text
+ * Project:  HtmlGrapheas
+ * Purpose:  HTML text editor library
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  *****************************************************************************
- *   Copyright (c) 2015-2017 NikitaFeodonit
+ *   Copyright (c) 2017-2018 NikitaFeodonit
  *
- *    This file is part of the Feographia project.
+ *    This file is part of the HtmlGrapheas project.
  *
  *    This program is free software: you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published

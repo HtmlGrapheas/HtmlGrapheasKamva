@@ -49,9 +49,9 @@ public:
   };
 
   explicit HgFontLibrary();
-  virtual ~HgFontLibrary();
+  ~HgFontLibrary();
 
-  bool parseAndLoadConfig(const std::string& confFile, bool complain);
+  bool parseAndLoadConfigFromMemory(const std::string& fontConfig, bool complain);
   bool addFontDir(const std::string& dirPath);
 
   std::string getFontFilePath(const std::string& names,

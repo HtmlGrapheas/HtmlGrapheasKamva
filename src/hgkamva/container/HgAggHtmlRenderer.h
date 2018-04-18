@@ -21,30 +21,31 @@
  *    along with this program. If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
 
-#ifndef HG_PAINTER_H
-#define HG_PAINTER_H
+#ifndef HG_AGG_HTML_RENDERER_H
+#define HG_AGG_HTML_RENDERER_H
 
-#include "litehtml.h"
+#include "hgkamva/container/HgAggPaint.h"
+#include "hgkamva/container/HgHtmlRenderer.h"
 
 namespace hg
 {
-// TODO: HgPaint to HgPainter
-class HgPaint
+template <typename PixelFormat>
+class HgAggHtmlRenderer : public HgHtmlRenderer
 {
 public:
-  explicit HgPaint();
-  virtual ~HgPaint() = default;
+  explicit HgAggHtmlRenderer();
+  virtual ~HgAggHtmlRenderer() = default;
 
-  virtual void attach(unsigned char* buffer,
-      unsigned int width,
-      unsigned int height,
-      int stride) = 0;
-  virtual void setRendererColor(const litehtml::web_color& color) = 0;
-  virtual void clear() = 0;
-  virtual void blendHLine(int x1, int y, int x2, unsigned char cover) = 0;
-  virtual void copyHLine(int x1, int y, int x2) = 0;
-};  // class HgRenderer
+private:
+  HgAggPaint<PixelFormat> mHgAggPainter;
+};
+
+template <typename PixelFormat>
+HgAggHtmlRenderer<PixelFormat>::HgAggHtmlRenderer()
+    : HgHtmlRenderer(&mHgAggPainter)
+{
+}
 
 }  // namespace hg
 
-#endif  // HG_PAINTER_H
+#endif  // HG_AGG_HTML_RENDERER_H

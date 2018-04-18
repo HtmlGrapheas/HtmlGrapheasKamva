@@ -21,6 +21,9 @@
  *    along with this program. If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
 
+#ifndef HG_CONTAINER_H
+#define HG_CONTAINER_H
+
 #include <memory>
 #include <string>
 
@@ -36,7 +39,8 @@ public:
   HgContainer();
   virtual ~HgContainer() = default;
 
-  bool parseAndLoadFontConfig(const std::string& confFile, bool complain);
+  bool parseAndLoadFontConfigFromMemory(
+      const std::string& fontConfig, bool complain);
   bool addFontDir(const std::string& dirPath);
   void setDefaultFontName(const std::string& name);
   void setDefaultFontSize(int size);
@@ -227,3 +231,5 @@ inline void HgContainer::setDeviceMediaType(litehtml::media_type type)
 }
 
 }  // namespace hg
+
+#endif  // HG_CONTAINER_H

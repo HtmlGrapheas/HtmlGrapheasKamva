@@ -40,10 +40,11 @@
 #include <wx/dcmemory.h>
 #include <wx/rawbmp.h>
 #include <wx/scrolwin.h>
-
-#include "litehtml.h"
+#include <wx/windowid.h>
 
 #include "hgkamva/container/HgContainer.h"
+#include "hgkamva/container/HgAggHtmlRenderer.h"
+#include "hgkamva/platform/wxwidgets/PixelFormatConvertor.h"
 
 namespace hg
 {
@@ -54,6 +55,10 @@ namespace hg
 /// buttons, etc.
 class HgKamvaWxWindow : public wxScrolledCanvas
 {
+private:
+  using PixelFormat = PixelFormatConvertor<wxNativePixelFormat>;
+  using PixelData = wxPixelData<wxBitmap, PixelFormat::wxWidgetsType>;
+
 public:
   /// Create an HtmlGrapheasKamvaWx.
   /// Defaults are taken from wxWindow::wxWindow(), see that documentation
@@ -88,8 +93,7 @@ private:
   std::shared_ptr<wxBitmap> mBitmap;  ///< wxWidgets bitmap for AGG to draw into
   wxMemoryDC mMemoryDC;  ///< Memory "device context" for drawing the bitmap
 
-  HgContainer mHgContainer;
-  litehtml::document::ptr mHtmlDocument;
+  HgAggHtmlRenderer<PixelFormat::AGGType> mHgAggHtmlRenderer;
 
   int mScrollX;
   int mScrollY;

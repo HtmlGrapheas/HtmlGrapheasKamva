@@ -28,6 +28,7 @@
 
 #include "gtest/gtest.h"
 
+#include "hgkamva/util/FileUtil.h"
 #include "hgkamva/util/StringUtil.h"
 
 TEST(HgFontLibraryTest, getFontFilePath)
@@ -40,7 +41,10 @@ TEST(HgFontLibraryTest, getFontFilePath)
   hg::HgFontLibrary hgFontLibrary;
 
   std::string confFile = std::string(fontDir) + "/fonts.conf";
-  EXPECT_TRUE(hgFontLibrary.parseAndLoadConfig(confFile, true));
+  std::string fontConfig = hg::FileUtil::readFile(confFile);
+  EXPECT_GE(fontConfig.size(), 0);
+
+  EXPECT_TRUE(hgFontLibrary.parseAndLoadConfigFromMemory(fontConfig, true));
 
   EXPECT_TRUE(hgFontLibrary.addFontDir(fontDir));
 

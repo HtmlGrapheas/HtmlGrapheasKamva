@@ -21,8 +21,8 @@
  *    along with this program. If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
 
-#ifndef HG_AGG_RENDERER_H
-#define HG_AGG_RENDERER_H
+#ifndef HG_AGG_PAINTER_H
+#define HG_AGG_PAINTER_H
 
 #include "agg_renderer_base.h"
 
@@ -30,6 +30,7 @@
 
 namespace hg
 {
+// TODO: HgAggPaint to HgAggPainter
 template <typename PixelFormat>
 class HgAggPaint : public HgPaint
 {
@@ -40,14 +41,14 @@ private:
   using RendererColor = typename RendererBase::color_type;
 
 public:
-  explicit HgAggPaint() = delete;
-  explicit HgAggPaint(unsigned char* buffer,
-      unsigned int width,
-      unsigned int height,
-      int stride);
+  explicit HgAggPaint();
   virtual ~HgAggPaint() = default;
 
   // HgRenderer interface.
+  virtual void attach(unsigned char* buffer,
+      unsigned int width,
+      unsigned int height,
+      int stride) override;
   virtual void setRendererColor(const litehtml::web_color& color) override;
   virtual void clear() override;
   virtual void blendHLine(int x1, int y, int x2, unsigned char cover) override;
@@ -61,13 +62,18 @@ private:
 };  // class HgAggRenderer
 
 template <typename PixelFormat>
-HgAggPaint<PixelFormat>::HgAggPaint(
-    unsigned char* buffer, unsigned int width, unsigned int height, int stride)
+HgAggPaint<PixelFormat>::HgAggPaint()
     : HgPaint()
-    , mRenderingBuffer(buffer, width, height, stride)
     , mPixelFormat(mRenderingBuffer)
-    , mRendererBase(mPixelFormat)
 {
+}
+
+template <typename PixelFormat>
+inline void HgAggPaint<PixelFormat>::attach(
+    unsigned char* buffer, unsigned int width, unsigned int height, int stride)
+{
+  mRenderingBuffer.attach(buffer, width, height, stride);
+  mRendererBase.attach(mPixelFormat);
 }
 
 template <typename PixelFormat>
@@ -103,4 +109,4 @@ inline void HgAggPaint<PixelFormat>::HgAggPaint::copyHLine(
 
 }  // namespace hg
 
-#endif  // HG_AGG_RENDERER_H
+#endif  // HG_AGG_PAINTER_H

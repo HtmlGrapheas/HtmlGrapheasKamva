@@ -37,11 +37,11 @@ HgFontLibrary::~HgFontLibrary()
   FcConfigDestroy(mFcConfig);
 }
 
-bool HgFontLibrary::parseAndLoadConfig(
-    const std::string& confFile, bool complain)
+bool HgFontLibrary::parseAndLoadConfigFromMemory(
+    const std::string& fontConfig, bool complain)
 {
-  const FcChar8* file = reinterpret_cast<const FcChar8*>(confFile.c_str());
-  return FcConfigParseAndLoad(mFcConfig, file, complain)
+  const FcChar8* config = reinterpret_cast<const FcChar8*>(fontConfig.c_str());
+  return FcConfigParseAndLoadFromMemory(mFcConfig, config, complain)
       && FcConfigSetCurrent(mFcConfig);
 }
 

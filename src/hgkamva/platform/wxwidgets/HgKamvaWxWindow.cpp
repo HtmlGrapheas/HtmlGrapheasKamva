@@ -38,10 +38,9 @@
 #include <wx/filename.h>
 #include <wx/stdpaths.h>
 
-#include "hgkamva/container/HgAggPaint.h"
-#include "hgkamva/util/FileUtil.h"
+#include "litehtml.h"
 
-#include "hgkamva/platform/wxwidgets/PixelFormatConvertor.h"
+#include "hgkamva/util/FileUtil.h"
 
 namespace hg
 {
@@ -98,57 +97,53 @@ void HgKamvaWxWindow::initHgContainer()
   // Load font config.
   wxFileName fontConfFile(fontDir);
   fontConfFile.SetFullName("fonts.conf");
-  bool loadedFontConfig = mHgContainer.parseAndLoadFontConfig(
-      fontConfFile.GetFullPath().ToStdString(), true);
+
+  std::shared_ptr<HgContainer> hgContainer =
+      mHgAggHtmlRenderer.getHgContainer();
+
+  std::string fontConfig =
+      hg::FileUtil::readFile(fontConfFile.GetFullPath().ToStdString());
+  assert(fontConfig.size());
+
+  bool loadedFontConfig =
+      hgContainer->parseAndLoadFontConfigFromMemory(fontConfig, true);
   assert(loadedFontConfig);
 
   // Set fonts.
-  bool addedFontDir = mHgContainer.addFontDir(fontDir.GetPath().ToStdString());
+  bool addedFontDir = hgContainer->addFontDir(fontDir.GetPath().ToStdString());
   assert(addedFontDir);
 
-  mHgContainer.setDefaultFontName("Tinos");
-  mHgContainer.setDefaultFontSize(24);
+  hgContainer->setDefaultFontName("Tinos");
+  hgContainer->setDefaultFontSize(24);
 
   // Set device parameters.
-  mHgContainer.setDeviceDpiX(96);
-  mHgContainer.setDeviceDpiY(96);
-  mHgContainer.setDeviceMonochromeBits(0);
-  mHgContainer.setDeviceColorBits(8);
-  mHgContainer.setDeviceColorIndex(256);
-  mHgContainer.setDeviceMediaType(litehtml::media_type_screen);
+  hgContainer->setDeviceDpiX(96);
+  hgContainer->setDeviceDpiY(96);
+  hgContainer->setDeviceMonochromeBits(0);
+  hgContainer->setDeviceColorBits(8);
+  hgContainer->setDeviceColorIndex(256);
+  hgContainer->setDeviceMediaType(litehtml::media_type_screen);
 
   std::string masterCss =
       FileUtil::readFile(masterCssFile.GetFullPath().ToStdString());
   assert(masterCss.size());
 
-  litehtml::context htmlContext;
-  htmlContext.load_master_stylesheet(masterCss.c_str());
+  mHgAggHtmlRenderer.getHtmlContext()->load_master_stylesheet(
+      masterCss.c_str());
 
   std::string htmlText =
       FileUtil::readFile(htmlFile.GetFullPath().ToStdString());
   assert(htmlText.size());
 
-  mHtmlDocument = litehtml::document::createFromUTF8(
-      htmlText.c_str(), &mHgContainer, &htmlContext);
+  mHgAggHtmlRenderer.createHtmlDocumentFromUtf8(htmlText);
 }
 
 void HgKamvaWxWindow::renderHtml(const int width, const int height)
 {
-  if(mHtmlDocument && mHtmlDocument->width() == width) {
-    return;
-  }
-
-  mHgContainer.setDeviceWidth(width);
-  mHgContainer.setDeviceHeight(height);
-  mHgContainer.setDisplayAreaWidth(width);
-  mHgContainer.setDisplayAreaHeight(height);
-
   // Render HTML document.
-  int bestWidth = mHtmlDocument->render(width);
-  assert(bestWidth);
-
-  SetVirtualSize(mHtmlDocument->width(), mHtmlDocument->height());
-  Refresh(false);
+  mHgAggHtmlRenderer.renderHtml(width, height);
+  litehtml::document::ptr htmlDocument = mHgAggHtmlRenderer.getHtmlDocument();
+  SetVirtualSize(htmlDocument->width(), htmlDocument->height());
 }
 
 void HgKamvaWxWindow::drawHtml(const int width, const int height)
@@ -157,9 +152,6 @@ void HgKamvaWxWindow::drawHtml(const int width, const int height)
       && mScrollX == mNewScrollX && mScrollY == mNewScrollY) {
     return;
   }
-
-  using PixelFormat = PixelFormatConvertor<wxNativePixelFormat>;
-  using PixelData = wxPixelData<wxBitmap, PixelFormat::wxWidgetsType>;
 
   mScrollX = mNewScrollX;
   mScrollY = mNewScrollY;
@@ -202,17 +194,10 @@ void HgKamvaWxWindow::drawHtml(const int width, const int height)
   int frameWidth = pixels.GetWidth();
   int frameHeight = pixels.GetHeight();
 
-  HgAggPaint<PixelFormat::AGGType> hgAggRenderer(
-      pData, frameWidth, frameHeight, stride);
-
-  litehtml::web_color backgroundColor(255, 255, 255);
-  hgAggRenderer.setRendererColor(backgroundColor);
-  hgAggRenderer.clear();
-
   // Draw HTML document.
-  litehtml::position clip(0, 0, frameWidth, frameHeight);
-  mHtmlDocument->draw(reinterpret_cast<litehtml::uint_ptr>(&hgAggRenderer),
-      -mScrollX, -mScrollY, &clip);
+  mHgAggHtmlRenderer.setBackgroundColor(litehtml::web_color(255, 255, 255));
+  mHgAggHtmlRenderer.drawHtml(
+      pData, frameWidth, frameHeight, stride, mNewScrollX, mNewScrollY);
 
   // Request a full redraw of the window.
   Refresh(false);

@@ -36,10 +36,12 @@ TEST(HgContainerTest, create_font)
   EXPECT_NE(fontDir, nullptr);
 
   std::string fontConfFile = std::string(fontDir) + "/fonts.conf";
+  std::string fontConfig = hg::FileUtil::readFile(fontConfFile);
+  EXPECT_GE(fontConfig.size(), 0);
 
   litehtml::font_metrics fm;
   hg::HgContainer container;
-  EXPECT_TRUE(container.parseAndLoadFontConfig(fontConfFile, true));
+  EXPECT_TRUE(container.parseAndLoadFontConfigFromMemory(fontConfig, true));
   EXPECT_TRUE(container.addFontDir(fontDir));
   litehtml::uint_ptr hFont = container.create_font(
       "Tinos", 16, 400, litehtml::font_style::fontStyleNormal, 0, &fm);
@@ -87,12 +89,12 @@ TEST(HgContainerTest, draw_text)
       new unsigned char[frameWidth * frameHeight * BYTES_PER_PIXEL];
   EXPECT_NE(frameBuf, nullptr);
 
-  hg::HgAggPaint<PixelFormat> hgAggRenderer(
-      frameBuf, frameWidth, frameHeight, stride);
+  hg::HgAggPaint<PixelFormat> hgAggPainter;
+  hgAggPainter.attach(frameBuf, frameWidth, frameHeight, stride);
 
   litehtml::web_color backgroundColor(0, 0, 0);
-  hgAggRenderer.setRendererColor(backgroundColor);
-  hgAggRenderer.clear();
+  hgAggPainter.setRendererColor(backgroundColor);
+  hgAggPainter.clear();
 
   //// HtmlGrapheasKamva init.
 
@@ -117,7 +119,7 @@ TEST(HgContainerTest, draw_text)
   litehtml::web_color textColor(128, 128, 128);
 
   // draw_text()
-  container.draw_text(reinterpret_cast<litehtml::uint_ptr>(&hgAggRenderer),
+  container.draw_text(reinterpret_cast<litehtml::uint_ptr>(&hgAggPainter),
       "This is some english text", hFont, textColor, pos);
 
   // Write our picture to file.
@@ -133,11 +135,11 @@ TEST(HgContainerTest, draw_text)
   //////// Repeat tests for new text.
 
   // Make cleaning before new text.
-  hgAggRenderer.setRendererColor(backgroundColor);
-  hgAggRenderer.clear();
+  hgAggPainter.setRendererColor(backgroundColor);
+  hgAggPainter.clear();
 
   // draw_text()
-  container.draw_text(reinterpret_cast<litehtml::uint_ptr>(&hgAggRenderer),
+  container.draw_text(reinterpret_cast<litehtml::uint_ptr>(&hgAggPainter),
       "some english", hFont, textColor, pos);
 
   // Write our picture to file.
@@ -186,12 +188,12 @@ TEST(HgContainerTest, drawHtmlDocument)
       new unsigned char[frameWidth * frameHeight * BYTES_PER_PIXEL];
   EXPECT_NE(frameBuf, nullptr);
 
-  hg::HgAggPaint<PixelFormat> hgAggRenderer(
-      frameBuf, frameWidth, frameHeight, stride);
+  hg::HgAggPaint<PixelFormat> hgAggPainter;
+  hgAggPainter.attach(frameBuf, frameWidth, frameHeight, stride);
 
   litehtml::web_color backgroundColor(255, 255, 255);
-  hgAggRenderer.setRendererColor(backgroundColor);
-  hgAggRenderer.clear();
+  hgAggPainter.setRendererColor(backgroundColor);
+  hgAggPainter.clear();
 
   //// HtmlGrapheasKamva init.
 
@@ -247,7 +249,7 @@ TEST(HgContainerTest, drawHtmlDocument)
   // Draw HTML document.
   litehtml::position clip(0, 0, frameWidth, frameHeight);
   htmlDocument->draw(
-      reinterpret_cast<litehtml::uint_ptr>(&hgAggRenderer), 0, 0, &clip);
+      reinterpret_cast<litehtml::uint_ptr>(&hgAggPainter), 0, 0, &clip);
 
   // Write our picture to file.
   std::string fileName1 = "HtmlDocument_1.ppm";

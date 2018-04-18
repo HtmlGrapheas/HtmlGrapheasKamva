@@ -66,12 +66,12 @@ TEST(HgFontTest, HgFontTest)
   unsigned char* frameBuf = new unsigned char[frameWidth * frameHeight * 3];
   EXPECT_NE(frameBuf, nullptr);
 
-  hg::HgAggPaint<PixelFormat> hgAggRenderer(
-      frameBuf, frameWidth, frameHeight, stride);
+  hg::HgAggPaint<PixelFormat> hgAggPainter;
+  hgAggPainter.attach(frameBuf, frameWidth, frameHeight, stride);
 
   litehtml::web_color backgroundColor(0, 0, 0);
-  hgAggRenderer.setRendererColor(backgroundColor);
-  hgAggRenderer.clear();
+  hgAggPainter.setRendererColor(backgroundColor);
+  hgAggPainter.clear();
 
   //// HtmlGrapheasKamva init.
 
@@ -79,7 +79,10 @@ TEST(HgFontTest, HgFontTest)
   hg::HgFontLibrary hgFontLibrary;
 
   std::string confFile = std::string(fontDir) + "/fonts.conf";
-  EXPECT_TRUE(hgFontLibrary.parseAndLoadConfig(confFile, true));
+  std::string fontConfig = hg::FileUtil::readFile(confFile);
+  EXPECT_GE(fontConfig.size(), 0);
+
+  EXPECT_TRUE(hgFontLibrary.parseAndLoadConfigFromMemory(fontConfig, true));
 
   EXPECT_TRUE(hgFontLibrary.addFontDir(fontDir));
 
@@ -133,7 +136,7 @@ TEST(HgFontTest, HgFontTest)
   litehtml::web_color color(128, 128, 128, 255);
 
   // drawText()
-  hgFont.drawText(&hgAggRenderer, x, y, color);
+  hgFont.drawText(&hgAggPainter, x, y, color);
 
   // Write our picture to file.
   std::string fileName1 = "HgFontTest_1.ppm";
@@ -149,8 +152,8 @@ TEST(HgFontTest, HgFontTest)
 
   // Make cleaning before new text.
   hgFont.clearBuffer();
-  hgAggRenderer.setRendererColor(backgroundColor);
-  hgAggRenderer.clear();
+  hgAggPainter.setRendererColor(backgroundColor);
+  hgAggPainter.clear();
 
   // layoutText().
   hgFont.setDirection(HB_DIRECTION_LTR);
@@ -170,7 +173,7 @@ TEST(HgFontTest, HgFontTest)
   EXPECT_EQ(bbox.mBaselineOffset, 10);
 
   // drawText().
-  hgFont.drawText(&hgAggRenderer, x, y, color);
+  hgFont.drawText(&hgAggPainter, x, y, color);
 
   // Write our picture to file.
   std::string fileName2 = "HgFontTest_2.ppm";

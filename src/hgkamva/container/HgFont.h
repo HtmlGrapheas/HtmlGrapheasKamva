@@ -83,7 +83,7 @@ public:
 
   explicit HgFont() = delete;
   explicit HgFont(FT_Library ftLibrary);
-  virtual ~HgFont();
+  ~HgFont();
 
   bool createFtFace(const std::string& fontFilePath, int pixelSize);
   bool destroyFtFace();

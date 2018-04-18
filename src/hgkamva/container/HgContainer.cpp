@@ -46,10 +46,10 @@ HgContainer::HgContainer()
   mHgFontLibrary = std::shared_ptr<HgFontLibrary>(new HgFontLibrary());
 }
 
-bool HgContainer::parseAndLoadFontConfig(
-    const std::string& confFile, bool complain)
+bool HgContainer::parseAndLoadFontConfigFromMemory(
+    const std::string& fontConfig, bool complain)
 {
-  return mHgFontLibrary->parseAndLoadConfig(confFile, complain);
+  return mHgFontLibrary->parseAndLoadConfigFromMemory(fontConfig, complain);
 }
 
 bool HgContainer::addFontDir(const std::string& dirPath)
