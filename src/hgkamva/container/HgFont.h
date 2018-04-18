@@ -37,7 +37,7 @@
 
 #include "litehtml.h"
 
-#include "hgkamva/container/HgRenderer.h"
+#include "hgkamva/container/HgPaint.h"
 
 namespace hg
 {
@@ -48,7 +48,7 @@ private:
 
   struct FtRasterParamsUser
   {
-    HgRenderer* mHgRenderer;
+    HgPaint* mHgRenderer;
 
     int mGlyphX;
     int mGlyphY;
@@ -97,7 +97,7 @@ public:
   void layoutText(const std::string& text);
   TextBbox getBbox();
   void drawText(
-      HgRenderer* hgRenderer, int x, int y, litehtml::web_color color);
+      HgPaint* hgRenderer, int x, int y, litehtml::web_color color);
 
   int forceUcs2Charmap(FT_Face ftf);
 

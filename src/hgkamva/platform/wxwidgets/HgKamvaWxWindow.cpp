@@ -38,7 +38,7 @@
 #include <wx/filename.h>
 #include <wx/stdpaths.h>
 
-#include "hgkamva/container/HgAggRenderer.h"
+#include "hgkamva/container/HgAggPaint.h"
 #include "hgkamva/util/FileUtil.h"
 
 #include "hgkamva/platform/wxwidgets/PixelFormatConvertor.h"
@@ -202,7 +202,7 @@ void HgKamvaWxWindow::drawHtml(const int width, const int height)
   int frameWidth = pixels.GetWidth();
   int frameHeight = pixels.GetHeight();
 
-  HgAggRenderer<PixelFormat::AGGType> hgAggRenderer(
+  HgAggPaint<PixelFormat::AGGType> hgAggRenderer(
       pData, frameWidth, frameHeight, stride);
 
   litehtml::web_color backgroundColor(255, 255, 255);

@@ -282,7 +282,7 @@ typename HgFont::TextBbox HgFont::getBbox()
 }
 
 void HgFont::drawText(
-    HgRenderer* hgRenderer, int x, int y, litehtml::web_color color)
+    HgPaint* hgRenderer, int x, int y, litehtml::web_color color)
 {
   /* About params int x and int y:
      The pen/baseline start coordinates in window coordinate system

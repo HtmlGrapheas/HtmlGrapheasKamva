@@ -21,25 +21,12 @@
  *    along with this program. If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
 
-#ifndef HG_RENDERER_H
-#define HG_RENDERER_H
-
-#include "litehtml.h"
+#include "hgkamva/container/HgPaint.h"
 
 namespace hg
 {
-class HgRenderer
+HgPaint::HgPaint()
 {
-public:
-  explicit HgRenderer();
-  virtual ~HgRenderer() = default;
-
-  virtual void setRendererColor(const litehtml::web_color& color) = 0;
-  virtual void clear() = 0;
-  virtual void blendHLine(int x1, int y, int x2, unsigned char cover) = 0;
-  virtual void copyHLine(int x1, int y, int x2) = 0;
-};  // class HgRenderer
+}
 
 }  // namespace hg
-
-#endif  // HG_RENDERER_H
