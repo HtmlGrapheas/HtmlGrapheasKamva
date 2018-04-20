@@ -62,6 +62,7 @@ HgKamvaWxWindow::HgKamvaWxWindow(wxWindow* parent,
     , mNewScrollX(0)
     , mNewScrollY(0)
 {
+  mHgHtmlRenderer = newHgHtmlRenderer(mPixFmtId);
   initHgContainer();
 
   // This part makes the scrollbars show up.
@@ -73,6 +74,7 @@ HgKamvaWxWindow::HgKamvaWxWindow(wxWindow* parent,
 HgKamvaWxWindow::~HgKamvaWxWindow()
 {
   mMemoryDC.SelectObject(wxNullBitmap);
+  deleteHgHtmlRenderer(mHgHtmlRenderer);
 }
 
 void HgKamvaWxWindow::initHgContainer()
@@ -98,52 +100,50 @@ void HgKamvaWxWindow::initHgContainer()
   wxFileName fontConfFile(fontDir);
   fontConfFile.SetFullName("fonts.conf");
 
-  std::shared_ptr<HgContainer> hgContainer =
-      mHgAggHtmlRenderer.getHgContainer();
-
   std::string fontConfig =
       hg::FileUtil::readFile(fontConfFile.GetFullPath().ToStdString());
   assert(fontConfig.size());
 
-  bool loadedFontConfig =
-      hgContainer->parseAndLoadFontConfigFromMemory(fontConfig, true);
+  bool loadedFontConfig = hgContainer_parseAndLoadFontConfigFromMemory(
+      mHgHtmlRenderer, fontConfig.c_str(), true);
   assert(loadedFontConfig);
 
   // Set fonts.
-  bool addedFontDir = hgContainer->addFontDir(fontDir.GetPath().ToStdString());
+  bool addedFontDir =
+      hgContainer_addFontDir(mHgHtmlRenderer, fontDir.GetPath().c_str());
   assert(addedFontDir);
 
-  hgContainer->setDefaultFontName("Tinos");
-  hgContainer->setDefaultFontSize(24);
+  hgContainer_setDefaultFontName(mHgHtmlRenderer, "Tinos");
+  hgContainer_setDefaultFontSize(mHgHtmlRenderer, 24);
 
   // Set device parameters.
-  hgContainer->setDeviceDpiX(96);
-  hgContainer->setDeviceDpiY(96);
-  hgContainer->setDeviceMonochromeBits(0);
-  hgContainer->setDeviceColorBits(8);
-  hgContainer->setDeviceColorIndex(256);
-  hgContainer->setDeviceMediaType(litehtml::media_type_screen);
+  hgContainer_setDeviceDpiX(mHgHtmlRenderer, 96);
+  hgContainer_setDeviceDpiY(mHgHtmlRenderer, 96);
+  hgContainer_setDeviceMonochromeBits(mHgHtmlRenderer, 0);
+  hgContainer_setDeviceColorBits(mHgHtmlRenderer, 8);
+  hgContainer_setDeviceColorIndex(mHgHtmlRenderer, 256);
+  hgContainer_setDeviceMediaType(
+      mHgHtmlRenderer, hgLitehtmlMediaType::media_type_screen);
 
   std::string masterCss =
       FileUtil::readFile(masterCssFile.GetFullPath().ToStdString());
   assert(masterCss.size());
 
-  mHgAggHtmlRenderer.getHtmlContext()->load_master_stylesheet(
-      masterCss.c_str());
+  hgHtmlContext_loadMasterStylesheet(mHgHtmlRenderer, masterCss.c_str());
 
   std::string htmlText =
       FileUtil::readFile(htmlFile.GetFullPath().ToStdString());
   assert(htmlText.size());
 
-  mHgAggHtmlRenderer.createHtmlDocumentFromUtf8(htmlText);
+  hgHtmlRenderer_createHtmlDocumentFromUtf8(mHgHtmlRenderer, htmlText.c_str());
 }
 
 void HgKamvaWxWindow::renderHtml(const int width, const int height)
 {
   // Render HTML document.
-  mHgAggHtmlRenderer.renderHtml(width, height);
-  litehtml::document::ptr htmlDocument = mHgAggHtmlRenderer.getHtmlDocument();
-  SetVirtualSize(htmlDocument->width(), htmlDocument->height());
+  hgHtmlRenderer_renderHtml(mHgHtmlRenderer, width, height);
+  SetVirtualSize(hgHtmlDocument_width(mHgHtmlRenderer),
+      hgHtmlDocument_height(mHgHtmlRenderer));
 }
 
 void HgKamvaWxWindow::drawHtml(const int width, const int height)
@@ -195,9 +195,9 @@ void HgKamvaWxWindow::drawHtml(const int width, const int height)
   int frameHeight = pixels.GetHeight();
 
   // Draw HTML document.
-  mHgAggHtmlRenderer.setBackgroundColor(litehtml::web_color(255, 255, 255));
-  mHgAggHtmlRenderer.drawHtml(
-      pData, frameWidth, frameHeight, stride, mNewScrollX, mNewScrollY);
+  hgHtmlRenderer_setBackgroundColor(mHgHtmlRenderer, 255, 255, 255);
+  hgHtmlRenderer_drawHtml(mHgHtmlRenderer, pData, frameWidth, frameHeight,
+      stride, mNewScrollX, mNewScrollY);
 
   // Request a full redraw of the window.
   Refresh(false);

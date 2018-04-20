@@ -118,7 +118,12 @@ add_subdirectory(${HtmlGrapheas_DIR})
 
 # HtmlGrapheasKamva
 set(hgk_HEADERS
+  ${hgk_SRC_DIR}/hgkamva/hg_kamva_api.h
+  ${hgk_SRC_DIR}/hgkamva/hg_kamva_codes.h
+  ${hgk_SRC_DIR}/hgkamva/hg_kamva_common.h
+
   ${hgk_SRC_DIR}/hgkamva/container/HgAggHtmlRenderer.h
+  ${hgk_SRC_DIR}/hgkamva/container/HgAggIdToAggPixelFormat.h
   ${hgk_SRC_DIR}/hgkamva/container/HgAggPainter.h
   ${hgk_SRC_DIR}/hgkamva/container/HgContainer.h
   ${hgk_SRC_DIR}/hgkamva/container/HgFont.h
@@ -133,6 +138,8 @@ set(hgk_HEADERS
 )
 
 set(hgk_SOURCES
+  ${hgk_SRC_DIR}/hgkamva/hg_kamva_api.cpp
+  
   ${hgk_SRC_DIR}/hgkamva/container/HgContainer.cpp
   ${hgk_SRC_DIR}/hgkamva/container/HgFont.cpp
   ${hgk_SRC_DIR}/hgkamva/container/HgFontLibrary.cpp

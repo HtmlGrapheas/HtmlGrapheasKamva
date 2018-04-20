@@ -52,7 +52,7 @@ link_directories(${AGG_LIBRARY_DIRS})
 
 set(lib_HEADERS
   HgKamvaWxWindow.h
-  PixelFormatConvertor.h
+  wxPixelFormatToId.h
 )
 
 set(lib_SOURCES

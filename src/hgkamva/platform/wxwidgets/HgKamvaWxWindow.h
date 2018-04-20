@@ -42,9 +42,8 @@
 #include <wx/scrolwin.h>
 #include <wx/windowid.h>
 
-#include "hgkamva/container/HgContainer.h"
-#include "hgkamva/container/HgAggHtmlRenderer.h"
-#include "hgkamva/platform/wxwidgets/PixelFormatConvertor.h"
+#include "hgkamva/hg_kamva_api.h"
+#include "hgkamva/platform/wxwidgets/wxPixelFormatToId.h"
 
 namespace hg
 {
@@ -56,7 +55,7 @@ namespace hg
 class HgKamvaWxWindow : public wxScrolledCanvas
 {
 private:
-  using PixelFormat = PixelFormatConvertor<wxNativePixelFormat>;
+  using PixelFormat = wxPixelFormatToId<wxNativePixelFormat>;
   using PixelData = wxPixelData<wxBitmap, PixelFormat::wxWidgetsType>;
 
 public:
@@ -93,7 +92,8 @@ private:
   std::shared_ptr<wxBitmap> mBitmap;  ///< wxWidgets bitmap for AGG to draw into
   wxMemoryDC mMemoryDC;  ///< Memory "device context" for drawing the bitmap
 
-  HgAggHtmlRenderer<PixelFormat::AGGType> mHgAggHtmlRenderer;
+  const enum hgPixelFormatId mPixFmtId = PixelFormat::id;
+  HgHtmlRendererPtr mHgHtmlRenderer;
 
   int mScrollX;
   int mScrollY;
