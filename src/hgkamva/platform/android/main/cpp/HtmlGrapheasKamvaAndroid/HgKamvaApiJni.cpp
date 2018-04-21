@@ -175,9 +175,10 @@ Java_ru_feographia_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgContainer_1par
     jboolean complain)
 {
   const char* fontConfig = env->GetStringUTFChars(fontConfig_, 0);
-  hgContainer_parseAndLoadFontConfigFromMemory(
+  jboolean ret = hgContainer_parseAndLoadFontConfigFromMemory(
       voidpCast(renderer), fontConfig, complain);
   env->ReleaseStringUTFChars(fontConfig_, fontConfig);
+  return ret;
 }
 
 JNIEXPORT jboolean JNICALL
@@ -185,8 +186,9 @@ Java_ru_feographia_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgContainer_1add
     JNIEnv* env, jclass type, jlong renderer, jstring dirPath_)
 {
   const char* dirPath = env->GetStringUTFChars(dirPath_, 0);
-  hgContainer_addFontDir(voidpCast(renderer), dirPath);
+  jboolean ret = hgContainer_addFontDir(voidpCast(renderer), dirPath);
   env->ReleaseStringUTFChars(dirPath_, dirPath);
+  return ret;
 }
 
 JNIEXPORT void JNICALL
@@ -281,9 +283,7 @@ Java_ru_feographia_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgHtmlContext_1l
     JNIEnv* env, jclass type, jlong renderer, jstring str_)
 {
   const char* str = env->GetStringUTFChars(str_, 0);
-
   hgHtmlContext_loadMasterStylesheet(voidpCast(renderer), str);
-
   env->ReleaseStringUTFChars(str_, str);
 }
 

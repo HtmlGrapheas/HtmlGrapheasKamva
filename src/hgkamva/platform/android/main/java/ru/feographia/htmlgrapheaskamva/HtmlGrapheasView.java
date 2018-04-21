@@ -33,11 +33,13 @@ import ru.feographia.htmlgrapheaskamva.hgkamva_api.HgKamvaApiJni;
 import ru.feographia.htmlgrapheaskamva.hgkamva_api.codes.hgLitehtmlMediaType;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -72,28 +74,38 @@ public class HtmlGrapheasView
     initHgContainer();
   }
 
-  private void initHgContainer()
+  private boolean initHgContainer()
   {
     // TODO: move it to MainApplication
-    initAppData();
+    if (!initAppData()) {
+      return false;
+    }
 
-    String fontConfig = "TODO: fontConfig";
+    File appDir = getAppDir();
+    String dataDirName = "data";
+    String fontDirName = "fonts";
+    File assetsDir = new File(appDir, "assets");
+    File dataDir = new File(assetsDir, dataDirName);
+    File fontDir = new File(assetsDir, fontDirName);
+
+    File fontConfigFile = new File(fontDir, "fonts.conf");
+    String fontConfig = readFromFile(fontConfigFile);
     if (TextUtils.isEmpty(fontConfig)) {
-      // TODO: TextUtils.isEmpty(fontConfig)
+      return false;
     }
 
     boolean loadedFontConfig =
         HgKamvaApiJni.hgContainer_parseAndLoadFontConfigFromMemory(
             mHgHtmlRenderer, fontConfig, true);
     if (!loadedFontConfig) {
-      // TODO: !loadedFontConfig
+      return false;
     }
 
     // Set fonts.
-    boolean addedFontDir =
-        HgKamvaApiJni.hgContainer_addFontDir(mHgHtmlRenderer, "TODO: fontDir");
+    boolean addedFontDir = HgKamvaApiJni.hgContainer_addFontDir(mHgHtmlRenderer,
+        fontDir.getPath());
     if (!addedFontDir) {
-      // TODO: !addedFontDir
+      return false;
     }
 
     HgKamvaApiJni.hgContainer_setDefaultFontName(mHgHtmlRenderer, "Tinos");
@@ -108,21 +120,24 @@ public class HtmlGrapheasView
     HgKamvaApiJni.hgContainer_setDeviceMediaType(
         mHgHtmlRenderer, hgLitehtmlMediaType.media_type_screen);
 
-    String masterCss = "TODO: masterCss";
+    File masterCssFile = new File(dataDir, "master.css");
+    String masterCss = readFromFile(masterCssFile);
     if (TextUtils.isEmpty(masterCss)) {
-      // TODO: TextUtils.isEmpty(masterCss)
+      return false;
     }
 
     HgKamvaApiJni.hgHtmlContext_loadMasterStylesheet(
         mHgHtmlRenderer, masterCss);
 
-    String htmlText = "TODO: htmlText";
+    File htmlTextFile = new File(dataDir, "test.html");
+    String htmlText = readFromFile(htmlTextFile);
     if (TextUtils.isEmpty(htmlText)) {
-      // TODO: TextUtils.isEmpty(htmlText)
+      return false;
     }
 
     HgKamvaApiJni.hgHtmlRenderer_createHtmlDocumentFromUtf8(
         mHgHtmlRenderer, htmlText);
+    return true;
   }
 
   private void renderHtml(int width, int height)
@@ -170,16 +185,12 @@ public class HtmlGrapheasView
   // TODO: move it to MainApplication
   private boolean initAppData()
   {
-    String appDirName = null;
-    File appDir = getContext().getExternalFilesDir(appDirName);
-    if (appDir == null) {
-      appDir = new File(getContext().getFilesDir(), appDirName);
-    }
-
+    File appDir = getAppDir();
     String dataDirName = "data";
     String fontDirName = "fonts";
-    File dataDir = new File(appDir, dataDirName);
-    File fontDir = new File(appDir, fontDirName);
+    File assetsDir = new File(appDir, "assets");
+    File dataDir = new File(assetsDir, dataDirName);
+    File fontDir = new File(assetsDir, fontDirName);
 
     if (dataDir.exists() && dataDir.isDirectory() && fontDir.exists() && fontDir
         .isDirectory()) {
@@ -203,11 +214,22 @@ public class HtmlGrapheasView
   }
 
   // TODO: move it to MainApplication
+  public File getAppDir()
+  {
+    String appDirName = null;
+    File appDir = getContext().getExternalFilesDir(appDirName);
+    if (appDir == null) {
+      appDir = new File(getContext().getFilesDir(), appDirName);
+    }
+    return appDir;
+  }
+
+  // TODO: move it to MainApplication
   public String getApkPath()
   {
     try {
-      return getContext().getPackageManager()
-          .getApplicationInfo(getContext().getPackageName(), 0).sourceDir;
+      return getContext().getPackageManager().getApplicationInfo(
+          getContext().getPackageName(), 0).sourceDir;
     } catch (PackageManager.NameNotFoundException e) {
       e.printStackTrace();
       return null;
@@ -229,8 +251,8 @@ public class HtmlGrapheasView
         File file = new File(targetDirectory, ze.getName());
         File dir = ze.isDirectory() ? file : file.getParentFile();
 
-        if (extractedDirName != null && !dir.getPath()
-            .contains(extractedDirName)) {
+        if (extractedDirName != null && !dir.getPath().contains(
+            extractedDirName)) {
           continue;
         }
 
@@ -253,6 +275,25 @@ public class HtmlGrapheasView
       }
     } finally {
       zis.close();
+    }
+  }
+
+  public static String readFromFile(File filePath)
+  {
+    try {
+      FileInputStream inputStream = new FileInputStream(filePath);
+      InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+      BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+      StringBuilder stringBuilder = new StringBuilder();
+      String line;
+      while ((line = bufferedReader.readLine()) != null) {
+        stringBuilder.append(line);
+      }
+      inputStream.close();
+      return stringBuilder.toString();
+    } catch (IOException e) {
+      e.printStackTrace();
+      return "";
     }
   }
 }

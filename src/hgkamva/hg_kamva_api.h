@@ -29,7 +29,7 @@
 #include "hgkamva/hg_kamva_codes.h"
 
 typedef void* HgHtmlRendererPtr;
-typedef int HgBool;
+typedef unsigned char HgBool;
 typedef unsigned char HgByte;
 
 HG_KAMVA_EXTERNC HgHtmlRendererPtr newHgHtmlRenderer(
