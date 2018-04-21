@@ -32,11 +32,9 @@ set(lib_NAME "htmlgrapheaskamvaandroid")
 #-----------------------------------------------------------------------
 
 if(NOT EXTERNAL_INSTALL_DIR)
-  set(CMAKE_INSTALL_PREFIX "${PROJECT_BINARY_DIR}/install")
-  set(EXTERNAL_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}")
-else()
-  set(CMAKE_INSTALL_PREFIX "${EXTERNAL_INSTALL_DIR}")
+  set(EXTERNAL_INSTALL_DIR "${PROJECT_BINARY_DIR}/install")
 endif()
+set(CMAKE_INSTALL_PREFIX "${EXTERNAL_INSTALL_DIR}")
 
 
 #-----------------------------------------------------------------------
