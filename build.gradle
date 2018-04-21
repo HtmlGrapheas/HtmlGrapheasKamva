@@ -114,6 +114,7 @@ android {
 //        targets "cmaketarget1", "cmaketarget2", "cmaketarget3" // TODO:
 
         def String downloadDir = "${rootDir}/.downloads"
+        def String assetsDir = "${rootDir}/platform/Android/HtmlGrapheasStasi/src/main/assets"
 
         // STUB_NOT_USED_CMAKE_VAR is a stub to simply turn off the underlying variables.
         arguments "-DSTUB_NOT_USED_CMAKE_VAR=OFF",
@@ -121,6 +122,7 @@ android {
             "-DHtmlGrapheasKamva_DIR=${projectDir}",
             "-DEXTERNAL_DOWNLOAD_DIR=${downloadDir}",
             "-DEXTERNAL_UNPACKED_SRC_DIR=${downloadDir}/.unpacked_android",
+            "-DHG_APP_ASSETS_DIR=${assetsDir}",
 
             // No effect on the build system, so turn off.
             "-Dcmr_BUILD_MULTIPROC=OFF",

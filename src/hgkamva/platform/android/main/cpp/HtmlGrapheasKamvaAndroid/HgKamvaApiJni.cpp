@@ -83,9 +83,11 @@ Java_ru_feographia_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_newHgHtmlRendere
   switch(bitmapInfo.format) {
     case ANDROID_BITMAP_FORMAT_RGB_565: {
       pixFmt = hgPixelFormatId::RGB565;
+      break;
     }
     case ANDROID_BITMAP_FORMAT_RGBA_8888: {
       pixFmt = hgPixelFormatId::RGBA32;
+      break;
     }
     default: {
       std::cout << "hgHtmlRenderer_drawHtml(), unsupported bitmap format\n";

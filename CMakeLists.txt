@@ -32,8 +32,6 @@ set(hgk_SRC_DIR "${PROJECT_SOURCE_DIR}/src")
 # Configure external libs directories.
 #-----------------------------------------------------------------------
 
-set(CMAKE_INSTALL_PREFIX "${PROJECT_BINARY_DIR}/install")
-
 set(EXTERNAL_SRC_DIR "${PROJECT_SOURCE_DIR}/external")
 if(NOT EXTERNAL_DOWNLOAD_DIR)
   set(EXTERNAL_DOWNLOAD_DIR "${PROJECT_SOURCE_DIR}/.downloads")
@@ -45,7 +43,10 @@ if(NOT EXTERNAL_BIN_DIR)
   set(EXTERNAL_BIN_DIR "${PROJECT_BINARY_DIR}/external/build")
 endif()
 if(NOT EXTERNAL_INSTALL_DIR)
+  set(CMAKE_INSTALL_PREFIX "${PROJECT_BINARY_DIR}/install")
   set(EXTERNAL_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}")
+else()
+  set(CMAKE_INSTALL_PREFIX "${EXTERNAL_INSTALL_DIR}")
 endif()
 
 
