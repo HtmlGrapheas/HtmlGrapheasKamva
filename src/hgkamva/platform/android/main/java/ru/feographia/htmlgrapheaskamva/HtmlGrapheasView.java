@@ -24,12 +24,22 @@
 package ru.feographia.htmlgrapheaskamva;
 
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.text.TextUtils;
 import android.view.View;
 import ru.feographia.htmlgrapheaskamva.hgkamva_api.HgKamvaApiJni;
 import ru.feographia.htmlgrapheaskamva.hgkamva_api.codes.hgLitehtmlMediaType;
+
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 
 public class HtmlGrapheasView
@@ -64,6 +74,9 @@ public class HtmlGrapheasView
 
   private void initHgContainer()
   {
+    // TODO: move it to MainApplication
+    initAppData();
+
     String fontConfig = "TODO: fontConfig";
     if (TextUtils.isEmpty(fontConfig)) {
       // TODO: TextUtils.isEmpty(fontConfig)
@@ -152,5 +165,94 @@ public class HtmlGrapheasView
   {
     drawHtml(canvas.getWidth(), canvas.getHeight());
     canvas.drawBitmap(mBitmap, 0, 0, null);
+  }
+
+  // TODO: move it to MainApplication
+  private boolean initAppData()
+  {
+    String appDirName = null;
+    File appDir = getContext().getExternalFilesDir(appDirName);
+    if (appDir == null) {
+      appDir = new File(getContext().getFilesDir(), appDirName);
+    }
+
+    String dataDirName = "data";
+    String fontDirName = "fonts";
+    File dataDir = new File(appDir, dataDirName);
+    File fontDir = new File(appDir, fontDirName);
+
+    if (dataDir.exists() && dataDir.isDirectory() && fontDir.exists() && fontDir
+        .isDirectory()) {
+      return true;
+    }
+
+    String apkFilePath = getApkPath();
+    if (apkFilePath == null) {
+      return false;
+    }
+    File apkFile = new File(getApkPath());
+
+    try {
+      unzip(apkFile, appDir, "assets/" + dataDirName);
+      unzip(apkFile, appDir, "assets/" + fontDirName);
+    } catch (IOException e) {
+      e.printStackTrace();
+      return false;
+    }
+    return true;
+  }
+
+  // TODO: move it to MainApplication
+  public String getApkPath()
+  {
+    try {
+      return getContext().getPackageManager()
+          .getApplicationInfo(getContext().getPackageName(), 0).sourceDir;
+    } catch (PackageManager.NameNotFoundException e) {
+      e.printStackTrace();
+      return null;
+    }
+  }
+
+  // TODO: move it to MainApplication
+  public static void unzip(
+      File zipFile, File targetDirectory, String extractedDirName)
+      throws IOException
+  {
+    ZipInputStream zis = new ZipInputStream(
+        new BufferedInputStream(new FileInputStream(zipFile)));
+    try {
+      ZipEntry ze;
+      int count;
+      byte[] buffer = new byte[8192];
+      while ((ze = zis.getNextEntry()) != null) {
+        File file = new File(targetDirectory, ze.getName());
+        File dir = ze.isDirectory() ? file : file.getParentFile();
+
+        if (extractedDirName != null && !dir.getPath()
+            .contains(extractedDirName)) {
+          continue;
+        }
+
+        if (!dir.isDirectory() && !dir.mkdirs()) {
+          throw new FileNotFoundException(
+              "Failed to ensure directory: " + dir.getAbsolutePath());
+        }
+        if (ze.isDirectory()) { continue; }
+        FileOutputStream fout = new FileOutputStream(file);
+        try {
+          while ((count = zis.read(buffer)) != -1) {
+            fout.write(buffer, 0, count);
+          }
+        } finally {
+          fout.close();
+        }
+        // If time should be restored as well.
+        //long time = ze.getTime();
+        //if (time > 0) { file.setLastModified(time); }
+      }
+    } finally {
+      zis.close();
+    }
   }
 }
