@@ -51,18 +51,11 @@ link_directories(${AGG_LIBRARY_DIRS})
 #-----------------------------------------------------------------------
 
 set(lib_HEADERS
-  HtmlGrapheasKamvaAndroid.h
 )
 
 set(lib_SOURCES
-  HtmlGrapheasKamvaAndroid.cpp
-  HtmlGrapheasKamvaAndroidJni.cpp
+  HgKamvaApiJni.cpp
 )
-
-# TODO: rewrite AGG's CMake scripts to exclude link_directories().
-# AGG_LIBRARY_DIRS is cache var from AggConfig.cmake
-# by find_package(Agg REQUIRED CONFIG) in HtmlGrapheasKamva.
-link_directories(${AGG_LIBRARY_DIRS})
 
 add_library(${lib_NAME} SHARED ${lib_SOURCES} ${lib_HEADERS})
 set_target_properties(${lib_NAME} PROPERTIES

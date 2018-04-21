@@ -21,34 +21,19 @@
  *    along with this program. If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
 
-#ifndef HG_KAMVA_CODES_H
-#define HG_KAMVA_CODES_H
+package ru.feographia.htmlgrapheaskamva.hgkamva_api.codes;
 
-enum hgPixelFormatId
+public final class hgLitehtmlMediaType
 {
-  UNKNOWN = 0,
-  RGB565, /**< 16-bit RGB. */
-  RGB24, /**< 24-bit RGB. */
-  BGR24, /**< 24-bit BGR. */
-  RGBA32, /**< 32-bit RGBA. */
-  BGRA32, /**< 32-bit BGRA. */
-  ARGB32, /**< 32-bit ARGB. */
-  ABGR32, /**< 32-bit ABGR. */
-};
-
-enum hgLitehtmlMediaType
-{
-  media_type_none,
-  media_type_all,
-  media_type_screen,
-  media_type_print,
-  media_type_braille,
-  media_type_embossed,
-  media_type_handheld,
-  media_type_projection,
-  media_type_speech,
-  media_type_tty,
-  media_type_tv,
-};
-
-#endif  /* HG_KAMVA_CODES_H */
+  public final static int media_type_none       = 0;
+  public final static int media_type_all        = media_type_none + 1;
+  public final static int media_type_screen     = media_type_all + 1;
+  public final static int media_type_print      = media_type_screen + 1;
+  public final static int media_type_braille    = media_type_print + 1;
+  public final static int media_type_embossed   = media_type_braille + 1;
+  public final static int media_type_handheld   = media_type_embossed + 1;
+  public final static int media_type_projection = media_type_handheld + 1;
+  public final static int media_type_speech     = media_type_projection + 1;
+  public final static int media_type_tty        = media_type_speech + 1;
+  public final static int media_type_tv         = media_type_tty + 1;
+}

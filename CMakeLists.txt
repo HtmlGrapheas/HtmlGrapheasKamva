@@ -32,6 +32,8 @@ set(hgk_SRC_DIR "${PROJECT_SOURCE_DIR}/src")
 # Configure external libs directories.
 #-----------------------------------------------------------------------
 
+set(CMAKE_INSTALL_PREFIX "${PROJECT_BINARY_DIR}/install")
+
 set(EXTERNAL_SRC_DIR "${PROJECT_SOURCE_DIR}/external")
 if(NOT EXTERNAL_DOWNLOAD_DIR)
   set(EXTERNAL_DOWNLOAD_DIR "${PROJECT_SOURCE_DIR}/.downloads")
@@ -160,16 +162,12 @@ target_include_directories(${hgk_LIB_NAME} PUBLIC ${hgk_SRC_DIR})
 # HtmlGrapheas
 target_link_libraries(${hgk_LIB_NAME} PUBLIC htmlgrapheas)
 
-# External includes (Expat)
-target_include_directories(${hgk_LIB_NAME} PRIVATE
-  ${EXTERNAL_INSTALL_DIR}/include
-)
-
 # FontConfig
 target_include_directories(${hgk_LIB_NAME} PRIVATE ${FONTCONFIG_INCLUDE_DIR})
 target_link_libraries(${hgk_LIB_NAME} PRIVATE ${FONTCONFIG_LIBRARY})
 
 # Expat
+target_include_directories(${hgk_LIB_NAME} PRIVATE ${EXPAT_INCLUDE_DIR})
 target_link_libraries(${hgk_LIB_NAME} PRIVATE ${EXPAT_LIBRARY})
 
 # FreeType

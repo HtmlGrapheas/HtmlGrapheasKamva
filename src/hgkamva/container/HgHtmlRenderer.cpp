@@ -60,8 +60,8 @@ int HgHtmlRenderer::renderHtml(int width, int height)
 }
 
 void HgHtmlRenderer::drawHtml(unsigned char* buffer,
-    unsigned int width,
-    unsigned int height,
+    int width,
+    int height,
     int stride,
     int scrollX,
     int scrollY)

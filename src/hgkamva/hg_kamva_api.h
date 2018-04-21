@@ -21,28 +21,29 @@
  *    along with this program. If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
 
-#ifndef HG_KAMVA_AGG_API_H
-#define HG_KAMVA_AGG_API_H
+#ifndef HG_KAMVA_API_H
+#define HG_KAMVA_API_H
+
+#include "hgkamva/hg_kamva_common.h"
 
 #include "hgkamva/hg_kamva_codes.h"
-#include "hgkamva/hg_kamva_common.h"
 
 typedef void* HgHtmlRendererPtr;
 typedef int HgBool;
 typedef unsigned char HgByte;
 
 HG_KAMVA_EXTERNC HgHtmlRendererPtr newHgHtmlRenderer(
-    const enum hgPixelFormatId aggPixFmtId);
-HG_KAMVA_EXTERNC void deleteHgHtmlRenderer(HgHtmlRendererPtr hgHtmlRenderer);
+    enum hgPixelFormatId aggPixFmtId);
+HG_KAMVA_EXTERNC void deleteHgHtmlRenderer(HgHtmlRendererPtr renderer);
 
 HG_KAMVA_EXTERNC void hgHtmlRenderer_createHtmlDocumentFromUtf8(
     HgHtmlRendererPtr renderer, const char* htmlText);
 HG_KAMVA_EXTERNC int hgHtmlRenderer_renderHtml(
-    HgHtmlRendererPtr renderer, const int width, const int height);
+    HgHtmlRendererPtr renderer, int width, int height);
 HG_KAMVA_EXTERNC void hgHtmlRenderer_drawHtml(HgHtmlRendererPtr renderer,
     unsigned char* buffer,
-    unsigned int width,
-    unsigned int height,
+    int width,
+    int height,
     int stride,
     int scrollX,
     int scrollY);
@@ -90,4 +91,4 @@ HG_KAMVA_EXTERNC void hgHtmlContext_loadMasterStylesheet(
 HG_KAMVA_EXTERNC int hgHtmlDocument_width(HgHtmlRendererPtr renderer);
 HG_KAMVA_EXTERNC int hgHtmlDocument_height(HgHtmlRendererPtr renderer);
 
-#endif  /* HG_KAMVA_AGG_API_H */
+#endif /* HG_KAMVA_API_H */

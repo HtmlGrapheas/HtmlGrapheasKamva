@@ -138,7 +138,7 @@ void HgKamvaWxWindow::initHgContainer()
   hgHtmlRenderer_createHtmlDocumentFromUtf8(mHgHtmlRenderer, htmlText.c_str());
 }
 
-void HgKamvaWxWindow::renderHtml(const int width, const int height)
+void HgKamvaWxWindow::renderHtml(int width, int height)
 {
   // Render HTML document.
   hgHtmlRenderer_renderHtml(mHgHtmlRenderer, width, height);
@@ -146,7 +146,7 @@ void HgKamvaWxWindow::renderHtml(const int width, const int height)
       hgHtmlDocument_height(mHgHtmlRenderer));
 }
 
-void HgKamvaWxWindow::drawHtml(const int width, const int height)
+void HgKamvaWxWindow::drawHtml(int width, int height)
 {
   if(mBitmap && mBitmap->GetWidth() == width && mBitmap->GetHeight() == height
       && mScrollX == mNewScrollX && mScrollY == mNewScrollY) {

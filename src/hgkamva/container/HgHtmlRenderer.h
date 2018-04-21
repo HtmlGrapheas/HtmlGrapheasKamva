@@ -41,10 +41,10 @@ public:
   virtual ~HgHtmlRenderer() = default;
 
   void createHtmlDocumentFromUtf8(const std::string& htmlText);
-  int renderHtml(const int width, const int height);
+  int renderHtml(int width, int height);
   virtual void drawHtml(unsigned char* buffer,
-      unsigned int width,
-      unsigned int height,
+      int width,
+      int height,
       int stride,
       int scrollX,
       int scrollY);

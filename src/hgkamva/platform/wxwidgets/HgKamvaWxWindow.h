@@ -74,10 +74,10 @@ public:
 protected:
   void initHgContainer();
 
-  void renderHtml(const int width, const int height);
+  void renderHtml(int width, int height);
 
   /// Create the bitmap given the current size.
-  void drawHtml(const int width, const int height);
+  void drawHtml(int width, int height);
 
   /// Resize the bitmap to match the window.
   void onSize(wxSizeEvent& event);

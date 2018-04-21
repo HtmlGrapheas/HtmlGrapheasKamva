@@ -21,21 +21,16 @@
  *    along with this program. If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
 
-package ru.feographia.htmlgrapheaskamva;
+package ru.feographia.htmlgrapheaskamva.hgkamva_api.codes;
 
-import android.graphics.Bitmap;
-
-
-public class HtmlGrapheasKamvaAndroidJni
+public final class hgPixelFormatId
 {
-  public native static void drawIntoBitmap(Bitmap bitmap);
-
-  static {
-    try {
-      System.loadLibrary("htmlgrapheaskamvaandroid");
-    } catch (UnsatisfiedLinkError e) {
-      System.err.println("Native code library failed to load. \n" + e);
-      System.exit(1);
-    }
-  }
+  public final static int UNKNOWN = 0;
+  public final static int RGB565 = UNKNOWN + 1; // 16-bit RGB.
+  public final static int RGB24  = RGB565 + 1; // 24-bit RGB.
+  public final static int BGR24  = RGB24 + 1; // 24-bit BGR.
+  public final static int RGBA32 = BGR24 + 1; // 32-bit RGBA.
+  public final static int BGRA32 = RGBA32 + 1; // 32-bit BGRA.
+  public final static int ARGB32 = BGRA32 + 1; // 32-bit ARGB.
+  public final static int ABGR32 = ARGB32 + 1; // 32-bit ABGR.
 }

@@ -21,9 +21,10 @@
  *    along with this program. If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
 
+#include "hgkamva/hg_kamva_api.h"
+
 #include <cassert>
 
-#include "hgkamva/hg_kamva_api.h"
 #include "hgkamva/container/HgAggHtmlRenderer.h"
 #include "hgkamva/container/HgAggIdToAggPixelFormat.h"
 #include "hgkamva/container/HgHtmlRenderer.h"
@@ -60,7 +61,7 @@ inline litehtml::document::ptr getHtmlDocument(HgHtmlRendererPtr renderer)
 
 // HgHtmlRenderer methods.
 
-HgHtmlRendererPtr newHgHtmlRenderer(const enum hgPixelFormatId aggPixFmtId)
+HgHtmlRendererPtr newHgHtmlRenderer(enum hgPixelFormatId aggPixFmtId)
 {
   switch(aggPixFmtId) {
     case hgPixelFormatId::RGB565:
@@ -81,9 +82,9 @@ HgHtmlRendererPtr newHgHtmlRenderer(const enum hgPixelFormatId aggPixFmtId)
   return nullptr;
 }
 
-void deleteHgHtmlRenderer(HgHtmlRendererPtr hgHtmlRenderer)
+void deleteHgHtmlRenderer(HgHtmlRendererPtr renderer)
 {
-  delete getHgHtmlRenderer(hgHtmlRenderer);
+  delete getHgHtmlRenderer(renderer);
 }
 
 void hgHtmlRenderer_createHtmlDocumentFromUtf8(
@@ -92,16 +93,15 @@ void hgHtmlRenderer_createHtmlDocumentFromUtf8(
   return getHgHtmlRenderer(renderer)->createHtmlDocumentFromUtf8(htmlText);
 }
 
-int hgHtmlRenderer_renderHtml(
-    HgHtmlRendererPtr renderer, const int width, const int height)
+int hgHtmlRenderer_renderHtml(HgHtmlRendererPtr renderer, int width, int height)
 {
   return getHgHtmlRenderer(renderer)->renderHtml(width, height);
 }
 
 void hgHtmlRenderer_drawHtml(HgHtmlRendererPtr renderer,
     unsigned char* buffer,
-    unsigned int width,
-    unsigned int height,
+    int width,
+    int height,
     int stride,
     int scrollX,
     int scrollY)

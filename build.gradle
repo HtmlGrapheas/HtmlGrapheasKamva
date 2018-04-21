@@ -46,12 +46,14 @@ android {
 
   buildTypes {
     release {
+      debuggable false
+      jniDebuggable false
       minifyEnabled false
       proguardFiles getDefaultProguardFile("proguard-android.txt"),
           "${rootModulePath}/proguard-rules.pro"
     }
     debug {
-// TODO: needed?
+      debuggable true
       jniDebuggable true
     }
   }
@@ -112,7 +114,6 @@ android {
 //        targets "cmaketarget1", "cmaketarget2", "cmaketarget3" // TODO:
 
         def String downloadDir = "${rootDir}/.downloads"
-        def String installDir = "${buildDir}/install"
 
         // STUB_NOT_USED_CMAKE_VAR is a stub to simply turn off the underlying variables.
         arguments "-DSTUB_NOT_USED_CMAKE_VAR=OFF",
@@ -120,8 +121,6 @@ android {
             "-DHtmlGrapheasKamva_DIR=${projectDir}",
             "-DEXTERNAL_DOWNLOAD_DIR=${downloadDir}",
             "-DEXTERNAL_UNPACKED_SRC_DIR=${downloadDir}/.unpacked_android",
-            "-DCMAKE_INSTALL_PREFIX=${installDir}",
-            "-DEXTERNAL_INSTALL_DIR=${installDir}",
 
             // No effect on the build system, so turn off.
             "-Dcmr_BUILD_MULTIPROC=OFF",
@@ -200,9 +199,9 @@ android {
 // defaultPublishConfig "debug"
 // buildConfig = android.defaultPublishConfig.toString()
 
-android {
-  defaultPublishConfig "debug" // uncomment it for the debug of the native code
-}
+//android {
+//  defaultPublishConfig "debug" // uncomment it for the debug of the native code
+//}
 
 //-----------------------------------------------------------------------
 // Copy a native bindings to the java source tree
