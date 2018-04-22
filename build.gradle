@@ -23,21 +23,84 @@
 
 import org.gradle.internal.os.OperatingSystem;
 
+apply plugin: 'com.android.library'
+
+//-----------------------------------------------------------------------
+// Common vars from root project
+//-----------------------------------------------------------------------
+
+def ignoreVariantBuildType = ""
+if (rootProject.hasProperty("ignoreVariantBuildType")) {
+  ignoreVariantBuildType = rootProject.ignoreVariantBuildType
+}
+
+def buildToolsVer = "27.0.3"
+if (rootProject.hasProperty("buildToolsVersion")) {
+  buildToolsVer = rootProject.buildToolsVersion
+}
+
+def compileSdkVer = 26
+if (rootProject.hasProperty("compileSdkVersion")) {
+  compileSdkVer = rootProject.compileSdkVersion
+}
+
+def targetSdkVer = 26
+if (rootProject.hasProperty("targetSdkVersion")) {
+  targetSdkVer = rootProject.targetSdkVersion
+}
+
+def minSdkVer = 16
+if (rootProject.hasProperty("minSdkVersion")) {
+  minSdkVer = rootProject.minSdkVersion
+}
+
+def supportLibVer = "26.1.0"
+if (rootProject.hasProperty("supportLibVersion")) {
+  supportLibVer = rootProject.supportLibVersion
+}
+
+//def abiFilts = ["armeabi-v7a", "arm64-v8a", "x86", "x86_64"]
+def abiFilts = ["x86"]
+if (rootProject.hasProperty("abiFilters")) {
+  abiFilts = rootProject.abiFilters
+}
+
+def rootBuildDir = "${rootDir}/build_android/${rootProject.name}"
+if (rootProject.hasProperty("rootBuildDir")) {
+  rootBuildDir = rootProject.rootBuildDir
+}
+
+def rootNativeBuildDir = "${rootBuildDir}/.nativeBuild"
+if (rootProject.hasProperty("rootNativeBuildDir")) {
+  rootNativeBuildDir = rootProject.rootNativeBuildDir
+}
+
+//-----------------------------------------------------------------------
+// Module properties
+//-----------------------------------------------------------------------
+
+// https://stackoverflow.com/a/32129704
+//import com.android.builder.core.BuilderConstants
+android.variantFilter { variant ->
+//  if (build == BuilderConstants.RELEASE) {
+  if (variant.buildType.name == ignoreVariantBuildType) {
+    variant.setIgnore(true)
+  }
+}
+
 //-----------------------------------------------------------------------
 // Android Java part
 //-----------------------------------------------------------------------
 
-apply plugin: 'com.android.library'
-
 def String rootModulePath = "${projectDir}/src/hgkamva/platform/android"
 
 android {
-  compileSdkVersion 26
-  buildToolsVersion "27.0.3"
+  compileSdkVersion compileSdkVer
+  buildToolsVersion buildToolsVer
 
   defaultConfig {
-    minSdkVersion 16
-    targetSdkVersion 26
+    minSdkVersion minSdkVer
+    targetSdkVersion targetSdkVer
     versionCode 1
     versionName "1.0"
 
@@ -92,24 +155,19 @@ dependencies {
 // significantly improve build/deploy/debug cycle by only building the ABI
 // that is needed for the target device or emulator.
 
-//def cmAndroidAbis = ["armeabi", "armeabi-v7a", "x86", "mips", "arm64-v8a", "x86_64", "mips64"]
 //def cmAndroidAbis = ["armeabi-v7a", "arm64-v8a", "x86", "x86_64"]
-//def cmAndroidAbis = ["armeabi-v7a", "x86_64"] // for debug
-//def cmAndroidAbis = ["armeabi-v7a"] // for debug
-//def cmAndroidAbis = ["x86_64"] // for debug
-def cmAndroidAbis = ["x86"] // for debug
 //def String abiFiltersString = cmAndroidAbis.toString()
 //abiFiltersString = abiFiltersString.substring(1, abiFiltersString.length() - 1)
 
 android {
   defaultConfig {
     ndk {
-      abiFilters = cmAndroidAbis // what ABIs gradle should package into one apk
+      abiFilters = abiFilts // what ABIs gradle should package into one apk
     }
 
     externalNativeBuild {
       cmake {
-        abiFilters = cmAndroidAbis // what ABIs gradle should build
+        abiFilters = abiFilts // what ABIs gradle should build
 
 //        targets "cmaketarget1", "cmaketarget2", "cmaketarget3" // TODO:
 
@@ -169,8 +227,7 @@ android {
       path =
           "${rootModulePath}/main/cpp/HtmlGrapheasKamvaAndroid/CMakeLists.txt"
       // https://google.github.io/android-gradle-dsl/current/com.android.build.gradle.internal.dsl.CmakeOptions.html
-      buildStagingDirectory =
-          "${rootDir}/build_android/build_native/${rootProject.name}/${project.name}"
+      buildStagingDirectory = "${rootNativeBuildDir}/${project.name}"
     }
   }
 
@@ -350,4 +407,28 @@ def getShellArg()
   } else {
     return "-c"
   }
+}
+
+//-----------------------------------------------------------------------
+// Debug printing
+//-----------------------------------------------------------------------
+
+if (rootProject.hasProperty("buildGradleDebug") &&
+    rootProject.buildGradleDebug) {
+  println "================================================================"
+  println "Properties of module '${project.name}':"
+  println "================================================================"
+  println "ignoreVariantBuildType == ${ignoreVariantBuildType}"
+  println "android.buildToolsVersion == ${android.buildToolsVersion}"
+  println "android.compileSdkVersion == ${android.compileSdkVersion}"
+  println "android.defaultConfig.targetSdkVersion == ${android.defaultConfig.targetSdkVersion}"
+  println "android.defaultConfig.minSdkVersion == ${android.defaultConfig.minSdkVersion}"
+  println "supportLibVer == ${supportLibVer}"
+  println "android.defaultConfig.ndk.abiFilters == ${android.defaultConfig.ndk.abiFilters}"
+  println "android.defaultConfig.externalNativeBuild.cmake.abiFilters == ${android.defaultConfig.externalNativeBuild.cmake.abiFilters}"
+  println "rootBuildDir == ${rootBuildDir}"
+  println "rootProject.allprojects.buildDir == ${rootProject.allprojects.buildDir}"
+  println "project.buildDir == ${project.buildDir}"
+  println "android.externalNativeBuild.cmake.buildStagingDirectory == ${android.externalNativeBuild.cmake.buildStagingDirectory}"
+  println "================================================================"
 }
