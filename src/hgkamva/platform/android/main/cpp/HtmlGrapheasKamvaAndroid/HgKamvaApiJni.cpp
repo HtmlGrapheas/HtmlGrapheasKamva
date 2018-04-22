@@ -278,6 +278,13 @@ Java_ru_feographia_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgContainer_1set
       voidpCast(renderer), static_cast<hgLitehtmlMediaType>(type));
 }
 
+JNIEXPORT jint JNICALL
+Java_ru_feographia_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgContainer_1ptTopx(
+    JNIEnv* env, jclass type, jlong renderer, jint pt)
+{
+  return hgContainer_ptTopx(voidpCast(renderer), pt);
+}
+
 JNIEXPORT void JNICALL
 Java_ru_feographia_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgHtmlContext_1loadMasterStylesheet(
     JNIEnv* env, jclass type, jlong renderer, jstring str_)

@@ -86,6 +86,9 @@ public class HgKamvaApiJni
   public native static void hgContainer_setDeviceMediaType(
       long renderer, int type);
 
+  public native static int hgContainer_ptTopx(
+      long renderer, int pt);
+
   public native static void hgHtmlContext_loadMasterStylesheet(
       long renderer, String str);
 

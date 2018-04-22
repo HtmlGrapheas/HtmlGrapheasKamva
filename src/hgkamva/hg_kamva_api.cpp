@@ -197,6 +197,10 @@ void hgContainer_setDeviceMediaType(
       static_cast<litehtml::media_type>(type));
 }
 
+int hgContainer_ptTopx(HgHtmlRendererPtr renderer, int pt)
+{
+  return getHgContainer(renderer)->pt_to_px(pt);
+}
 
 // litehtml::context methods.
 

@@ -84,6 +84,7 @@ HG_KAMVA_EXTERNC void hgContainer_setDeviceColorIndex(
     HgHtmlRendererPtr renderer, int colorIndex);
 HG_KAMVA_EXTERNC void hgContainer_setDeviceMediaType(
     HgHtmlRendererPtr renderer, hgLitehtmlMediaType type);
+HG_KAMVA_EXTERNC int hgContainer_ptTopx(HgHtmlRendererPtr renderer, int pt);
 
 HG_KAMVA_EXTERNC void hgHtmlContext_loadMasterStylesheet(
     HgHtmlRendererPtr renderer, const char* str);

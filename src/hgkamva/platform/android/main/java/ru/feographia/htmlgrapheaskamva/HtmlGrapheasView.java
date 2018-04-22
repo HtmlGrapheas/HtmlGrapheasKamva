@@ -28,6 +28,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.text.TextUtils;
+import android.util.DisplayMetrics;
 import android.view.View;
 import ru.feographia.htmlgrapheaskamva.hgkamva_api.HgKamvaApiJni;
 import ru.feographia.htmlgrapheaskamva.hgkamva_api.codes.hgLitehtmlMediaType;
@@ -53,10 +54,15 @@ public class HtmlGrapheasView
   private Bitmap mBitmap;
   private long   mHgHtmlRenderer;
 
-  int mScrollX = 0;
-  int mScrollY = 0;
-  int mNewScrollX = 0;
-  int mNewScrollY = 0;
+  private int mCanvasWidth  = 0;
+  private int mCanvasHeight = 0;
+  private int mHtmlWidth    = 0;
+  private int mHtmlHeight   = 0;
+
+  private int mScrollX    = 0;
+  private int mScrollY    = 0;
+  private int mNewScrollX = 0;
+  private int mNewScrollY = 0;
 
   public HtmlGrapheasView(Context context)
   {
@@ -80,6 +86,28 @@ public class HtmlGrapheasView
     if (!initAppData()) {
       return false;
     }
+
+    int colorBits;
+    switch (BITMAP_CONFIG) {
+      case RGB_565:
+        colorBits = 5;
+        break;
+      case ARGB_8888:
+        colorBits = 8;
+        break;
+      default:
+        return false;
+    }
+
+    // Set device parameters.
+    DisplayMetrics metrics = getResources().getDisplayMetrics();
+    HgKamvaApiJni.hgContainer_setDeviceDpiX(mHgHtmlRenderer, metrics.xdpi);
+    HgKamvaApiJni.hgContainer_setDeviceDpiY(mHgHtmlRenderer, metrics.ydpi);
+    HgKamvaApiJni.hgContainer_setDeviceMonochromeBits(mHgHtmlRenderer, 0);
+    HgKamvaApiJni.hgContainer_setDeviceColorBits(mHgHtmlRenderer, colorBits);
+    HgKamvaApiJni.hgContainer_setDeviceColorIndex(mHgHtmlRenderer, 0);
+    HgKamvaApiJni.hgContainer_setDeviceMediaType(
+        mHgHtmlRenderer, hgLitehtmlMediaType.media_type_screen);
 
     File appDir = getAppDir();
     String dataDirName = "data";
@@ -108,17 +136,10 @@ public class HtmlGrapheasView
       return false;
     }
 
+    // Set font params. Must be after hgContainer_setDeviceDpiY().
+    int fontSizePx = HgKamvaApiJni.hgContainer_ptTopx(mHgHtmlRenderer, 10);
+    HgKamvaApiJni.hgContainer_setDefaultFontSize(mHgHtmlRenderer, fontSizePx);
     HgKamvaApiJni.hgContainer_setDefaultFontName(mHgHtmlRenderer, "Tinos");
-    HgKamvaApiJni.hgContainer_setDefaultFontSize(mHgHtmlRenderer, 24);
-
-    // Set device parameters.
-    HgKamvaApiJni.hgContainer_setDeviceDpiX(mHgHtmlRenderer, 96);
-    HgKamvaApiJni.hgContainer_setDeviceDpiY(mHgHtmlRenderer, 96);
-    HgKamvaApiJni.hgContainer_setDeviceMonochromeBits(mHgHtmlRenderer, 0);
-    HgKamvaApiJni.hgContainer_setDeviceColorBits(mHgHtmlRenderer, 8);
-    HgKamvaApiJni.hgContainer_setDeviceColorIndex(mHgHtmlRenderer, 256);
-    HgKamvaApiJni.hgContainer_setDeviceMediaType(
-        mHgHtmlRenderer, hgLitehtmlMediaType.media_type_screen);
 
     File masterCssFile = new File(dataDir, "master.css");
     String masterCss = readFromFile(masterCssFile);
@@ -144,8 +165,8 @@ public class HtmlGrapheasView
   {
     // Render HTML document.
     HgKamvaApiJni.hgHtmlRenderer_renderHtml(mHgHtmlRenderer, width, height);
-    int htmlWidth = HgKamvaApiJni.hgHtmlDocument_width(mHgHtmlRenderer);
-    int htmlHeight = HgKamvaApiJni.hgHtmlDocument_height(mHgHtmlRenderer);
+    mHtmlWidth = HgKamvaApiJni.hgHtmlDocument_width(mHgHtmlRenderer);
+    mHtmlHeight = HgKamvaApiJni.hgHtmlDocument_height(mHgHtmlRenderer);
   }
 
   private void drawHtml(int width, int height)
@@ -169,8 +190,7 @@ public class HtmlGrapheasView
   }
 
   @Override
-  protected void onSizeChanged(
-      int w, int h, int oldw, int oldh)
+  protected void onSizeChanged(int w, int h, int oldw, int oldh)
   {
     renderHtml(w, h);
   }
@@ -178,7 +198,9 @@ public class HtmlGrapheasView
   @Override
   protected void onDraw(Canvas canvas)
   {
-    drawHtml(canvas.getWidth(), canvas.getHeight());
+    mCanvasWidth = canvas.getWidth();
+    mCanvasHeight = canvas.getHeight();
+    drawHtml(mCanvasWidth, mCanvasHeight);
     canvas.drawBitmap(mBitmap, 0, 0, null);
   }
 
@@ -228,15 +250,15 @@ public class HtmlGrapheasView
   public String getApkPath()
   {
     try {
-      return getContext().getPackageManager().getApplicationInfo(
-          getContext().getPackageName(), 0).sourceDir;
+      return getContext().getPackageManager()
+          .getApplicationInfo(getContext().getPackageName(), 0).sourceDir;
     } catch (PackageManager.NameNotFoundException e) {
       e.printStackTrace();
       return null;
     }
   }
 
-  // TODO: move it to MainApplication
+  // TODO: move it to util
   public static void unzip(
       File zipFile, File targetDirectory, String extractedDirName)
       throws IOException
@@ -251,8 +273,8 @@ public class HtmlGrapheasView
         File file = new File(targetDirectory, ze.getName());
         File dir = ze.isDirectory() ? file : file.getParentFile();
 
-        if (extractedDirName != null && !dir.getPath().contains(
-            extractedDirName)) {
+        if (extractedDirName != null && !dir.getPath()
+            .contains(extractedDirName)) {
           continue;
         }
 
@@ -278,6 +300,7 @@ public class HtmlGrapheasView
     }
   }
 
+  // TODO: move it to util
   public static String readFromFile(File filePath)
   {
     try {
