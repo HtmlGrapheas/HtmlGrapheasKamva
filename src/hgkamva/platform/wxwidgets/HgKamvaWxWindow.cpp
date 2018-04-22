@@ -81,13 +81,17 @@ HgKamvaWxWindow::~HgKamvaWxWindow()
 
 void HgKamvaWxWindow::initHgContainer()
 {
+  int colorBits = hgPixelFormatIdToColorBits(mPixFmtId);
+  if(0 == colorBits) {
+    return;
+  }
+
   // Set device parameters.
   // 15.6", 1920x1080 -> 141 DPI
   hgContainer_setDeviceDpiX(mHgHtmlRenderer, 141);
   hgContainer_setDeviceDpiY(mHgHtmlRenderer, 141);
   hgContainer_setDeviceMonochromeBits(mHgHtmlRenderer, 0);
-  hgContainer_setDeviceColorBits(
-      mHgHtmlRenderer, hgPixelFormatIdToColorBits(mPixFmtId));
+  hgContainer_setDeviceColorBits(mHgHtmlRenderer, colorBits);
   hgContainer_setDeviceColorIndex(mHgHtmlRenderer, 256);
   hgContainer_setDeviceMediaType(
       mHgHtmlRenderer, hgLitehtmlMediaType::media_type_screen);

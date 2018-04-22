@@ -54,15 +54,16 @@ public class HtmlGrapheasView
   private Bitmap mBitmap;
   private long   mHgHtmlRenderer;
 
-  private int mCanvasWidth  = 0;
-  private int mCanvasHeight = 0;
   private int mHtmlWidth    = 0;
   private int mHtmlHeight   = 0;
+  private int mVisibleHtmlWidth  = 0;
+  private int mVisibleHtmlHeight = 0;
+  
+  private int mHtmlX             = 0;
+  private int mHtmlY             = 0;
+  private int mNewHtmlX          = 0;
+  private int mNewHtmlY          = 0;
 
-  private int mScrollX    = 0;
-  private int mScrollY    = 0;
-  private int mNewScrollX = 0;
-  private int mNewScrollY = 0;
 
   public HtmlGrapheasView(Context context)
   {
@@ -70,14 +71,27 @@ public class HtmlGrapheasView
 
     // Using example of destructor for HgHtmlRenderer.
     // if(mHgHtmlRenderer != 0) {
-    //   HgKamvaApiJni.deleteHgHtmlRenderer(mHgHtmlRenderer);
+    //   HgKamvaApiJni.hgDeleteHtmlRenderer(mHgHtmlRenderer);
     // }
 
     // Here mBitmap is used as converter
     // from Java Bitmap.Config to NDK ANDROID_BITMAP_FORMAT_*.
     mBitmap = Bitmap.createBitmap(1, 1, BITMAP_CONFIG);
-    mHgHtmlRenderer = HgKamvaApiJni.newHgHtmlRenderer(mBitmap);
+    mHgHtmlRenderer = HgKamvaApiJni.hgNewHtmlRenderer(mBitmap);
     initHgContainer();
+  }
+
+  // TODO: move it to util.
+  private int bitmapConfigToColorBits(Bitmap.Config config)
+  {
+    switch (BITMAP_CONFIG) {
+      case RGB_565:
+        return 5;
+      case ARGB_8888:
+        return 8;
+      default:
+        return 0;
+    }
   }
 
   private boolean initHgContainer()
@@ -87,16 +101,9 @@ public class HtmlGrapheasView
       return false;
     }
 
-    int colorBits;
-    switch (BITMAP_CONFIG) {
-      case RGB_565:
-        colorBits = 5;
-        break;
-      case ARGB_8888:
-        colorBits = 8;
-        break;
-      default:
-        return false;
+    int colorBits = bitmapConfigToColorBits(BITMAP_CONFIG);
+    if (colorBits == 0) {
+      return false;
     }
 
     // Set device parameters.
@@ -137,7 +144,7 @@ public class HtmlGrapheasView
     }
 
     // Set font params. Must be after hgContainer_setDeviceDpiY().
-    int fontSizePx = HgKamvaApiJni.hgContainer_ptTopx(mHgHtmlRenderer, 10);
+    int fontSizePx = HgKamvaApiJni.hgContainer_ptToPx(mHgHtmlRenderer, 10);
     HgKamvaApiJni.hgContainer_setDefaultFontSize(mHgHtmlRenderer, fontSizePx);
     HgKamvaApiJni.hgContainer_setDefaultFontName(mHgHtmlRenderer, "Tinos");
 
@@ -161,46 +168,59 @@ public class HtmlGrapheasView
     return true;
   }
 
-  private void renderHtml(int width, int height)
+  private void setBitmap(int width, int height)
   {
-    // Render HTML document.
-    HgKamvaApiJni.hgHtmlRenderer_renderHtml(mHgHtmlRenderer, width, height);
-    mHtmlWidth = HgKamvaApiJni.hgHtmlDocument_width(mHgHtmlRenderer);
-    mHtmlHeight = HgKamvaApiJni.hgHtmlDocument_height(mHgHtmlRenderer);
+    if (mBitmap != null && mBitmap.getWidth() == width
+        && mBitmap.getHeight() == height) {
+      return;
+    }
+    mBitmap = Bitmap.createBitmap(width, height, BITMAP_CONFIG);
+  }
+
+  private void drawOnBitmap()
+  {
+    drawHtml(mBitmap.getWidth(), mBitmap.getHeight());
   }
 
   private void drawHtml(int width, int height)
   {
-    if (mBitmap != null && mBitmap.getWidth() == width
-        && mBitmap.getHeight() == height && mScrollX == mNewScrollX
-        && mScrollY == mNewScrollY) {
+    if (mBitmap == null || (width == mVisibleHtmlWidth
+        && height == mVisibleHtmlHeight && mNewHtmlX == mHtmlX
+        && mNewHtmlY == mHtmlY)) {
       return;
     }
 
-    mScrollX = mNewScrollX;
-    mScrollY = mNewScrollY;
-
-    mBitmap = Bitmap.createBitmap(width, height, BITMAP_CONFIG);
+    mVisibleHtmlWidth = width;
+    mVisibleHtmlHeight = height;
+    mHtmlX = mNewHtmlX;
+    mHtmlY = mNewHtmlY;
 
     // Draw HTML document.
     HgKamvaApiJni.hgHtmlRenderer_setBackgroundColor(
         mHgHtmlRenderer, (short) 255, (short) 255, (short) 255, (short) 255);
     HgKamvaApiJni.hgHtmlRenderer_drawHtml(
-        mHgHtmlRenderer, mBitmap, mNewScrollX, mNewScrollY);
+        mHgHtmlRenderer, mBitmap, mNewHtmlX, mNewHtmlY);
   }
 
   @Override
-  protected void onSizeChanged(int w, int h, int oldw, int oldh)
+  protected void onSizeChanged(int width, int height, int oldw, int oldh)
   {
-    renderHtml(w, h);
+    int htmlWidth = HgKamvaApiJni.hgHtmlDocument_width(mHgHtmlRenderer);
+
+    if (htmlWidth != width) {
+      // Render HTML document.
+      HgKamvaApiJni.hgHtmlRenderer_renderHtml(mHgHtmlRenderer, width, height);
+
+      mHtmlWidth = HgKamvaApiJni.hgHtmlDocument_width(mHgHtmlRenderer);
+      mHtmlHeight = HgKamvaApiJni.hgHtmlDocument_height(mHgHtmlRenderer);
+    }
   }
 
   @Override
   protected void onDraw(Canvas canvas)
   {
-    mCanvasWidth = canvas.getWidth();
-    mCanvasHeight = canvas.getHeight();
-    drawHtml(mCanvasWidth, mCanvasHeight);
+    setBitmap(canvas.getWidth(), canvas.getHeight());
+    drawOnBitmap();
     canvas.drawBitmap(mBitmap, 0, 0, null);
   }
 
