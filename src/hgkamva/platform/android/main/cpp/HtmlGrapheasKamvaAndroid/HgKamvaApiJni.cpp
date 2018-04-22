@@ -72,21 +72,28 @@ inline void* voidpCast(jlong val)
 //  AndroidBitmap_unlockPixels(env, bitmap);
 //}
 
+JNIEXPORT jint JNICALL
+Java_ru_feographia_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgPixelFormatIdToColorBits(
+    JNIEnv* env, jclass type, jint pixFmtId)
+{
+  return hgPixelFormatIdToColorBits(static_cast<hgPixelFormatId>(pixFmtId));
+}
+
 JNIEXPORT jlong JNICALL
-Java_ru_feographia_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_newHgHtmlRenderer(
+Java_ru_feographia_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgNewHtmlRenderer(
     JNIEnv* env, jclass type, jobject bitmap)
 {
   AndroidBitmapInfo bitmapInfo;
   AndroidBitmap_getInfo(env, bitmap, &bitmapInfo);
 
-  enum hgPixelFormatId pixFmt;
+  enum hgPixelFormatId pixFmtId;
   switch(bitmapInfo.format) {
     case ANDROID_BITMAP_FORMAT_RGB_565: {
-      pixFmt = hgPixelFormatId::RGB565;
+      pixFmtId = hgPixelFormatId::RGB565;
       break;
     }
     case ANDROID_BITMAP_FORMAT_RGBA_8888: {
-      pixFmt = hgPixelFormatId::RGBA32;
+      pixFmtId = hgPixelFormatId::RGBA32;
       break;
     }
     default: {
@@ -96,14 +103,14 @@ Java_ru_feographia_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_newHgHtmlRendere
     }
   }
 
-  return reinterpret_cast<jlong>(newHgHtmlRenderer(pixFmt));
+  return reinterpret_cast<jlong>(hgNewHtmlRenderer(pixFmtId));
 }
 
 JNIEXPORT void JNICALL
-Java_ru_feographia_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_deleteHgHtmlRenderer(
+Java_ru_feographia_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgDeleteHtmlRenderer(
     JNIEnv* env, jclass type, jlong renderer)
 {
-  deleteHgHtmlRenderer(voidpCast(renderer));
+  hgDeleteHtmlRenderer(voidpCast(renderer));
 }
 
 JNIEXPORT void JNICALL
@@ -128,8 +135,8 @@ Java_ru_feographia_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgHtmlRenderer_1
     jclass type,
     jlong renderer,
     jobject bitmap,
-    jint scrollX,
-    jint scrollY)
+    jint htmlX,
+    jint htmlY)
 {
   // https://github.com/AndroidDeveloperLB/AndroidJniBitmapOperations
   // http://stackoverflow.com/questions/18250951/jni-bitmap-operations-for-helping-to-avoid-oom-when-using-large-images
@@ -147,7 +154,7 @@ Java_ru_feographia_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgHtmlRenderer_1
 
   hgHtmlRenderer_drawHtml(voidpCast(renderer),
       static_cast<unsigned char*>(p_pixels), bitmapInfo.width,
-      bitmapInfo.height, bitmapInfo.stride, scrollX, scrollY);
+      bitmapInfo.height, bitmapInfo.stride, htmlX, htmlY);
 
   AndroidBitmap_unlockPixels(env, bitmap);
 }
@@ -279,10 +286,10 @@ Java_ru_feographia_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgContainer_1set
 }
 
 JNIEXPORT jint JNICALL
-Java_ru_feographia_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgContainer_1ptTopx(
+Java_ru_feographia_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgContainer_1ptToPx(
     JNIEnv* env, jclass type, jlong renderer, jint pt)
 {
-  return hgContainer_ptTopx(voidpCast(renderer), pt);
+  return hgContainer_ptToPx(voidpCast(renderer), pt);
 }
 
 JNIEXPORT void JNICALL

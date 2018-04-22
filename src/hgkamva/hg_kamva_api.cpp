@@ -59,11 +59,27 @@ inline litehtml::document::ptr getHtmlDocument(HgHtmlRendererPtr renderer)
 
 // API functions.
 
+int hgPixelFormatIdToColorBits(enum hgPixelFormatId pixFmtId)
+{
+  switch(pixFmtId) {
+    case hgPixelFormatId::RGB565:
+      return 5;
+    case hgPixelFormatId::RGB24:
+    case hgPixelFormatId::BGR24:
+    case hgPixelFormatId::RGBA32:
+    case hgPixelFormatId::BGRA32:
+    case hgPixelFormatId::ARGB32:
+    case hgPixelFormatId::ABGR32:
+      return 8;
+  }
+  return 0;
+}
+
 // HgHtmlRenderer methods.
 
-HgHtmlRendererPtr newHgHtmlRenderer(enum hgPixelFormatId aggPixFmtId)
+HgHtmlRendererPtr hgNewHtmlRenderer(enum hgPixelFormatId pixFmtId)
 {
-  switch(aggPixFmtId) {
+  switch(pixFmtId) {
     case hgPixelFormatId::RGB565:
       return new HgAggHtmlRenderer<agg::pixfmt_rgb565>();
     case hgPixelFormatId::RGB24:
@@ -82,7 +98,7 @@ HgHtmlRendererPtr newHgHtmlRenderer(enum hgPixelFormatId aggPixFmtId)
   return nullptr;
 }
 
-void deleteHgHtmlRenderer(HgHtmlRendererPtr renderer)
+void hgDeleteHtmlRenderer(HgHtmlRendererPtr renderer)
 {
   delete getHgHtmlRenderer(renderer);
 }
@@ -103,11 +119,11 @@ void hgHtmlRenderer_drawHtml(HgHtmlRendererPtr renderer,
     int width,
     int height,
     int stride,
-    int scrollX,
-    int scrollY)
+    int htmlX,
+    int htmlY)
 {
   return getHgHtmlRenderer(renderer)->drawHtml(
-      buffer, width, height, stride, scrollX, scrollY);
+      buffer, width, height, stride, htmlX, htmlY);
 }
 
 void hgHtmlRenderer_setBackgroundColor(HgHtmlRendererPtr renderer,
@@ -197,7 +213,7 @@ void hgContainer_setDeviceMediaType(
       static_cast<litehtml::media_type>(type));
 }
 
-int hgContainer_ptTopx(HgHtmlRendererPtr renderer, int pt)
+int hgContainer_ptToPx(HgHtmlRendererPtr renderer, int pt)
 {
   return getHgContainer(renderer)->pt_to_px(pt);
 }

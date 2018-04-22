@@ -44,10 +44,6 @@ void HgHtmlRenderer::createHtmlDocumentFromUtf8(const std::string& htmlText)
 
 int HgHtmlRenderer::renderHtml(int width, int height)
 {
-  if(mHtmlDocument && mHtmlDocument->width() == width) {
-    return 0;
-  }
-
   mHgContainer->setDeviceWidth(width);
   mHgContainer->setDeviceHeight(height);
   mHgContainer->setDisplayAreaWidth(width);
@@ -63,8 +59,8 @@ void HgHtmlRenderer::drawHtml(unsigned char* buffer,
     int width,
     int height,
     int stride,
-    int scrollX,
-    int scrollY)
+    int htmlX,
+    int htmlY)
 {
   mHgPainter->attach(buffer, width, height, stride);
   mHgPainter->setRendererColor(mBackgroundColor);
@@ -73,7 +69,7 @@ void HgHtmlRenderer::drawHtml(unsigned char* buffer,
   // Draw HTML document.
   litehtml::uint_ptr hdc = reinterpret_cast<litehtml::uint_ptr>(mHgPainter);
   litehtml::position clip(0, 0, width, height);
-  mHtmlDocument->draw(hdc, -scrollX, -scrollY, &clip);
+  mHtmlDocument->draw(hdc, -htmlX, -htmlY, &clip);
 }
 
 }  // namespace hg

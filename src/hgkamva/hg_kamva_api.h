@@ -32,9 +32,11 @@ typedef void* HgHtmlRendererPtr;
 typedef unsigned char HgBool;
 typedef unsigned char HgByte;
 
-HG_KAMVA_EXTERNC HgHtmlRendererPtr newHgHtmlRenderer(
-    enum hgPixelFormatId aggPixFmtId);
-HG_KAMVA_EXTERNC void deleteHgHtmlRenderer(HgHtmlRendererPtr renderer);
+HG_KAMVA_EXTERNC int hgPixelFormatIdToColorBits(enum hgPixelFormatId pixFmtId);
+
+HG_KAMVA_EXTERNC HgHtmlRendererPtr hgNewHtmlRenderer(
+    enum hgPixelFormatId pixFmtId);
+HG_KAMVA_EXTERNC void hgDeleteHtmlRenderer(HgHtmlRendererPtr renderer);
 
 HG_KAMVA_EXTERNC void hgHtmlRenderer_createHtmlDocumentFromUtf8(
     HgHtmlRendererPtr renderer, const char* htmlText);
@@ -45,8 +47,8 @@ HG_KAMVA_EXTERNC void hgHtmlRenderer_drawHtml(HgHtmlRendererPtr renderer,
     int width,
     int height,
     int stride,
-    int scrollX,
-    int scrollY);
+    int htmlX,
+    int htmlY);
 HG_KAMVA_EXTERNC void hgHtmlRenderer_setBackgroundColor(
     HgHtmlRendererPtr renderer,
     HgByte red,
@@ -84,7 +86,7 @@ HG_KAMVA_EXTERNC void hgContainer_setDeviceColorIndex(
     HgHtmlRendererPtr renderer, int colorIndex);
 HG_KAMVA_EXTERNC void hgContainer_setDeviceMediaType(
     HgHtmlRendererPtr renderer, hgLitehtmlMediaType type);
-HG_KAMVA_EXTERNC int hgContainer_ptTopx(HgHtmlRendererPtr renderer, int pt);
+HG_KAMVA_EXTERNC int hgContainer_ptToPx(HgHtmlRendererPtr renderer, int pt);
 
 HG_KAMVA_EXTERNC void hgHtmlContext_loadMasterStylesheet(
     HgHtmlRendererPtr renderer, const char* str);

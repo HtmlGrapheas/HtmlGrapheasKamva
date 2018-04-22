@@ -28,9 +28,11 @@ import android.graphics.Bitmap;
 
 public class HgKamvaApiJni
 {
-  public native static long newHgHtmlRenderer(Bitmap bitmap);
+  public native static int hgPixelFormatIdToColorBits(int pixFmtId);
 
-  public native static void deleteHgHtmlRenderer(long renderer);
+  public native static long hgNewHtmlRenderer(Bitmap bitmap);
+
+  public native static void hgDeleteHtmlRenderer(long renderer);
 
   public native static void hgHtmlRenderer_createHtmlDocumentFromUtf8(
       long renderer, String htmlText);
@@ -39,7 +41,7 @@ public class HgKamvaApiJni
       long renderer, int width, int height);
 
   public native static void hgHtmlRenderer_drawHtml(
-      long renderer, Bitmap bitmap, int scrollX, int scrollY);
+      long renderer, Bitmap bitmap, int htmlX, int htmlY);
 
   public native static void hgHtmlRenderer_setBackgroundColor(
       long renderer, short red, short green, short blue, short alpha);
@@ -86,7 +88,7 @@ public class HgKamvaApiJni
   public native static void hgContainer_setDeviceMediaType(
       long renderer, int type);
 
-  public native static int hgContainer_ptTopx(
+  public native static int hgContainer_ptToPx(
       long renderer, int pt);
 
   public native static void hgHtmlContext_loadMasterStylesheet(

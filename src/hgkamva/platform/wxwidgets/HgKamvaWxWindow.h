@@ -74,10 +74,15 @@ public:
 protected:
   void initHgContainer();
 
-  void renderHtml(int width, int height);
-
   /// Create the bitmap given the current size.
-  void drawHtml(int width, int height);
+  void setBitmap(const int width, const int height);
+
+  void drawOnBitmap();
+
+  void drawHtml(unsigned char* buffer,
+      const int width,
+      const int height,
+      const int stride);
 
   /// Resize the bitmap to match the window.
   void onSize(wxSizeEvent& event);
@@ -89,16 +94,18 @@ protected:
   void onEraseBackground(wxEraseEvent& event);
 
 private:
-  std::shared_ptr<wxBitmap> mBitmap;  ///< wxWidgets bitmap for AGG to draw into
   wxMemoryDC mMemoryDC;  ///< Memory "device context" for drawing the bitmap
+  std::shared_ptr<wxBitmap> mBitmap;  ///< wxWidgets bitmap for AGG to draw into
 
   const enum hgPixelFormatId mPixFmtId = PixelFormat::id;
   HgHtmlRendererPtr mHgHtmlRenderer;
 
-  int mScrollX;
-  int mScrollY;
-  int mNewScrollX;
-  int mNewScrollY;
+  int mVisibleHtmlWidth;
+  int mVisibleHtmlHeight;
+  int mHtmlX;
+  int mHtmlY;
+  int mNewHtmlX;
+  int mNewHtmlY;
 
   DECLARE_EVENT_TABLE()  /// Allocate wxWidgets storage for event handlers
 };  // class HtmlGrapheasKamvaWx

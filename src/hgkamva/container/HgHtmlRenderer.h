@@ -46,8 +46,8 @@ public:
       int width,
       int height,
       int stride,
-      int scrollX,
-      int scrollY);
+      int htmlX,
+      int htmlY);
 
   void setBackgroundColor(const litehtml::web_color& color);
 

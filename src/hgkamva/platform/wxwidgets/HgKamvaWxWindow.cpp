@@ -57,12 +57,14 @@ HgKamvaWxWindow::HgKamvaWxWindow(wxWindow* parent,
     long style)
     : wxScrolledCanvas(parent, id, pos, size, style, wxT("HgKamvaWxWindow"))
     , mBitmap(nullptr)
-    , mScrollX(0)
-    , mScrollY(0)
-    , mNewScrollX(0)
-    , mNewScrollY(0)
+    , mVisibleHtmlWidth(0)
+    , mVisibleHtmlHeight(0)
+    , mHtmlX(0)
+    , mHtmlY(0)
+    , mNewHtmlX(0)
+    , mNewHtmlY(0)
 {
-  mHgHtmlRenderer = newHgHtmlRenderer(mPixFmtId);
+  mHgHtmlRenderer = hgNewHtmlRenderer(mPixFmtId);
   initHgContainer();
 
   // This part makes the scrollbars show up.
@@ -74,11 +76,22 @@ HgKamvaWxWindow::HgKamvaWxWindow(wxWindow* parent,
 HgKamvaWxWindow::~HgKamvaWxWindow()
 {
   mMemoryDC.SelectObject(wxNullBitmap);
-  deleteHgHtmlRenderer(mHgHtmlRenderer);
+  hgDeleteHtmlRenderer(mHgHtmlRenderer);
 }
 
 void HgKamvaWxWindow::initHgContainer()
 {
+  // Set device parameters.
+  // 15.6", 1920x1080 -> 141 DPI
+  hgContainer_setDeviceDpiX(mHgHtmlRenderer, 141);
+  hgContainer_setDeviceDpiY(mHgHtmlRenderer, 141);
+  hgContainer_setDeviceMonochromeBits(mHgHtmlRenderer, 0);
+  hgContainer_setDeviceColorBits(
+      mHgHtmlRenderer, hgPixelFormatIdToColorBits(mPixFmtId));
+  hgContainer_setDeviceColorIndex(mHgHtmlRenderer, 256);
+  hgContainer_setDeviceMediaType(
+      mHgHtmlRenderer, hgLitehtmlMediaType::media_type_screen);
+
   wxFileName exeFile(wxStandardPaths::Get().GetExecutablePath());
 
   wxFileName exeDir;
@@ -113,17 +126,10 @@ void HgKamvaWxWindow::initHgContainer()
       hgContainer_addFontDir(mHgHtmlRenderer, fontDir.GetPath().c_str());
   assert(addedFontDir);
 
+  // Set font params. Must be after hgContainer_setDeviceDpiY().
+  int fontSizePx = hgContainer_ptToPx(mHgHtmlRenderer, 10);
+  hgContainer_setDefaultFontSize(mHgHtmlRenderer, fontSizePx);
   hgContainer_setDefaultFontName(mHgHtmlRenderer, "Tinos");
-  hgContainer_setDefaultFontSize(mHgHtmlRenderer, 24);
-
-  // Set device parameters.
-  hgContainer_setDeviceDpiX(mHgHtmlRenderer, 96);
-  hgContainer_setDeviceDpiY(mHgHtmlRenderer, 96);
-  hgContainer_setDeviceMonochromeBits(mHgHtmlRenderer, 0);
-  hgContainer_setDeviceColorBits(mHgHtmlRenderer, 8);
-  hgContainer_setDeviceColorIndex(mHgHtmlRenderer, 256);
-  hgContainer_setDeviceMediaType(
-      mHgHtmlRenderer, hgLitehtmlMediaType::media_type_screen);
 
   std::string masterCss =
       FileUtil::readFile(masterCssFile.GetFullPath().ToStdString());
@@ -138,46 +144,39 @@ void HgKamvaWxWindow::initHgContainer()
   hgHtmlRenderer_createHtmlDocumentFromUtf8(mHgHtmlRenderer, htmlText.c_str());
 }
 
-void HgKamvaWxWindow::renderHtml(int width, int height)
+void HgKamvaWxWindow::setBitmap(const int width, const int height)
 {
-  // Render HTML document.
-  hgHtmlRenderer_renderHtml(mHgHtmlRenderer, width, height);
-  SetVirtualSize(hgHtmlDocument_width(mHgHtmlRenderer),
-      hgHtmlDocument_height(mHgHtmlRenderer));
-}
-
-void HgKamvaWxWindow::drawHtml(int width, int height)
-{
-  if(mBitmap && mBitmap->GetWidth() == width && mBitmap->GetHeight() == height
-      && mScrollX == mNewScrollX && mScrollY == mNewScrollY) {
+  if(mBitmap && mBitmap->GetWidth() == width
+      && mBitmap->GetHeight() == height) {
     return;
   }
 
-  mScrollX = mNewScrollX;
-  mScrollY = mNewScrollY;
-
   mMemoryDC.SelectObject(wxNullBitmap);
-
   mBitmap = std::shared_ptr<wxBitmap>(
       new wxBitmap(width, height, PixelFormat::wxWidgetsType::BitsPerPixel));
   mMemoryDC.SelectObject(*mBitmap);
+}
 
+void HgKamvaWxWindow::drawOnBitmap()
+{
   // Attach the AGG rendering buffer to the bitmap
   // and call the user draw() code.
 
   // Draw the bitmap.
-  // Get raw access to the wxWidgets bitmap -- this locks the pixels and
-  // unlocks on destruction.
+  // Get raw access to the wxWidgets bitmap --
+  // this locks the pixels and unlocks on destruction.
   PixelData pixels(*mBitmap);
   assert(pixels);
+  assert(pixels.GetPixels().IsOk());
 
   // This cast looks like it is ignoring byte-ordering, but the
   // pixel format already explicitly handles that.
-  assert(pixels.GetPixels().IsOk());
-
-  wxAlphaPixelFormat::ChannelType* pData =
+  wxAlphaPixelFormat::ChannelType* pixData =
       reinterpret_cast<wxAlphaPixelFormat::ChannelType*>(
           &pixels.GetPixels().Data());
+
+  int pixWidth = pixels.GetWidth();
+  int pixHeight = pixels.GetHeight();
 
   // wxWidgets always returns a pointer to the first row of pixels, whether
   // that is stored at the beginning of the buffer (stride > 0) or at the
@@ -186,27 +185,50 @@ void HgKamvaWxWindow::drawHtml(int width, int height)
   // negative strides correctly.)
   // Upshot: if the stride is negative, rewind the pointer from the end of
   // the buffer to the beginning.
-  const int stride = pixels.GetRowStride();
-  if(stride < 0) {
-    pData += (pixels.GetHeight() - 1) * stride;
+  int pixStride = pixels.GetRowStride();
+  if(pixStride < 0) {
+    pixData += (pixHeight - 1) * pixStride;
   }
 
-  int frameWidth = pixels.GetWidth();
-  int frameHeight = pixels.GetHeight();
+  drawHtml(pixData, pixWidth, pixHeight, pixStride);
+}
+
+void HgKamvaWxWindow::drawHtml(
+    unsigned char* buffer, const int width, const int height, const int stride)
+{
+  if(!buffer || (width == mVisibleHtmlWidth && height == mVisibleHtmlHeight
+                    && mNewHtmlX == mHtmlX && mNewHtmlY == mHtmlY)) {
+    return;
+  }
+
+  mVisibleHtmlWidth = width;
+  mVisibleHtmlHeight = height;
+  mHtmlX = mNewHtmlX;
+  mHtmlY = mNewHtmlY;
 
   // Draw HTML document.
   hgHtmlRenderer_setBackgroundColor(mHgHtmlRenderer, 255, 255, 255);
-  hgHtmlRenderer_drawHtml(mHgHtmlRenderer, pData, frameWidth, frameHeight,
-      stride, mNewScrollX, mNewScrollY);
-
-  // Request a full redraw of the window.
-  Refresh(false);
+  hgHtmlRenderer_drawHtml(
+      mHgHtmlRenderer, buffer, width, height, stride, mNewHtmlX, mNewHtmlY);
 }
 
 void HgKamvaWxWindow::onSize(wxSizeEvent& event)
 {
   const wxSize size = GetClientSize();
-  renderHtml(size.GetWidth(), size.GetHeight());
+  int htmlWidth = hgHtmlDocument_width(mHgHtmlRenderer);
+
+  if(htmlWidth != size.GetWidth()) {
+    // Render HTML document.
+    hgHtmlRenderer_renderHtml(
+        mHgHtmlRenderer, size.GetWidth(), size.GetHeight());
+
+    htmlWidth = hgHtmlDocument_width(mHgHtmlRenderer);
+    int htmlHeight = hgHtmlDocument_height(mHgHtmlRenderer);
+    SetVirtualSize(htmlWidth, htmlHeight);
+
+    // Request a full redraw of the window.
+    Refresh(false);
+  }
 }
 
 void HgKamvaWxWindow::onPaint(wxPaintEvent& event)
@@ -218,17 +240,18 @@ void HgKamvaWxWindow::onPaint(wxPaintEvent& event)
   dc.GetSize(&width, &height);
 
   // GetScrollPos() do not work on Windows with native scroll bars.
-  GetViewStart(&mNewScrollX, &mNewScrollY);
+  GetViewStart(&mNewHtmlX, &mNewHtmlY);
 
-  drawHtml(width, height);
+  setBitmap(width, height);
+  drawOnBitmap();
 
   // Iterate over regions needing repainting.
   wxRegionIterator regions(GetUpdateRegion());
   wxRect rect;
   while(regions) {
     rect = regions.GetRect();
-    int xd = rect.x + mNewScrollX;
-    int yd = rect.y + mNewScrollY;
+    int xd = rect.x + mNewHtmlX;
+    int yd = rect.y + mNewHtmlY;
     int xs = rect.x;
     int ys = rect.y;
     dc.Blit(xd, yd, rect.width, rect.height, &mMemoryDC, xs, ys);
