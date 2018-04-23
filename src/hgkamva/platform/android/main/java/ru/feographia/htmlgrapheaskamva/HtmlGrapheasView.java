@@ -23,13 +23,21 @@
 
 package ru.feographia.htmlgrapheaskamva;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.os.Build;
+import android.support.v4.view.GestureDetectorCompat;
+import android.support.v4.view.ViewCompat;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
 import android.view.View;
+import android.widget.OverScroller;
 import ru.feographia.htmlgrapheaskamva.hgkamva_api.HgKamvaApiJni;
 import ru.feographia.htmlgrapheaskamva.hgkamva_api.codes.hgLitehtmlMediaType;
 
@@ -47,27 +55,42 @@ import java.util.zip.ZipInputStream;
 
 public class HtmlGrapheasView
     extends View
+    implements GestureDetector.OnGestureListener,
+               GestureDetector.OnDoubleTapListener,
+               ScaleGestureDetector.OnScaleGestureListener
 {
+  // TODO: order private and protected members.
+  // TODO: render HTML and draw it to bitmap in separate thread.
+
+  private GestureDetectorCompat mGestureDetector;
+  private ScaleGestureDetector  mScaleGestureDetector;
+  private OverScroller          mScroller;
+
   private static final Bitmap.Config BITMAP_CONFIG = Bitmap.Config.ARGB_8888;
 //  private static final Bitmap.Config BITMAP_CONFIG = Bitmap.Config.RGB_565;
 
   private Bitmap mBitmap;
   private long   mHgHtmlRenderer;
 
-  private int mHtmlWidth    = 0;
-  private int mHtmlHeight   = 0;
+  private int mHtmlWidth         = 0;
+  private int mHtmlHeight        = 0;
   private int mVisibleHtmlWidth  = 0;
   private int mVisibleHtmlHeight = 0;
-  
-  private int mHtmlX             = 0;
-  private int mHtmlY             = 0;
-  private int mNewHtmlX          = 0;
-  private int mNewHtmlY          = 0;
+
+  private int mHtmlX    = 0;
+  private int mHtmlY    = 0;
+  private int mNewHtmlX = 0;
+  private int mNewHtmlY = 0;
 
 
   public HtmlGrapheasView(Context context)
   {
     super(context);
+
+    mGestureDetector = new GestureDetectorCompat(context, this);
+    mGestureDetector.setOnDoubleTapListener(this);
+    mScaleGestureDetector = new ScaleGestureDetector(context, this);
+    mScroller = new OverScroller(context);
 
     // Using example of destructor for HgHtmlRenderer.
     // if(mHgHtmlRenderer != 0) {
@@ -79,6 +102,34 @@ public class HtmlGrapheasView
     mBitmap = Bitmap.createBitmap(1, 1, BITMAP_CONFIG);
     mHgHtmlRenderer = HgKamvaApiJni.hgNewHtmlRenderer(mBitmap);
     initHgContainer();
+  }
+
+  protected void setNewHtmlX(int x)
+  {
+    if (x < 0) {
+      mNewHtmlX = 0;
+    } else {
+      int maxX = mHtmlWidth - mVisibleHtmlWidth;
+      if (x > maxX) {
+        mNewHtmlX = maxX;
+      } else {
+        mNewHtmlX = x;
+      }
+    }
+  }
+
+  protected void setNewHtmlY(int y)
+  {
+    if (y < 0) {
+      mNewHtmlY = 0;
+    } else {
+      int maxY = mHtmlHeight - mVisibleHtmlHeight;
+      if (y > maxY) {
+        mNewHtmlY = maxY;
+      } else {
+        mNewHtmlY = y;
+      }
+    }
   }
 
   // TODO: move it to util.
@@ -168,6 +219,19 @@ public class HtmlGrapheasView
     return true;
   }
 
+  private void renderHtml(int width, int height)
+  {
+    int htmlWidth = HgKamvaApiJni.hgHtmlDocument_width(mHgHtmlRenderer);
+
+    if (htmlWidth != width) {
+      // Render HTML document.
+      HgKamvaApiJni.hgHtmlRenderer_renderHtml(mHgHtmlRenderer, width, height);
+
+      mHtmlWidth = HgKamvaApiJni.hgHtmlDocument_width(mHgHtmlRenderer);
+      mHtmlHeight = HgKamvaApiJni.hgHtmlDocument_height(mHgHtmlRenderer);
+    }
+  }
+
   private void setBitmap(int width, int height)
   {
     if (mBitmap != null && mBitmap.getWidth() == width
@@ -200,28 +264,6 @@ public class HtmlGrapheasView
         mHgHtmlRenderer, (short) 255, (short) 255, (short) 255, (short) 255);
     HgKamvaApiJni.hgHtmlRenderer_drawHtml(
         mHgHtmlRenderer, mBitmap, mNewHtmlX, mNewHtmlY);
-  }
-
-  @Override
-  protected void onSizeChanged(int width, int height, int oldw, int oldh)
-  {
-    int htmlWidth = HgKamvaApiJni.hgHtmlDocument_width(mHgHtmlRenderer);
-
-    if (htmlWidth != width) {
-      // Render HTML document.
-      HgKamvaApiJni.hgHtmlRenderer_renderHtml(mHgHtmlRenderer, width, height);
-
-      mHtmlWidth = HgKamvaApiJni.hgHtmlDocument_width(mHgHtmlRenderer);
-      mHtmlHeight = HgKamvaApiJni.hgHtmlDocument_height(mHgHtmlRenderer);
-    }
-  }
-
-  @Override
-  protected void onDraw(Canvas canvas)
-  {
-    setBitmap(canvas.getWidth(), canvas.getHeight());
-    drawOnBitmap();
-    canvas.drawBitmap(mBitmap, 0, 0, null);
   }
 
   // TODO: move it to MainApplication
@@ -337,6 +379,175 @@ public class HtmlGrapheasView
     } catch (IOException e) {
       e.printStackTrace();
       return "";
+    }
+  }
+
+  // View interface.
+
+  @Override
+  protected void onSizeChanged(int w, int h, int oldw, int oldh)
+  {
+    renderHtml(w, h);
+  }
+
+  @Override
+  protected void onDraw(Canvas canvas)
+  {
+    setBitmap(canvas.getWidth(), canvas.getHeight());
+    drawOnBitmap();
+    canvas.drawBitmap(mBitmap, 0, 0, null);
+  }
+
+  @Override
+  public void computeScroll()
+  {
+    super.computeScroll();
+
+    boolean needsInvalidate = false;
+
+    // The scroller isn't finished, meaning a fling or programmatic pan
+    // operation is currently active.
+    if (mScroller.computeScrollOffset()) {
+      mNewHtmlX = mScroller.getCurrX();
+      mNewHtmlY = mScroller.getCurrY();
+      //float velocity = getCurrVelocityCompat(mScroller);
+      needsInvalidate = true;
+    }
+
+    if (needsInvalidate) {
+      ViewCompat.postInvalidateOnAnimation(this);
+    }
+  }
+
+  @Override
+  public boolean onTouchEvent(MotionEvent event)
+  {
+    boolean ret = mScaleGestureDetector.onTouchEvent(event);
+    ret = mGestureDetector.onTouchEvent(event) || ret;
+    return ret || super.onTouchEvent(event);
+  }
+
+  // GestureDetector.OnGestureListener interface.
+
+  @Override
+  public boolean onDown(MotionEvent e)
+  {
+    mScroller.forceFinished(true);
+    ViewCompat.postInvalidateOnAnimation(this);
+    return true;
+  }
+
+  @Override
+  public void onShowPress(MotionEvent e)
+  {
+
+  }
+
+  @Override
+  public boolean onSingleTapUp(MotionEvent e)
+  {
+    return false;
+  }
+
+  @Override
+  public void onLongPress(MotionEvent e)
+  {
+
+  }
+
+  @Override
+  public boolean onScroll(
+      MotionEvent e1, MotionEvent e2, float distanceX, float distanceY)
+  {
+    mScroller.forceFinished(true);
+
+    setNewHtmlX(mNewHtmlX + (int) distanceX);
+    setNewHtmlY(mNewHtmlY + (int) distanceY);
+
+    invalidate();
+    return true;
+  }
+
+  @Override
+  public boolean onFling(
+      MotionEvent e1, MotionEvent e2, float velocityX, float velocityY)
+  {
+    // Before flinging, aborts the current animation.
+    mScroller.forceFinished(true);
+
+    // Begins the animation
+    mScroller.fling(
+        // Current scroll position
+        mHtmlX, mHtmlY,
+        //
+        (int) -velocityX, (int) -velocityY,
+        // Minimum and maximum scroll positions. The minimum scroll
+        // position is generally zero and the maximum scroll position
+        // is generally the content size less the screen size. So if the
+        // content width is 1000 pixels and the screen width is 200
+        // pixels, the maximum scroll offset should be 800 pixels.
+        0, mHtmlWidth - mVisibleHtmlWidth, 0, mHtmlHeight - mVisibleHtmlHeight,
+        // The edges of the content. This comes into play when using
+        // the EdgeEffect class to draw "glow" overlays.
+        0, 0);
+
+    // Invalidates to trigger computeScroll()
+    ViewCompat.postInvalidateOnAnimation(this);
+    return true;
+  }
+
+  // GestureDetector.OnDoubleTapListener interface.
+
+  @Override
+  public boolean onSingleTapConfirmed(MotionEvent e)
+  {
+    return false;
+  }
+
+  @Override
+  public boolean onDoubleTap(MotionEvent e)
+  {
+//    // TODO:
+//    ViewCompat.postInvalidateOnAnimation(this);
+//    return true;
+    return false;
+  }
+
+  @Override
+  public boolean onDoubleTapEvent(MotionEvent e)
+  {
+    return false;
+  }
+
+  // ScaleGestureDetector.OnScaleGestureListener interface.
+
+  @Override
+  public boolean onScaleBegin(ScaleGestureDetector detector)
+  {
+    return false;
+  }
+
+  @Override
+  public boolean onScale(ScaleGestureDetector detector)
+  {
+    return false;
+  }
+
+  @Override
+  public void onScaleEnd(ScaleGestureDetector detector)
+  {
+
+  }
+
+  // Utils.
+
+  @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+  public static float getCurrVelocityCompat(OverScroller overScroller)
+  {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+      return overScroller.getCurrVelocity();
+    } else {
+      return 0;
     }
   }
 }
