@@ -25,12 +25,20 @@ package ru.feographia.htmlgrapheaskamva;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.os.Build;
+import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v4.view.ViewCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.view.GestureDetector;
@@ -52,15 +60,20 @@ import java.io.InputStreamReader;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+// Touch events:
+// https://developer.android.com/training/gestures/detector.html
+// https://developer.android.com/training/gestures/scroll.html
+// https://developer.android.com/training/gestures/scale.html
+// https://developer.android.com/shareables/training/InteractiveChart.zip
 
 public class HtmlGrapheasView
     extends View
     implements GestureDetector.OnGestureListener,
                GestureDetector.OnDoubleTapListener,
-               ScaleGestureDetector.OnScaleGestureListener
+               ScaleGestureDetector.OnScaleGestureListener,
+               LoaderManager.LoaderCallbacks<Bitmap>
 {
   // TODO: order private and protected members.
-  // TODO: render HTML and draw it to bitmap in separate thread.
 
   private GestureDetectorCompat mGestureDetector;
   private ScaleGestureDetector  mScaleGestureDetector;
@@ -72,6 +85,8 @@ public class HtmlGrapheasView
   private Bitmap mBitmap;
   private long   mHgHtmlRenderer;
 
+  private int mBackgroundColor = Color.argb(255, 255, 255, 255);
+
   private int mHtmlWidth         = 0;
   private int mHtmlHeight        = 0;
   private int mVisibleHtmlWidth  = 0;
@@ -81,6 +96,10 @@ public class HtmlGrapheasView
   private int mHtmlY    = 0;
   private int mNewHtmlX = 0;
   private int mNewHtmlY = 0;
+
+  private boolean mWaitBitmap = false;
+
+  private OnHtmlParamsChangeListener mOnHtmlParamsChangeListener;
 
 
   public HtmlGrapheasView(Context context)
@@ -101,6 +120,7 @@ public class HtmlGrapheasView
     // from Java Bitmap.Config to NDK ANDROID_BITMAP_FORMAT_*.
     mBitmap = Bitmap.createBitmap(1, 1, BITMAP_CONFIG);
     mHgHtmlRenderer = HgKamvaApiJni.hgNewHtmlRenderer(mBitmap);
+    mBitmap = null;
     initHgContainer();
   }
 
@@ -217,53 +237,6 @@ public class HtmlGrapheasView
     HgKamvaApiJni.hgHtmlRenderer_createHtmlDocumentFromUtf8(
         mHgHtmlRenderer, htmlText);
     return true;
-  }
-
-  private void renderHtml(int width, int height)
-  {
-    int htmlWidth = HgKamvaApiJni.hgHtmlDocument_width(mHgHtmlRenderer);
-
-    if (htmlWidth != width) {
-      // Render HTML document.
-      HgKamvaApiJni.hgHtmlRenderer_renderHtml(mHgHtmlRenderer, width, height);
-
-      mHtmlWidth = HgKamvaApiJni.hgHtmlDocument_width(mHgHtmlRenderer);
-      mHtmlHeight = HgKamvaApiJni.hgHtmlDocument_height(mHgHtmlRenderer);
-    }
-  }
-
-  private void setBitmap(int width, int height)
-  {
-    if (mBitmap != null && mBitmap.getWidth() == width
-        && mBitmap.getHeight() == height) {
-      return;
-    }
-    mBitmap = Bitmap.createBitmap(width, height, BITMAP_CONFIG);
-  }
-
-  private void drawOnBitmap()
-  {
-    drawHtml(mBitmap.getWidth(), mBitmap.getHeight());
-  }
-
-  private void drawHtml(int width, int height)
-  {
-    if (mBitmap == null || (width == mVisibleHtmlWidth
-        && height == mVisibleHtmlHeight && mNewHtmlX == mHtmlX
-        && mNewHtmlY == mHtmlY)) {
-      return;
-    }
-
-    mVisibleHtmlWidth = width;
-    mVisibleHtmlHeight = height;
-    mHtmlX = mNewHtmlX;
-    mHtmlY = mNewHtmlY;
-
-    // Draw HTML document.
-    HgKamvaApiJni.hgHtmlRenderer_setBackgroundColor(
-        mHgHtmlRenderer, (short) 255, (short) 255, (short) 255, (short) 255);
-    HgKamvaApiJni.hgHtmlRenderer_drawHtml(
-        mHgHtmlRenderer, mBitmap, mNewHtmlX, mNewHtmlY);
   }
 
   // TODO: move it to MainApplication
@@ -387,15 +360,42 @@ public class HtmlGrapheasView
   @Override
   protected void onSizeChanged(int w, int h, int oldw, int oldh)
   {
-    renderHtml(w, h);
+    resetBitmapParams();
   }
 
   @Override
   protected void onDraw(Canvas canvas)
   {
-    setBitmap(canvas.getWidth(), canvas.getHeight());
-    drawOnBitmap();
-    canvas.drawBitmap(mBitmap, 0, 0, null);
+    if (mBitmap == null) {
+      mVisibleHtmlWidth = canvas.getWidth();
+      mVisibleHtmlHeight = canvas.getHeight();
+      mHtmlX = mNewHtmlX;
+      mHtmlY = mNewHtmlY;
+      runDrawOnBitmapLoader();
+    }
+
+    if (mBitmap != null) {
+      canvas.drawBitmap(mBitmap, 0, 0, null);
+    }
+
+    // TODO: for mBackgroundColor
+    if (!mWaitBitmap && (/*backgroundColor != mBackgroundColor ||*/
+        mNewHtmlX != mHtmlX || mNewHtmlY != mHtmlY
+            || canvas.getWidth() != mVisibleHtmlWidth
+            || canvas.getHeight() != mVisibleHtmlHeight)) {
+
+      //mBackgroundColor = backgroundColor;
+      mVisibleHtmlWidth = canvas.getWidth();
+      mVisibleHtmlHeight = canvas.getHeight();
+      mHtmlX = mNewHtmlX;
+      mHtmlY = mNewHtmlY;
+
+      if (mOnHtmlParamsChangeListener != null) {
+        mOnHtmlParamsChangeListener.onHtmlParamsChange(mBackgroundColor,
+            mVisibleHtmlWidth, mVisibleHtmlHeight, mNewHtmlX, mNewHtmlY, false);
+        mWaitBitmap = true;
+      }
+    }
   }
 
   @Override
@@ -408,6 +408,7 @@ public class HtmlGrapheasView
     // The scroller isn't finished, meaning a fling or programmatic pan
     // operation is currently active.
     if (mScroller.computeScrollOffset()) {
+      // This part is used only for fling, for scroll it can not be used.
       mNewHtmlX = mScroller.getCurrX();
       mNewHtmlY = mScroller.getCurrY();
       //float velocity = getCurrVelocityCompat(mScroller);
@@ -464,7 +465,7 @@ public class HtmlGrapheasView
     setNewHtmlX(mNewHtmlX + (int) distanceX);
     setNewHtmlY(mNewHtmlY + (int) distanceY);
 
-    invalidate();
+    ViewCompat.postInvalidateOnAnimation(this);
     return true;
   }
 
@@ -549,5 +550,96 @@ public class HtmlGrapheasView
     } else {
       return 0;
     }
+  }
+
+  // LoaderManager.LoaderCallbacks interface.
+
+  // TODO: move it to util.
+  // https://stackoverflow.com/a/32973351
+  private AppCompatActivity getActivity()
+  {
+    Context context = getContext();
+    while (context instanceof ContextWrapper) {
+      if (context instanceof AppCompatActivity) {
+        return (AppCompatActivity) context;
+      }
+      context = ((ContextWrapper) context).getBaseContext();
+    }
+    return null;
+  }
+
+  private void runDrawOnBitmapLoader()
+  {
+    AppCompatActivity activity = getActivity();
+    if (activity == null) {
+      return;
+    }
+    LoaderManager lm = getActivity().getSupportLoaderManager();
+    int loaderId = 1231;
+    Loader loader = lm.getLoader(loaderId);
+    if (null != loader && loader.isStarted()) {
+      lm.restartLoader(loaderId, null, this);
+    } else {
+      lm.initLoader(loaderId, null, this);
+    }
+  }
+
+  @NonNull
+  @Override
+  public Loader<Bitmap> onCreateLoader(
+      int id,
+      @Nullable
+          Bundle args)
+  {
+    DrawOnBitmapLoader loader =
+        new DrawOnBitmapLoader(getContext(), mHgHtmlRenderer, BITMAP_CONFIG,
+            mBackgroundColor, mVisibleHtmlWidth, mVisibleHtmlHeight, mNewHtmlX,
+            mNewHtmlY);
+    setOnHtmlParamsChangeListener(loader);
+    return loader;
+  }
+
+  @Override
+  public void onLoadFinished(
+      @NonNull
+          Loader<Bitmap> loader, Bitmap bitmap)
+  {
+    mBitmap = bitmap;
+    mWaitBitmap = false;
+    mHtmlWidth = HgKamvaApiJni.hgHtmlDocument_width(mHgHtmlRenderer);
+    mHtmlHeight = HgKamvaApiJni.hgHtmlDocument_height(mHgHtmlRenderer);
+    invalidate();
+  }
+
+  @Override
+  public void onLoaderReset(
+      @NonNull
+          Loader<Bitmap> loader)
+  {
+    setOnHtmlParamsChangeListener(null);
+    resetBitmapParams();
+    invalidate();
+  }
+
+  private void resetBitmapParams()
+  {
+    mBitmap = null;
+    mVisibleHtmlWidth = 0;
+    mVisibleHtmlHeight = 0;
+    mHtmlWidth = 0;
+    mHtmlHeight = 0;
+  }
+
+  public void setOnHtmlParamsChangeListener(
+      OnHtmlParamsChangeListener onHtmlParamsChangeListener)
+  {
+    mOnHtmlParamsChangeListener = onHtmlParamsChangeListener;
+  }
+
+  interface OnHtmlParamsChangeListener
+  {
+    void onHtmlParamsChange(
+        int backgroundColor, int width, int height, int htmlX, int htmlY,
+        boolean reset);
   }
 }
