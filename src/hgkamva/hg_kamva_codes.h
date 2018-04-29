@@ -27,7 +27,6 @@
 enum hgPixelFormatId
 {
   UNKNOWN = 0,
-  RGB565, /**< 16-bit RGB. */
   RGB24, /**< 24-bit RGB. */
   BGR24, /**< 24-bit BGR. */
   RGBA32, /**< 32-bit RGBA. */

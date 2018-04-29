@@ -51,13 +51,6 @@ struct wxWidgetsToAGGHelper
   //empty
 };
 
-/// 16-bit RGB
-template <>
-struct wxWidgetsToAGGHelper<hgPixelFormatId::RGB565>
-{
-  using format = agg::pixfmt_rgb565;
-};
-
 /// 24-bit RGB
 template <>
 struct wxWidgetsToAGGHelper<hgPixelFormatId::RGB24>
