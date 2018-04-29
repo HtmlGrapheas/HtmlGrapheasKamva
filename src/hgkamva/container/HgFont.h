@@ -25,7 +25,9 @@
 #define HG_FONT_H
 
 #include <functional>
+#include <memory>
 #include <string>
+#include <vector>
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -37,12 +39,30 @@
 
 #include "litehtml.h"
 
+#include <stlcache/stlcache.hpp>
+
 #include "hgkamva/container/HgPainter.h"
 
 namespace hg
 {
 class HgFont
 {
+public:
+  struct TextBbox
+  {
+    int mMinX;
+    int mMaxX;
+    int mMinY;
+    int mMaxY;
+
+    int mBboxW;
+    int mBboxH;
+    int mBaselineShift;
+    int mBaselineOffset;
+  };
+
+  using TextBboxPtr = std::shared_ptr<TextBbox>;
+
 private:
   static constexpr int FT_64 = 64;
 
@@ -67,22 +87,44 @@ private:
   static void sizerFtSpanFunc(
       int y, int count, const FT_Span* spans, void* user);
 
-public:
-  struct TextBbox
-  {
-    int mMinX;
-    int mMaxX;
-    int mMinY;
-    int mMaxY;
+  using GlyphInfoArray = std::vector<hb_glyph_info_t>;
+  using GlyphInfoArrayPtr = std::shared_ptr<GlyphInfoArray>;
+  using GlyphPositionArray = std::vector<hb_glyph_position_t>;
+  using GlyphPositionArrayPtr = std::shared_ptr<GlyphPositionArray>;
 
-    int mBboxW;
-    int mBboxH;
-    int mBaselineShift;
-    int mBaselineOffset;
+  struct HbLaoutCacheItem
+  {
+    explicit HbLaoutCacheItem(unsigned int glyphCount,
+        GlyphInfoArrayPtr glyphInfo,
+        GlyphPositionArrayPtr glyphPos)
+        : mGlyphCount(glyphCount)
+        , mGlyphInfo(glyphInfo)
+        , mGlyphPos(glyphPos)
+    {
+    }
+
+    unsigned int mGlyphCount;
+    GlyphInfoArrayPtr mGlyphInfo;
+    GlyphPositionArrayPtr mGlyphPos;
+    // TODO:
+    //hb_direction_t mDirection;
+    //hb_script_t mScript;
+    //std::string mLanguage;
   };
 
+  using HbLaoutCacheItemPtr = std::shared_ptr<HbLaoutCacheItem>;
+  using HbLaoutCache =
+      stlcache::cache<std::string, HbLaoutCacheItemPtr, stlcache::policy_lru>;
+
+  using TextBboxCache =
+      stlcache::cache<std::string, TextBboxPtr, stlcache::policy_lru>;
+
+  using TextRenderCache =
+      stlcache::cache<std::string, HgPainterPtr, stlcache::policy_lru>;
+
+public:
   explicit HgFont() = delete;
-  explicit HgFont(FT_Library ftLibrary);
+  explicit HgFont(FT_Library ftLibrary, int textCacheSize = 1000);
   ~HgFont();
 
   bool createFtFace(const std::string& fontFilePath, int pixelSize);
@@ -94,10 +136,12 @@ public:
   void setScript(hb_script_t script);
   void setLanguage(const std::string& language);
 
-  void layoutText(const std::string& text);
-  TextBbox getBbox();
-  void drawText(
-      HgPainter* hgRenderer, int x, int y, litehtml::web_color color);
+  TextBboxPtr getBbox(const std::string& text);
+  void drawText(const std::string& text,
+      HgPainter* hgPainter,
+      int x,
+      int y,
+      litehtml::web_color color);
 
   int forceUcs2Charmap(FT_Face ftf);
 
@@ -108,6 +152,9 @@ public:
   static int f26Dot6ToInt(FT_F26Dot6 f26Dot6Pixels);
 
 private:
+  HbLaoutCacheItemPtr layoutText(const std::string& text);
+
+private:
   FT_Library mFtLibrary;
   FT_Face mFtFace;
   FT_Raster_Params mFtRasterParams;
@@ -115,11 +162,13 @@ private:
 
   hb_buffer_t* mHbBuffer;
   hb_font_t* mHbFont;
-  unsigned int mGlyphCount;
-  hb_glyph_info_t* mGlyphInfo;
-  hb_glyph_position_t* mGlyphPos;
 
-  // TODO: get size, strikeout and underline from FT structs if possible, remove it here.
+  std::shared_ptr<HbLaoutCache> mHbLaoutCache;
+  std::shared_ptr<TextBboxCache> mTextBboxCache;
+  std::shared_ptr<TextRenderCache> mTextRenderCache;
+
+  // TODO: get size, strikeout and underline from FT structs if possible,
+  // TODO: remove it here.
 public:
   void setPixelSize(int pixelSize) { mPixelSize = pixelSize; }
   void setUnderline(bool underline) { mUnderline = underline; }

@@ -36,7 +36,7 @@ class HgFontLibrary;
 class HgContainer : public litehtml::document_container
 {
 public:
-  HgContainer();
+  explicit HgContainer();
   virtual ~HgContainer() = default;
 
   bool parseAndLoadFontConfigFromMemory(
@@ -44,6 +44,7 @@ public:
   bool addFontDir(const std::string& dirPath);
   void setDefaultFontName(const std::string& name);
   void setDefaultFontSize(int size);
+  void setFontTextCacheSize(int size);
 
   void setDeviceWidth(int width);
   void setDeviceHeight(double height);
@@ -125,6 +126,7 @@ private:
 
   std::string mFontDefaultName;
   int mDefaultFontSize;
+  int mFontTextCacheSize;
 
   // (pixels) The width of the rendering surface of the output device.
   // For continuous media, this is the width of the screen.
@@ -178,6 +180,11 @@ inline void HgContainer::setDefaultFontName(const std::string& name)
 inline void HgContainer::setDefaultFontSize(int size)
 {
   mDefaultFontSize = size;
+}
+
+inline void HgContainer::setFontTextCacheSize(int size)
+{
+  mFontTextCacheSize = size;
 }
 
 inline void HgContainer::setDeviceWidth(int width)

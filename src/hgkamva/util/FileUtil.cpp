@@ -39,12 +39,18 @@ namespace hg
 bool FileUtil::writePpmFile(const unsigned char* buf,
     unsigned width,
     unsigned height,
+    unsigned bytePerPixel,
     const char* file_name)
 {
   FILE* fd = fopen(file_name, "wb");
   if(fd) {
     fprintf(fd, "P6 %d %d 255 ", width, height);
-    fwrite(buf, 1, width * height * 3, fd);
+
+    unsigned size = width * height * bytePerPixel;
+    for (int i = 0; i < size; i += bytePerPixel) {
+      fwrite(buf + i, 1, 3, fd);
+    }
+
     fclose(fd);
     return true;
   }

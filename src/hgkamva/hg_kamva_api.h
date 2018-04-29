@@ -60,6 +60,8 @@ HG_KAMVA_EXTERNC HgBool hgContainer_parseAndLoadFontConfigFromMemory(
     HgHtmlRendererPtr renderer, const char* fontConfig, HgBool complain);
 HG_KAMVA_EXTERNC HgBool hgContainer_addFontDir(
     HgHtmlRendererPtr renderer, const char* dirPath);
+HG_KAMVA_EXTERNC void hgContainer_setFontTextCacheSize(
+    HgHtmlRendererPtr renderer, int size);
 HG_KAMVA_EXTERNC void hgContainer_setDefaultFontName(
     HgHtmlRendererPtr renderer, const char* name);
 HG_KAMVA_EXTERNC void hgContainer_setDefaultFontSize(

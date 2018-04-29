@@ -26,6 +26,7 @@
 #include "gtest/gtest.h"
 
 #include "agg_pixfmt_rgb.h"
+//#include "agg_pixfmt_rgba.h"
 
 #include "hgkamva/container/HgAggPainter.h"
 #include "hgkamva/util/FileUtil.h"
@@ -41,6 +42,7 @@ TEST(HgContainerTest, create_font)
 
   litehtml::font_metrics fm;
   hg::HgContainer container;
+  container.setFontTextCacheSize(1000);
   EXPECT_TRUE(container.parseAndLoadFontConfigFromMemory(fontConfig, true));
   EXPECT_TRUE(container.addFontDir(fontDir));
   litehtml::uint_ptr hFont = container.create_font(
@@ -76,17 +78,18 @@ TEST(HgContainerTest, draw_text)
   enum
   {
     BYTES_PER_PIXEL = 3
+    //BYTES_PER_PIXEL = 4
   };
 
   // The AGG pixel format.
   using PixelFormat = agg::pixfmt_rgb24;
+  //using PixelFormat = agg::pixfmt_rgba32;
 
   unsigned int frameWidth = 250;
   unsigned int frameHeight = 50;
   int stride = frameWidth * BYTES_PER_PIXEL;
 
-  unsigned char* frameBuf =
-      new unsigned char[frameWidth * frameHeight * BYTES_PER_PIXEL];
+  unsigned char* frameBuf = new unsigned char[stride * frameHeight];
   EXPECT_NE(frameBuf, nullptr);
 
   hg::HgAggPainter<PixelFormat> hgAggPainter;
@@ -100,6 +103,7 @@ TEST(HgContainerTest, draw_text)
 
   litehtml::font_metrics fm;
   hg::HgContainer container;
+  container.setFontTextCacheSize(1000);
   EXPECT_TRUE(container.addFontDir(fontDir));
   litehtml::uint_ptr hFont = container.create_font("Tinos", 16, 400,
       litehtml::font_style::fontStyleNormal,
@@ -126,7 +130,7 @@ TEST(HgContainerTest, draw_text)
   std::string fileName1 = "HgContainer_1.ppm";
   std::string fileOutTest1 = std::string(testDir) + "/" + fileName1;
   hg::FileUtil::writePpmFile(
-      frameBuf, frameWidth, frameHeight, fileOutTest1.c_str());
+      frameBuf, frameWidth, frameHeight, BYTES_PER_PIXEL, fileOutTest1.c_str());
 
   // Compare our file with prototype.
   std::string fileTest1 = std::string(dataDir) + "/" + fileName1;
@@ -146,7 +150,7 @@ TEST(HgContainerTest, draw_text)
   std::string fileName2 = "HgContainer_2.ppm";
   std::string fileOutTest2 = std::string(testDir) + "/" + fileName2;
   hg::FileUtil::writePpmFile(
-      frameBuf, frameWidth, frameHeight, fileOutTest2.c_str());
+      frameBuf, frameWidth, frameHeight, BYTES_PER_PIXEL, fileOutTest2.c_str());
 
   // Compare our file with prototype.
   std::string fileTest2 = std::string(dataDir) + "/" + fileName2;
@@ -175,17 +179,18 @@ TEST(HgContainerTest, drawHtmlDocument)
   enum
   {
     BYTES_PER_PIXEL = 3
+    //    BYTES_PER_PIXEL = 4
   };
 
   // The AGG pixel format.
   using PixelFormat = agg::pixfmt_rgb24;
+  //  using PixelFormat = agg::pixfmt_rgba32;
 
   unsigned int frameWidth = 640;
   unsigned int frameHeight = 480;
   int stride = frameWidth * BYTES_PER_PIXEL;
 
-  unsigned char* frameBuf =
-      new unsigned char[frameWidth * frameHeight * BYTES_PER_PIXEL];
+  unsigned char* frameBuf = new unsigned char[stride * frameHeight];
   EXPECT_NE(frameBuf, nullptr);
 
   hg::HgAggPainter<PixelFormat> hgAggPainter;
@@ -200,9 +205,10 @@ TEST(HgContainerTest, drawHtmlDocument)
   hg::HgContainer container;
 
   // Set fonts.
-  EXPECT_TRUE(container.addFontDir(fontDir));
+  container.setFontTextCacheSize(1000);
   container.setDefaultFontName("Tinos");
   container.setDefaultFontSize(24);
+  EXPECT_TRUE(container.addFontDir(fontDir));
 
   // Set device parameters.
   container.setDeviceWidth(frameWidth);
@@ -255,7 +261,7 @@ TEST(HgContainerTest, drawHtmlDocument)
   std::string fileName1 = "HtmlDocument_1.ppm";
   std::string fileOutTest1 = std::string(testDir) + "/" + fileName1;
   hg::FileUtil::writePpmFile(
-      frameBuf, frameWidth, frameHeight, fileOutTest1.c_str());
+      frameBuf, frameWidth, frameHeight, BYTES_PER_PIXEL, fileOutTest1.c_str());
 
   // Compare our file with prototype.
   std::string fileTest1 = std::string(dataDir) + "/" + fileName1;

@@ -34,6 +34,7 @@ public:
   static bool writePpmFile(const unsigned char* buf,
       unsigned width,
       unsigned height,
+      unsigned bytePerPixel,
       const char* file_name);
 
   static bool compareFiles(

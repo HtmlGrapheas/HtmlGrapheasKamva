@@ -26,6 +26,7 @@
 #include "gtest/gtest.h"
 
 #include "agg_pixfmt_rgb.h"
+//#include "agg_pixfmt_rgba.h"
 
 #include "hgkamva/util/FileUtil.h"
 
@@ -46,10 +47,12 @@ TEST(HgAggHtmlRenderer, drawHtml)
   enum
   {
     BYTES_PER_PIXEL = 3
+    //BYTES_PER_PIXEL = 4
   };
 
   // The AGG pixel format.
   using PixelFormat = agg::pixfmt_rgb24;
+  //using PixelFormat = agg::pixfmt_rgba32;
 
   unsigned int frameWidth = 640;
   unsigned int frameHeight = 480;
@@ -75,9 +78,10 @@ TEST(HgAggHtmlRenderer, drawHtml)
   assert(loadedFontConfig);
 
   // Set fonts.
-  EXPECT_TRUE(hgContainer->addFontDir(fontDir));
+  hgContainer->setFontTextCacheSize(1000);
   hgContainer->setDefaultFontName("Tinos");
   hgContainer->setDefaultFontSize(24);
+  EXPECT_TRUE(hgContainer->addFontDir(fontDir));
 
   // Set device parameters.
   hgContainer->setDeviceDpiX(96);
@@ -124,7 +128,7 @@ TEST(HgAggHtmlRenderer, drawHtml)
   std::string fileName1 = "HgAggHtmlRenderer_1.ppm";
   std::string fileOutTest1 = std::string(testDir) + "/" + fileName1;
   hg::FileUtil::writePpmFile(
-      frameBuf, frameWidth, frameHeight, fileOutTest1.c_str());
+      frameBuf, frameWidth, frameHeight, BYTES_PER_PIXEL, fileOutTest1.c_str());
 
   // Compare our file with prototype.
   std::string fileTest1 = std::string(dataDir) + "/" + "HtmlDocument_1.ppm";

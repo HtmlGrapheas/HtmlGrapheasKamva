@@ -28,6 +28,7 @@
 #include "gtest/gtest.h"
 
 #include "agg_pixfmt_rgb.h"
+//#include "agg_pixfmt_rgba.h"
 
 #include "hgkamva/container/HgAggPainter.h"
 #include "hgkamva/container/HgFontLibrary.h"
@@ -52,18 +53,20 @@ TEST(HgFontTest, HgFontTest)
   enum
   {
     BYTES_PER_PIXEL = 3
+    //BYTES_PER_PIXEL = 4
   };
 
   // The AGG pixel format.
   using PixelFormat = agg::pixfmt_rgb24;
+  //using PixelFormat = agg::pixfmt_rgba32;
 
-  //int frameWidth = bbox.mBboxW + 20;
-  //int frameHeight = bbox.mBboxH + 20;
+  //int frameWidth = bbox->mBboxW + 20;
+  //int frameHeight = bbox->mBboxH + 20;
   int frameWidth = 250;
   int frameHeight = 50;
   int stride = frameWidth * BYTES_PER_PIXEL;
 
-  unsigned char* frameBuf = new unsigned char[frameWidth * frameHeight * 3];
+  unsigned char* frameBuf = new unsigned char[stride * frameHeight];
   EXPECT_NE(frameBuf, nullptr);
 
   hg::HgAggPainter<PixelFormat> hgAggPainter;
@@ -97,30 +100,33 @@ TEST(HgFontTest, HgFontTest)
   EXPECT_TRUE(hg::StringUtil::endsWith(filePath, "Tinos-Regular.ttf"));
 
   // Create HgFont with HgFontLibrary.
-  hg::HgFont hgFont(hgFontLibrary.ftLibrary());
+  hg::HgFont hgFont(hgFontLibrary.ftLibrary(), 1000);
 
   //////// Test HgFont::createFtFace().
 
   EXPECT_TRUE(hgFont.createFtFace(filePath, pixelSize));
 
-  //////// Perform HgFont::layoutText() before getBbox() and drawText().
+  //////// Set text for rendering.
+
+  std::string text = "This is some english text";
+
+  //////// Set HarfBuzz params.
 
   hgFont.setDirection(HB_DIRECTION_LTR);
   hgFont.setScript(HB_SCRIPT_LATIN);
   hgFont.setLanguage("eng");
-  hgFont.layoutText("This is some english text");
 
   //////// Test HgFont::getBbox().
 
-  hg::HgFont::TextBbox bbox = hgFont.getBbox();
-  EXPECT_EQ(bbox.mMinX, 0);
-  EXPECT_EQ(bbox.mMaxX, 155);
-  EXPECT_EQ(bbox.mMinY, -3);
-  EXPECT_EQ(bbox.mMaxY, 10);
-  EXPECT_EQ(bbox.mBboxW, 155);
-  EXPECT_EQ(bbox.mBboxH, 13);
-  EXPECT_EQ(bbox.mBaselineShift, 0);
-  EXPECT_EQ(bbox.mBaselineOffset, 10);
+  hg::HgFont::TextBboxPtr bbox = hgFont.getBbox(text);
+  EXPECT_EQ(bbox->mMinX, 0);
+  EXPECT_EQ(bbox->mMaxX, 155);
+  EXPECT_EQ(bbox->mMinY, -3);
+  EXPECT_EQ(bbox->mMaxY, 10);
+  EXPECT_EQ(bbox->mBboxW, 155);
+  EXPECT_EQ(bbox->mBboxH, 13);
+  EXPECT_EQ(bbox->mBaselineShift, 0);
+  EXPECT_EQ(bbox->mBaselineOffset, 10);
 
   //////// Test HgFont::drawText().
 
@@ -136,13 +142,13 @@ TEST(HgFontTest, HgFontTest)
   litehtml::web_color color(128, 128, 128, 255);
 
   // drawText()
-  hgFont.drawText(&hgAggPainter, x, y, color);
+  hgFont.drawText(text, &hgAggPainter, x, y, color);
 
   // Write our picture to file.
   std::string fileName1 = "HgFontTest_1.ppm";
   std::string fileOutTest1 = std::string(testDir) + "/" + fileName1;
   hg::FileUtil::writePpmFile(
-      frameBuf, frameWidth, frameHeight, fileOutTest1.c_str());
+      frameBuf, frameWidth, frameHeight, BYTES_PER_PIXEL, fileOutTest1.c_str());
 
   // Compare our file with prototype.
   std::string fileTest1 = std::string(dataDir) + "/" + fileName1;
@@ -150,36 +156,37 @@ TEST(HgFontTest, HgFontTest)
 
   //////// Repeat tests for new text.
 
+  text = "some english";
+
   // Make cleaning before new text.
   hgFont.clearBuffer();
   hgAggPainter.setRendererColor(backgroundColor);
   hgAggPainter.clear();
 
-  // layoutText().
+  // Set HarfBuzz params.
   hgFont.setDirection(HB_DIRECTION_LTR);
   hgFont.setScript(HB_SCRIPT_LATIN);
   hgFont.setLanguage("eng");
-  hgFont.layoutText("some english");
 
   // getBbox().
-  bbox = hgFont.getBbox();
-  EXPECT_EQ(bbox.mMinX, 0);
-  EXPECT_EQ(bbox.mMaxX, 82);
-  EXPECT_EQ(bbox.mMinY, -3);
-  EXPECT_EQ(bbox.mMaxY, 10);
-  EXPECT_EQ(bbox.mBboxW, 82);
-  EXPECT_EQ(bbox.mBboxH, 13);
-  EXPECT_EQ(bbox.mBaselineShift, 0);
-  EXPECT_EQ(bbox.mBaselineOffset, 10);
+  bbox = hgFont.getBbox(text);
+  EXPECT_EQ(bbox->mMinX, 0);
+  EXPECT_EQ(bbox->mMaxX, 82);
+  EXPECT_EQ(bbox->mMinY, -3);
+  EXPECT_EQ(bbox->mMaxY, 10);
+  EXPECT_EQ(bbox->mBboxW, 82);
+  EXPECT_EQ(bbox->mBboxH, 13);
+  EXPECT_EQ(bbox->mBaselineShift, 0);
+  EXPECT_EQ(bbox->mBaselineOffset, 10);
 
   // drawText().
-  hgFont.drawText(&hgAggPainter, x, y, color);
+  hgFont.drawText(text, &hgAggPainter, x, y, color);
 
   // Write our picture to file.
   std::string fileName2 = "HgFontTest_2.ppm";
   std::string fileOutTest2 = std::string(testDir) + "/" + fileName2;
   hg::FileUtil::writePpmFile(
-      frameBuf, frameWidth, frameHeight, fileOutTest2.c_str());
+      frameBuf, frameWidth, frameHeight, BYTES_PER_PIXEL, fileOutTest2.c_str());
 
   // Compare our file with prototype.
   std::string fileTest2 = std::string(dataDir) + "/" + fileName2;

@@ -52,6 +52,9 @@ public class HgKamvaApiJni
   public native static boolean hgContainer_addFontDir(
       long renderer, String dirPath);
 
+  public native static void hgContainer_setFontTextCacheSize(
+      long renderer, int size);
+
   public native static void hgContainer_setDefaultFontName(
       long renderer, String name);
 

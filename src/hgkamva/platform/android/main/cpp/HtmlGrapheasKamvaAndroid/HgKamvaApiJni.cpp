@@ -88,10 +88,6 @@ Java_ru_feographia_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgNewHtmlRendere
 
   enum hgPixelFormatId pixFmtId;
   switch(bitmapInfo.format) {
-    case ANDROID_BITMAP_FORMAT_RGB_565: {
-      pixFmtId = hgPixelFormatId::RGB565;
-      break;
-    }
     case ANDROID_BITMAP_FORMAT_RGBA_8888: {
       pixFmtId = hgPixelFormatId::RGBA32;
       break;
@@ -196,6 +192,13 @@ Java_ru_feographia_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgContainer_1add
   jboolean ret = hgContainer_addFontDir(voidpCast(renderer), dirPath);
   env->ReleaseStringUTFChars(dirPath_, dirPath);
   return ret;
+}
+
+JNIEXPORT void JNICALL
+Java_ru_feographia_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgContainer_1setFontTextCacheSize(
+    JNIEnv* env, jclass type, jlong renderer, jint size)
+{
+  hgContainer_setFontTextCacheSize(voidpCast(renderer), size);
 }
 
 JNIEXPORT void JNICALL

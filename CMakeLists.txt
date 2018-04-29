@@ -102,6 +102,7 @@ include(build_expat)
 include(build_freetype_with_harfbuzz)
 include(build_fontconfig)
 include(build_agg)
+include(build_stlcache)
 
 
 #-----------------------------------------------------------------------
@@ -145,7 +146,6 @@ set(hgk_SOURCES
   ${hgk_SRC_DIR}/hgkamva/container/HgFont.cpp
   ${hgk_SRC_DIR}/hgkamva/container/HgFontLibrary.cpp
   ${hgk_SRC_DIR}/hgkamva/container/HgHtmlRenderer.cpp
-  ${hgk_SRC_DIR}/hgkamva/container/HgPainter.cpp
   ${hgk_SRC_DIR}/hgkamva/util/FileUtil.cpp
   ${hgk_SRC_DIR}/hgkamva/util/StringUtil.cpp
 )
@@ -187,6 +187,8 @@ endif()
 target_include_directories(${hgk_LIB_NAME} PUBLIC ${AGG_INCLUDE_DIRS})
 target_link_libraries(${hgk_LIB_NAME} PRIVATE ${AGG_LIBRARIES})
 
+# STLCache
+target_include_directories(${hgk_LIB_NAME} PRIVATE ${STLCACHE_INCLUDE_DIR})
 
 #-----------------------------------------------------------------------
 # Testing

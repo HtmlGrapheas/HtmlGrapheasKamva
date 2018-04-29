@@ -134,6 +134,7 @@ void HgKamvaWxWindow::initHgContainer()
   int fontSizePx = hgContainer_ptToPx(mHgHtmlRenderer, 10);
   hgContainer_setDefaultFontSize(mHgHtmlRenderer, fontSizePx);
   hgContainer_setDefaultFontName(mHgHtmlRenderer, "Tinos");
+  hgContainer_setFontTextCacheSize(mHgHtmlRenderer, 10000);
 
   std::string masterCss =
       FileUtil::readFile(masterCssFile.GetFullPath().ToStdString());

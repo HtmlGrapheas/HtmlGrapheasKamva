@@ -32,6 +32,7 @@ namespace hg
 HgContainer::HgContainer()
     : mFontDefaultName("Times New Roman")
     , mDefaultFontSize(16)
+    , mFontTextCacheSize(1000)
     , mDeviceWidth(320)
     , mDeviceHeight(240)
     , mDeviceDpiX(96)
@@ -68,7 +69,7 @@ litehtml::uint_ptr HgContainer::create_font(const litehtml::tchar_t* faceName,
     return 0;
   }
 
-  HgFont* hgFont = new HgFont(mHgFontLibrary->ftLibrary());
+  HgFont* hgFont = new HgFont(mHgFontLibrary->ftLibrary(), mFontTextCacheSize);
 
   uint_least8_t result;
   std::string filePath =
@@ -128,9 +129,7 @@ int HgContainer::text_width(
   hgFont->setScript(HB_SCRIPT_LATIN);
   hgFont->setLanguage("eng");
 
-  // TODO: make layoutText() for text_width() and draw_text() only once.
-  hgFont->layoutText(text);
-  return hgFont->getBbox().mBboxW;
+  return hgFont->getBbox(text)->mBboxW;
 }
 
 void HgContainer::draw_text(litehtml::uint_ptr hdc,
@@ -139,8 +138,8 @@ void HgContainer::draw_text(litehtml::uint_ptr hdc,
     litehtml::web_color color,
     const litehtml::position& pos)
 {
-  HgPainter* hgRenderer = reinterpret_cast<HgPainter*>(hdc);
-  if(!hgRenderer) {
+  HgPainter* hgPainter = reinterpret_cast<HgPainter*>(hdc);
+  if(!hgPainter) {
     return;
   }
 
@@ -165,20 +164,18 @@ void HgContainer::draw_text(litehtml::uint_ptr hdc,
   hgFont->setScript(HB_SCRIPT_LATIN);
   hgFont->setLanguage("eng");
 
-  // TODO: make layoutText() for text_width() and draw_text() only once.
-  hgFont->layoutText(text);
-  hgFont->drawText(hgRenderer, x, y, color);
+  hgFont->drawText(text, hgPainter, x, y, color);
 
   if(hgFont->underline() || hgFont->strikeout()) {
     int tw = 0;
     tw = text_width(text, hFont);
-    hgRenderer->setRendererColor(color);
+    hgPainter->setRendererColor(color);
 
     if(hgFont->underline()) {
       // TODO: set line width by font's height.
       // TODO: set line position by font's parameters.
       //hgRenderer->copyHLine(x, y + 1.5, x + tw, color);
-      hgRenderer->copyHLine(x, y + 3, x + tw);
+      hgPainter->copyHLine(x, y + 3, x + tw);
     }
 
     if(hgFont->strikeout()) {
@@ -186,7 +183,7 @@ void HgContainer::draw_text(litehtml::uint_ptr hdc,
       //int lnY = y - HgFont::f26Dot6ToInt(hgFont->xHeight()) / 2.0;
       //hgRenderer->copyHLine(x, lnY - 0.5, x + tw, color);
       int lnY = y - HgFont::f26Dot6ToInt(hgFont->xHeight()) / 2;
-      hgRenderer->copyHLine(x, lnY, x + tw);
+      hgPainter->copyHLine(x, lnY, x + tw);
     }
   }
 }
@@ -235,9 +232,13 @@ void HgContainer::draw_borders(litehtml::uint_ptr hdc,
 {
 }
 
-void HgContainer::set_caption(const litehtml::tchar_t* caption) {}
+void HgContainer::set_caption(const litehtml::tchar_t* caption)
+{
+}
 
-void HgContainer::set_base_url(const litehtml::tchar_t* base_url) {}
+void HgContainer::set_base_url(const litehtml::tchar_t* base_url)
+{
+}
 
 void HgContainer::link(const std::shared_ptr<litehtml::document>& ptr,
     const litehtml::element::ptr& el)
@@ -249,7 +250,9 @@ void HgContainer::on_anchor_click(
 {
 }
 
-void HgContainer::set_cursor(const litehtml::tchar_t* cursor) {}
+void HgContainer::set_cursor(const litehtml::tchar_t* cursor)
+{
+}
 
 void HgContainer::transform_text(
     litehtml::tstring& text, litehtml::text_transform tt)
@@ -269,7 +272,9 @@ void HgContainer::set_clip(const litehtml::position& pos,
 {
 }
 
-void HgContainer::del_clip() {}
+void HgContainer::del_clip()
+{
+}
 
 void HgContainer::get_client_rect(litehtml::position& client) const
 {

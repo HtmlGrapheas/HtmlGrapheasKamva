@@ -25,6 +25,9 @@
 
 #include <cassert>
 
+//#include <chrono>
+//#include <iostream>
+
 namespace hg
 {
 HgHtmlRenderer::HgHtmlRenderer(HgPainter* painter)
@@ -62,6 +65,9 @@ void HgHtmlRenderer::drawHtml(unsigned char* buffer,
     int htmlX,
     int htmlY)
 {
+  // https://stackoverflow.com/a/18685338
+  //auto start = std::chrono::steady_clock::now();
+
   mHgPainter->attach(buffer, width, height, stride);
   mHgPainter->setRendererColor(mBackgroundColor);
   mHgPainter->clear();
@@ -70,6 +76,11 @@ void HgHtmlRenderer::drawHtml(unsigned char* buffer,
   litehtml::uint_ptr hdc = reinterpret_cast<litehtml::uint_ptr>(mHgPainter);
   litehtml::position clip(0, 0, width, height);
   mHtmlDocument->draw(hdc, -htmlX, -htmlY, &clip);
+
+  //auto finish = std::chrono::steady_clock::now();
+  //auto elapsed =
+  //    std::chrono::duration_cast<std::chrono::milliseconds>(finish - start);
+  //std::cout << "HgHtmlRenderer::drawHtml: " << elapsed.count() << "\n";
 }
 
 }  // namespace hg

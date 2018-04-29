@@ -24,16 +24,24 @@
 #ifndef HG_PAINTER_H
 #define HG_PAINTER_H
 
+#include <memory>
+
 #include "litehtml.h"
 
 namespace hg
 {
+class HgPainter;
+
+using HgPainterPtr = std::shared_ptr<HgPainter>;
+
 class HgPainter
 {
 public:
-  explicit HgPainter();
+  explicit HgPainter() = default;
   virtual ~HgPainter() = default;
 
+  virtual HgPainterPtr newHgCachePainter(
+      unsigned int width, unsigned int height) = 0;
   virtual void attach(unsigned char* buffer,
       unsigned int width,
       unsigned int height,
@@ -42,6 +50,12 @@ public:
   virtual void clear() = 0;
   virtual void blendHLine(int x1, int y, int x2, unsigned char cover) = 0;
   virtual void copyHLine(int x1, int y, int x2) = 0;
+  virtual void blendFromColor(const HgPainter* src,
+      const litehtml::web_color& color,
+      int dx = 0,
+      int dy = 0) = 0;
+  virtual void copyFrom(const HgPainter* src, int dx = 0, int dy = 0) = 0;
+
 };  // class HgRenderer
 
 }  // namespace hg

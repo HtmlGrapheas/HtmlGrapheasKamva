@@ -62,8 +62,6 @@ inline litehtml::document::ptr getHtmlDocument(HgHtmlRendererPtr renderer)
 int hgPixelFormatIdToColorBits(enum hgPixelFormatId pixFmtId)
 {
   switch(pixFmtId) {
-    case hgPixelFormatId::RGB565:
-      return 5;
     case hgPixelFormatId::RGB24:
     case hgPixelFormatId::BGR24:
     case hgPixelFormatId::RGBA32:
@@ -80,8 +78,6 @@ int hgPixelFormatIdToColorBits(enum hgPixelFormatId pixFmtId)
 HgHtmlRendererPtr hgNewHtmlRenderer(enum hgPixelFormatId pixFmtId)
 {
   switch(pixFmtId) {
-    case hgPixelFormatId::RGB565:
-      return new HgAggHtmlRenderer<agg::pixfmt_rgb565>();
     case hgPixelFormatId::RGB24:
       return new HgAggHtmlRenderer<agg::pixfmt_rgb24>();
     case hgPixelFormatId::BGR24:
@@ -148,6 +144,12 @@ HgBool hgContainer_parseAndLoadFontConfigFromMemory(
 HgBool hgContainer_addFontDir(HgHtmlRendererPtr renderer, const char* dirPath)
 {
   return getHgContainer(renderer)->addFontDir(dirPath);
+}
+
+void hgContainer_setFontTextCacheSize(
+    HgHtmlRendererPtr renderer, int size)
+{
+  return getHgContainer(renderer)->setFontTextCacheSize(size);
 }
 
 void hgContainer_setDefaultFontName(

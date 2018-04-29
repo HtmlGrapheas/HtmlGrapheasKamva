@@ -80,7 +80,6 @@ public class HtmlGrapheasView
   private OverScroller          mScroller;
 
   private static final Bitmap.Config BITMAP_CONFIG = Bitmap.Config.ARGB_8888;
-//  private static final Bitmap.Config BITMAP_CONFIG = Bitmap.Config.RGB_565;
 
   private Bitmap mBitmap;
   private long   mHgHtmlRenderer;
@@ -156,8 +155,6 @@ public class HtmlGrapheasView
   private int bitmapConfigToColorBits(Bitmap.Config config)
   {
     switch (BITMAP_CONFIG) {
-      case RGB_565:
-        return 5;
       case ARGB_8888:
         return 8;
       default:
@@ -218,6 +215,7 @@ public class HtmlGrapheasView
     int fontSizePx = HgKamvaApiJni.hgContainer_ptToPx(mHgHtmlRenderer, 10);
     HgKamvaApiJni.hgContainer_setDefaultFontSize(mHgHtmlRenderer, fontSizePx);
     HgKamvaApiJni.hgContainer_setDefaultFontName(mHgHtmlRenderer, "Tinos");
+    HgKamvaApiJni.hgContainer_setFontTextCacheSize(mHgHtmlRenderer, 10000);
 
     File masterCssFile = new File(dataDir, "master.css");
     String masterCss = readFromFile(masterCssFile);
@@ -234,6 +232,7 @@ public class HtmlGrapheasView
       return false;
     }
 
+    // TODO: createHtmlDocumentFromUtf8() to loader.
     HgKamvaApiJni.hgHtmlRenderer_createHtmlDocumentFromUtf8(
         mHgHtmlRenderer, htmlText);
     return true;

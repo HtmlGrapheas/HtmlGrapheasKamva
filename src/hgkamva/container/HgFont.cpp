@@ -23,23 +23,25 @@
 
 #include "hgkamva/container/HgFont.h"
 
+#include <cassert>
 #include <cstdio>
 #include <limits>
 
 namespace hg
 {
-HgFont::HgFont(FT_Library ftLibrary)
+HgFont::HgFont(FT_Library ftLibrary, int textCacheSize)
     : mFtLibrary(ftLibrary)
     , mFtFace(nullptr)
     , mHbFont(nullptr)
-    , mGlyphCount(0)
-    , mGlyphInfo(nullptr)
-    , mGlyphPos(nullptr)
     , mPixelSize(0)
     , mStrikeout(false)
     , mUnderline(false)
 {
   mHbBuffer = hb_buffer_create();
+
+  mHbLaoutCache = std::make_shared<HbLaoutCache>(textCacheSize);
+  mTextBboxCache = std::make_shared<TextBboxCache>(textCacheSize);
+  mTextRenderCache = std::make_shared<TextRenderCache>(textCacheSize);
 }
 
 HgFont::~HgFont()
@@ -135,20 +137,42 @@ void HgFont::setLanguage(const std::string& language)
       mHbBuffer, hb_language_from_string(language.c_str(), language.size()));
 }
 
-void HgFont::layoutText(const std::string& text)
+typename HgFont::HbLaoutCacheItemPtr HgFont::layoutText(const std::string& text)
 {
   // TODO: check buffer state.
+
+  if(mHbLaoutCache->check(text)) {
+    return mHbLaoutCache->fetch(text);
+  }
 
   // Layout the text
   hb_buffer_add_utf8(mHbBuffer, text.c_str(), text.size(), 0, text.size());
   hb_shape(mHbFont, mHbBuffer, NULL, 0);
-  mGlyphInfo = hb_buffer_get_glyph_infos(mHbBuffer, &mGlyphCount);
-  mGlyphPos = hb_buffer_get_glyph_positions(mHbBuffer, &mGlyphCount);
+
+  unsigned int glyphCount;
+  hb_glyph_info_t* glyphInfo =
+      hb_buffer_get_glyph_infos(mHbBuffer, &glyphCount);
+  hb_glyph_position_t* glyphPos =
+      hb_buffer_get_glyph_positions(mHbBuffer, &glyphCount);
+
+  GlyphInfoArrayPtr glyphInfoArrray =
+      std::make_shared<GlyphInfoArray>(glyphInfo, glyphInfo + glyphCount);
+  GlyphPositionArrayPtr glyphPositionArrray =
+      std::make_shared<GlyphPositionArray>(glyphPos, glyphPos + glyphCount);
+  HbLaoutCacheItemPtr hbLaoutCacheItem = std::make_shared<HbLaoutCacheItem>(
+      glyphCount, glyphInfoArrray, glyphPositionArrray);
+
+  mHbLaoutCache->insert(text, hbLaoutCacheItem);
+  return hbLaoutCacheItem;
 }
 
-typename HgFont::TextBbox HgFont::getBbox()
+typename HgFont::TextBboxPtr HgFont::getBbox(const std::string& text)
 {
   // TODO: check buffer state.
+
+  if(mTextBboxCache->check(text)) {
+    return mTextBboxCache->fetch(text);
+  }
 
   static constexpr int Int_MIN = std::numeric_limits<int>::min();
   static constexpr int Int_MAX = std::numeric_limits<int>::max();
@@ -158,16 +182,16 @@ typename HgFont::TextBbox HgFont::getBbox()
 
   // See http://www.freetype.org/freetype2/docs/glyphs/glyphs-3.html
 
-  TextBbox bbox;
+  TextBboxPtr bbox = std::make_shared<TextBbox>();
 
   // Largest coordinate a pixel has been set at, or the pen was advanced to.
-  bbox.mMaxX = Int_MIN;
+  bbox->mMaxX = Int_MIN;
   // Smallest coordinate a pixel has been set at, or the pen was advanced to.
-  bbox.mMinX = Int_MAX;
+  bbox->mMinX = Int_MAX;
   // This is max topside bearing along the string.
-  bbox.mMaxY = Int_MIN;
+  bbox->mMaxY = Int_MIN;
   // This is max value of (height - topbearing) along the string.
-  bbox.mMinY = Int_MAX;
+  bbox->mMinY = Int_MAX;
   /*  Naturally, the above comments swap their meaning between
               horizontal and vertical scripts, since the pen changes the axis
               it is advanced along. However, their differences still make up
@@ -175,22 +199,25 @@ typename HgFont::TextBbox HgFont::getBbox()
               in FT coordinate system where y axis points upwards.
            */
 
+  HbLaoutCacheItemPtr hbLayoutInfo = layoutText(text);
   int sizerX = 0;
   int sizerY = 0;  // In FT coordinate system.
 
   FT_Error ftErr;
-  for(unsigned j = 0; j < mGlyphCount; ++j) {
-    if((ftErr = FT_Load_Glyph(mFtFace, mGlyphInfo[j].codepoint, 0))) {
-      std::printf(
-          "load %08x failed ftErr=%d.\n", mGlyphInfo[j].codepoint, ftErr);
+  for(unsigned j = 0; j < hbLayoutInfo->mGlyphCount; ++j) {
+    hb_glyph_info_t glyphInfo = (*(hbLayoutInfo->mGlyphInfo))[j];
+    hb_glyph_position_t glyphPos = (*(hbLayoutInfo->mGlyphPos))[j];
+
+    if((ftErr = FT_Load_Glyph(mFtFace, glyphInfo.codepoint, 0))) {
+      std::printf("load %08x failed ftErr=%d.\n", glyphInfo.codepoint, ftErr);
     } else {
       if(mFtFace->glyph->format != FT_GLYPH_FORMAT_OUTLINE) {
         std::printf("glyph->format = %4s\n",
             reinterpret_cast<char*>(&mFtFace->glyph->format));
       } else {
-        int gx = sizerX + (mGlyphPos[j].x_offset / FT_64);
+        int gx = sizerX + (glyphPos.x_offset / FT_64);
         // Note how the sign differs from the rendering pass.
-        int gy = sizerY + (mGlyphPos[j].y_offset / FT_64);
+        int gy = sizerY + (glyphPos.y_offset / FT_64);
 
         mFtRasterParamsUser.mMinSpanX = Int_MAX;
         mFtRasterParamsUser.mMaxSpanX = Int_MIN;
@@ -204,48 +231,48 @@ typename HgFont::TextBbox HgFont::getBbox()
 
         if(mFtRasterParamsUser.mMinSpanX != INT_MAX) {
           // Update values if the spanner was actually called.
-          if(bbox.mMinX > mFtRasterParamsUser.mMinSpanX + gx)
-            bbox.mMinX = mFtRasterParamsUser.mMinSpanX + gx;
+          if(bbox->mMinX > mFtRasterParamsUser.mMinSpanX + gx)
+            bbox->mMinX = mFtRasterParamsUser.mMinSpanX + gx;
 
-          if(bbox.mMaxX < mFtRasterParamsUser.mMaxSpanX + gx)
-            bbox.mMaxX = mFtRasterParamsUser.mMaxSpanX + gx;
+          if(bbox->mMaxX < mFtRasterParamsUser.mMaxSpanX + gx)
+            bbox->mMaxX = mFtRasterParamsUser.mMaxSpanX + gx;
 
-          if(bbox.mMinY > mFtRasterParamsUser.mMinY + gy)
-            bbox.mMinY = mFtRasterParamsUser.mMinY + gy;
+          if(bbox->mMinY > mFtRasterParamsUser.mMinY + gy)
+            bbox->mMinY = mFtRasterParamsUser.mMinY + gy;
 
-          if(bbox.mMaxY < mFtRasterParamsUser.mMaxY + gy)
-            bbox.mMaxY = mFtRasterParamsUser.mMaxY + gy;
+          if(bbox->mMaxY < mFtRasterParamsUser.mMaxY + gy)
+            bbox->mMaxY = mFtRasterParamsUser.mMaxY + gy;
         } else {
           // The spanner wasn't called at all - an empty glyph, like space.
-          if(bbox.mMinX > gx)
-            bbox.mMinX = gx;
-          if(bbox.mMaxX < gx)
-            bbox.mMaxX = gx;
-          if(bbox.mMinY > gy)
-            bbox.mMinY = gy;
-          if(bbox.mMaxY < gy)
-            bbox.mMaxY = gy;
+          if(bbox->mMinX > gx)
+            bbox->mMinX = gx;
+          if(bbox->mMaxX < gx)
+            bbox->mMaxX = gx;
+          if(bbox->mMinY > gy)
+            bbox->mMinY = gy;
+          if(bbox->mMaxY < gy)
+            bbox->mMaxY = gy;
         }
       }
     }
 
-    sizerX += mGlyphPos[j].x_advance / FT_64;
+    sizerX += glyphPos.x_advance / FT_64;
     // Note how the sign differs from the rendering pass.
-    sizerY += mGlyphPos[j].y_advance / FT_64;
+    sizerY += glyphPos.y_advance / FT_64;
   }
   // Still have to take into account last glyph's advance. Or not?
-  if(bbox.mMinX > sizerX)
-    bbox.mMinX = sizerX;
-  if(bbox.mMaxX < sizerX)
-    bbox.mMaxX = sizerX;
-  if(bbox.mMinY > sizerY)
-    bbox.mMinY = sizerY;
-  if(bbox.mMaxY < sizerY)
-    bbox.mMaxY = sizerY;
+  if(bbox->mMinX > sizerX)
+    bbox->mMinX = sizerX;
+  if(bbox->mMaxX < sizerX)
+    bbox->mMaxX = sizerX;
+  if(bbox->mMinY > sizerY)
+    bbox->mMinY = sizerY;
+  if(bbox->mMaxY < sizerY)
+    bbox->mMaxY = sizerY;
 
   // The bounding box.
-  bbox.mBboxW = bbox.mMaxX - bbox.mMinX;
-  bbox.mBboxH = bbox.mMaxY - bbox.mMinY;
+  bbox->mBboxW = bbox->mMaxX - bbox->mMinX;
+  bbox->mBboxH = bbox->mMaxY - bbox->mMinY;
 
   /* Two offsets below position the bounding box with respect
              to the 'origin', which is sort of origin of string's first glyph.
@@ -270,54 +297,129 @@ typename HgFont::TextBbox HgFont::getBbox()
           */
 
   if(HB_DIRECTION_IS_HORIZONTAL(hb_buffer_get_direction(mHbBuffer))) {
-    bbox.mBaselineOffset = bbox.mMaxY;
-    bbox.mBaselineShift = bbox.mMinX;
+    bbox->mBaselineOffset = bbox->mMaxY;
+    bbox->mBaselineShift = bbox->mMinX;
   }
   if(HB_DIRECTION_IS_VERTICAL(hb_buffer_get_direction(mHbBuffer))) {
-    bbox.mBaselineOffset = bbox.mMinX;
-    bbox.mBaselineShift = bbox.mMaxY;
+    bbox->mBaselineOffset = bbox->mMinX;
+    bbox->mBaselineShift = bbox->mMaxY;
   }
 
+  mTextBboxCache->insert(text, bbox);
   return bbox;
 }
 
-void HgFont::drawText(
-    HgPainter* hgRenderer, int x, int y, litehtml::web_color color)
+void HgFont::drawText(const std::string& text,
+    HgPainter* hgPainter,
+    int x,
+    int y,
+    litehtml::web_color color)
 {
   /* About params int x and int y:
      The pen/baseline start coordinates in window coordinate system
               - with those text placement in the window is controlled.
               - note that for RTL scripts pen still goes LTR */
 
-  // Set rendering spanner.
-  mFtRasterParams.gray_spans = blendFtSpanFunc;
+  //  /* Get one coordinate by others. */
+  //
+  //  /* bounding box in window coordinates without offsets */
+  //  left = x;
+  //  right = x + bbox_w;
+  //  top = y - bbox_h;
+  //  bottom = y;
+  //
+  //  /* apply offsets */
+  //  left += baseline_shift;
+  //  right += baseline_shift;
+  //  top -= baseline_offset - bbox_h;
+  //  bottom -= baseline_offset - bbox_h;
+  //
+  //  /* Get one value by others. */
+  //  left = x + baseline_shift;
+  //  right = x + baseline_shift + bbox_w;
+  //  top = y - baseline_offset;
+  //  bottom = y - baseline_offset + bbox_h;
+  //
+  //  x = left - baseline_shift;
+  //  x = right - baseline_shift - bbox_w;
+  //  y = top + baseline_offset;
+  //  y = bottom + baseline_offset - bbox_h;
+  //
+  //  x = left - baseline_shift;
+  //  x = right - baseline_shift - (max_x - min_x);
+  //  y = top + baseline_offset;
+  //  y = bottom + baseline_offset - (max_y - min_y);
+  //
+  //  x = left - min_x;
+  //  x = right - min_x - (max_x - min_x);
+  //  y = top + max_y;
+  //  y = bottom + max_y - (max_y - min_y);
+  //
+  //  x = left - min_x;    // (x, y) -- base line coordinates,
+  //  x = right - max_x;   // (left, top) -- corner.
+  //  y = top + max_y;
+  //  y = bottom + min_y;
 
-  // Initialize rendering part of the FtRasterParamsUser.
-  mFtRasterParamsUser.mHgPainter = hgRenderer;
-  mFtRasterParamsUser.mColor = color;
 
-  // Render.
-  FT_Error ftErr;
-  for(unsigned j = 0; j < mGlyphCount; ++j) {
-    if((ftErr = FT_Load_Glyph(mFtFace, mGlyphInfo[j].codepoint, 0))) {
-      printf("load %08x failed ftErr=%d.\n", mGlyphInfo[j].codepoint, ftErr);
-    } else {
-      if(mFtFace->glyph->format != FT_GLYPH_FORMAT_OUTLINE) {
-        std::printf("glyph->format = %4s\n",
-            reinterpret_cast<char*>(&mFtFace->glyph->format));
+  HgPainterPtr textPainter;
+  TextBboxPtr bbox = getBbox(text);
+
+  if(mTextRenderCache->check(text)) {
+    textPainter = mTextRenderCache->fetch(text);
+
+  } else {
+    // Use this colors with a blend mask in the blendFromColor().
+    litehtml::web_color textBkgrColor = litehtml::web_color(0, 0, 0, 255);
+    litehtml::web_color textColor = litehtml::web_color(255, 255, 255, 255);
+
+    textPainter =
+        hgPainter->newHgCachePainter(bbox->mBboxW + 2, bbox->mBboxH + 2);
+    textPainter->setRendererColor(textBkgrColor);
+    textPainter->clear();
+
+    // Set rendering spanner.
+    mFtRasterParams.gray_spans = blendFtSpanFunc;
+
+    // Initialize rendering part of the FtRasterParamsUser.
+    mFtRasterParamsUser.mHgPainter = textPainter.get();
+    mFtRasterParamsUser.mColor = textColor;
+
+    HbLaoutCacheItemPtr hbLayoutInfo = layoutText(text);
+    int textX = -(bbox->mMinX);
+    int textY = bbox->mMaxY;
+
+    // Render.
+    FT_Error ftErr;
+    for(unsigned j = 0; j < hbLayoutInfo->mGlyphCount; ++j) {
+      hb_glyph_info_t glyphInfo = (*(hbLayoutInfo->mGlyphInfo))[j];
+      hb_glyph_position_t glyphPos = (*(hbLayoutInfo->mGlyphPos))[j];
+
+      if((ftErr = FT_Load_Glyph(mFtFace, glyphInfo.codepoint, 0))) {
+        printf("load %08x failed ftErr=%d.\n", glyphInfo.codepoint, ftErr);
       } else {
-        mFtRasterParamsUser.mGlyphX = x + (mGlyphPos[j].x_offset / FT_64);
-        mFtRasterParamsUser.mGlyphY = y - (mGlyphPos[j].y_offset / FT_64);
+        if(mFtFace->glyph->format != FT_GLYPH_FORMAT_OUTLINE) {
+          std::printf("glyph->format = %4s\n",
+              reinterpret_cast<char*>(&mFtFace->glyph->format));
+        } else {
+          mFtRasterParamsUser.mGlyphX = textX + (glyphPos.x_offset / FT_64);
+          mFtRasterParamsUser.mGlyphY = textY - (glyphPos.y_offset / FT_64);
 
-        if((ftErr = FT_Outline_Render(
-                mFtLibrary, &mFtFace->glyph->outline, &mFtRasterParams)))
-          printf("FT_Outline_Render() failed err=%d\n", ftErr);
+          if((ftErr = FT_Outline_Render(
+                  mFtLibrary, &mFtFace->glyph->outline, &mFtRasterParams)))
+            printf("FT_Outline_Render() failed err=%d\n", ftErr);
+        }
       }
+
+      textX += glyphPos.x_advance / FT_64;
+      textY -= glyphPos.y_advance / FT_64;
     }
 
-    x += mGlyphPos[j].x_advance / FT_64;
-    y -= mGlyphPos[j].y_advance / FT_64;
+    mTextRenderCache->insert(text, textPainter);
   }
+
+  x += bbox->mBaselineShift;
+  y -= bbox->mBaselineOffset;
+  hgPainter->blendFromColor(textPainter.get(), color, x, y);
 }
 
 /*  This spanner is for obtaining exact bounding box for the string.
