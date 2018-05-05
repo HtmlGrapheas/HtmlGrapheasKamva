@@ -96,7 +96,7 @@ TEST(HgContainerTest, draw_text)
   hgAggPainter.attach(frameBuf, frameWidth, frameHeight, stride);
 
   litehtml::web_color backgroundColor(0, 0, 0);
-  hgAggPainter.setRendererColor(backgroundColor);
+  hgAggPainter.setPaintColor(backgroundColor);
   hgAggPainter.clear();
 
   //// HtmlGrapheasKamva init.
@@ -139,7 +139,7 @@ TEST(HgContainerTest, draw_text)
   //////// Repeat tests for new text.
 
   // Make cleaning before new text.
-  hgAggPainter.setRendererColor(backgroundColor);
+  hgAggPainter.setPaintColor(backgroundColor);
   hgAggPainter.clear();
 
   // draw_text()
@@ -197,7 +197,7 @@ TEST(HgContainerTest, drawHtmlDocument)
   hgAggPainter.attach(frameBuf, frameWidth, frameHeight, stride);
 
   litehtml::web_color backgroundColor(255, 255, 255);
-  hgAggPainter.setRendererColor(backgroundColor);
+  hgAggPainter.setPaintColor(backgroundColor);
   hgAggPainter.clear();
 
   //// HtmlGrapheasKamva init.

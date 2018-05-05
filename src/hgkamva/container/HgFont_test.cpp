@@ -73,7 +73,7 @@ TEST(HgFontTest, HgFontTest)
   hgAggPainter.attach(frameBuf, frameWidth, frameHeight, stride);
 
   litehtml::web_color backgroundColor(0, 0, 0);
-  hgAggPainter.setRendererColor(backgroundColor);
+  hgAggPainter.setPaintColor(backgroundColor);
   hgAggPainter.clear();
 
   //// HtmlGrapheasKamva init.
@@ -160,7 +160,7 @@ TEST(HgFontTest, HgFontTest)
 
   // Make cleaning before new text.
   hgFont.clearBuffer();
-  hgAggPainter.setRendererColor(backgroundColor);
+  hgAggPainter.setPaintColor(backgroundColor);
   hgAggPainter.clear();
 
   // Set HarfBuzz params.

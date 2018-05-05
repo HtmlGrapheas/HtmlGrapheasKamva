@@ -60,22 +60,28 @@ public:
       unsigned int width,
       unsigned int height,
       int stride) override;
-  virtual void setRendererColor(const litehtml::web_color& color) override;
+  virtual void setPaintColor(const litehtml::web_color& color) override;
+  virtual bool clipBox(int x1, int y1, int x2, int y2) override;
+  virtual void resetClipping(bool visibility) override;
   virtual void clear() override;
   virtual void blendHLine(int x1, int y, int x2, unsigned char cover) override;
   virtual void copyHLine(int x1, int y, int x2) override;
+  virtual void copyBar(int x1, int y1, int x2, int y2) override;
   virtual void blendFromColor(const HgPainter* src,
-      const litehtml::web_color& color,
+      const litehtml::position* srcRect,
       int dx = 0,
       int dy = 0) override;
-  virtual void copyFrom(const HgPainter* src, int dx = 0, int dy = 0) override;
+  virtual void copyFrom(const HgPainter* src,
+      const litehtml::position* srcRect,
+      int dx = 0,
+      int dy = 0) override;
 
 private:
   BufferPtr mBuffer;
   RenderingBuffer mRenderingBuffer;
   PixelFormat mPixelFormat;
   RendererBase mRendererBase;
-  RendererColor mRendererColor;
+  RendererColor mPaintColor;
 };  // class HgAggRenderer
 
 template <typename PixelFormat>
@@ -121,58 +127,82 @@ inline void HgAggPainter<PixelFormat>::attach(
 }
 
 template <typename PixelFormat>
-inline void HgAggPainter<PixelFormat>::setRendererColor(
+inline void HgAggPainter<PixelFormat>::setPaintColor(
     const litehtml::web_color& color)
 {
-  mRendererColor.clear();
-  mRendererColor.opacity(color.alpha / 255.0);
-  mRendererColor.r = color.red;
-  mRendererColor.g = color.green;
-  mRendererColor.b = color.blue;
+  mPaintColor.clear();
+  mPaintColor.opacity(color.alpha / 255.0);
+  mPaintColor.r = color.red;
+  mPaintColor.g = color.green;
+  mPaintColor.b = color.blue;
+}
+
+template <typename PixelFormat>
+inline bool HgAggPainter<PixelFormat>::clipBox(int x1, int y1, int x2, int y2)
+{
+  return mRendererBase.clip_box(x1, y1, x2, y2);
+}
+
+template <typename PixelFormat>
+inline void HgAggPainter<PixelFormat>::resetClipping(bool visibility)
+{
+  mRendererBase.reset_clipping(visibility);
 }
 
 template <typename PixelFormat>
 inline void HgAggPainter<PixelFormat>::clear()
 {
-  mRendererBase.clear(mRendererColor);
+  mRendererBase.clear(mPaintColor);
 }
 
 template <typename PixelFormat>
 inline void HgAggPainter<PixelFormat>::blendHLine(
     int x1, int y, int x2, unsigned char cover)
 {
-  mRendererBase.blend_hline(x1, y, x2, mRendererColor, cover);
+  mRendererBase.blend_hline(x1, y, x2, mPaintColor, cover);
 }
 
 template <typename PixelFormat>
 inline void HgAggPainter<PixelFormat>::copyHLine(int x1, int y, int x2)
 {
-  mRendererBase.copy_hline(x1, y, x2, mRendererColor);
+  mRendererBase.copy_hline(x1, y, x2, mPaintColor);
+}
+
+template <typename PixelFormat>
+inline void HgAggPainter<PixelFormat>::copyBar(int x1, int y1, int x2, int y2)
+{
+  mRendererBase.copy_bar(x1, y1, x2, y2, mPaintColor);
 }
 
 template <typename PixelFormat>
 inline void HgAggPainter<PixelFormat>::blendFromColor(
-    const HgPainter* src, const litehtml::web_color& color, int dx, int dy)
+    const HgPainter* src, const litehtml::position* srcRect, int dx, int dy)
 {
   const HgAggPainter* aggSrc = static_cast<const HgAggPainter*>(src);
 
-  RendererColor aggColor;
-  aggColor.clear();
-  aggColor.opacity(color.alpha / 255.0);
-  aggColor.r = color.red;
-  aggColor.g = color.green;
-  aggColor.b = color.blue;
-
-  mRendererBase.blend_from_color(aggSrc->getRendererBase().ren(), aggColor,
-      nullptr, dx, dy, agg::cover_mask);
+  if(srcRect) {
+    agg::rect_i aggRect(
+        srcRect->left(), srcRect->top(), srcRect->right(), srcRect->bottom());
+    mRendererBase.blend_from_color(aggSrc->getRendererBase().ren(), mPaintColor,
+        &aggRect, dx, dy, agg::cover_mask);
+  } else {
+    mRendererBase.blend_from_color(aggSrc->getRendererBase().ren(), mPaintColor,
+        nullptr, dx, dy, agg::cover_mask);
+  }
 }
 
 template <typename PixelFormat>
 inline void HgAggPainter<PixelFormat>::copyFrom(
-    const HgPainter* src, int dx, int dy)
+    const HgPainter* src, const litehtml::position* srcRect, int dx, int dy)
 {
   const HgAggPainter* aggSrc = static_cast<const HgAggPainter*>(src);
-  mRendererBase.copy_from(aggSrc->getRendererBase().ren(), nullptr, dx, dy);
+  if(srcRect) {
+    agg::rect_i aggRect(
+        srcRect->left(), srcRect->top(), srcRect->right(), srcRect->bottom());
+    mRendererBase.copy_from(aggSrc->getRendererBase().ren(), &aggRect, dx, dy);
+  } else {
+    mRendererBase.copy_from(aggSrc->getRendererBase().ren(), nullptr, dx, dy);
+  }
 }
 
 }  // namespace hg

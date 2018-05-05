@@ -374,7 +374,7 @@ void HgFont::drawText(const std::string& text,
 
     textPainter =
         hgPainter->newHgCachePainter(bbox->mBboxW + 2, bbox->mBboxH + 2);
-    textPainter->setRendererColor(textBkgrColor);
+    textPainter->setPaintColor(textBkgrColor);
     textPainter->clear();
 
     // Set rendering spanner.
@@ -419,7 +419,8 @@ void HgFont::drawText(const std::string& text,
 
   x += bbox->mBaselineShift;
   y -= bbox->mBaselineOffset;
-  hgPainter->blendFromColor(textPainter.get(), color, x, y);
+  hgPainter->setPaintColor(color);
+  hgPainter->blendFromColor(textPainter.get(), nullptr, x, y);
 }
 
 /*  This spanner is for obtaining exact bounding box for the string.
@@ -447,7 +448,7 @@ void HgFont::sizerFtSpanFunc(int y, int count, const FT_Span* spans, void* user)
 void HgFont::blendFtSpanFunc(int y, int count, const FT_Span* spans, void* user)
 {
   FtRasterParamsUser* ftUser = static_cast<FtRasterParamsUser*>(user);
-  ftUser->mHgPainter->setRendererColor(ftUser->mColor);
+  ftUser->mHgPainter->setPaintColor(ftUser->mColor);
 
   for(int i = 0; i < count; ++i) {
     ftUser->mHgPainter->blendHLine(ftUser->mGlyphX + spans[i].x,

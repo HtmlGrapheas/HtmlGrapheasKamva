@@ -169,7 +169,7 @@ void HgContainer::draw_text(litehtml::uint_ptr hdc,
   if(hgFont->underline() || hgFont->strikeout()) {
     int tw = 0;
     tw = text_width(text, hFont);
-    hgPainter->setRendererColor(color);
+    hgPainter->setPaintColor(color);
 
     if(hgFont->underline()) {
       // TODO: set line width by font's height.

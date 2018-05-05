@@ -220,26 +220,34 @@ void HgKamvaWxWindow::drawHtml(
 void HgKamvaWxWindow::onSize(wxSizeEvent& event)
 {
   const wxSize size = GetClientSize();
+  const int width = size.GetWidth();
+  const int height = size.GetHeight();
+
+  hgContainer_setDeviceWidth(mHgHtmlRenderer, width);
+  hgContainer_setDeviceHeight(mHgHtmlRenderer, height);
+  hgContainer_setDisplayAreaWidth(mHgHtmlRenderer, width);
+  hgContainer_setDisplayAreaHeight(mHgHtmlRenderer, height);
+
   int htmlWidth = hgHtmlDocument_width(mHgHtmlRenderer);
 
-  if(htmlWidth != size.GetWidth()) {
+  if(htmlWidth != width) {
     // Render HTML document.
-    hgHtmlRenderer_renderHtml(
-        mHgHtmlRenderer, size.GetWidth(), size.GetHeight());
+    hgHtmlRenderer_renderHtml(mHgHtmlRenderer, width, height);
 
     htmlWidth = hgHtmlDocument_width(mHgHtmlRenderer);
     int htmlHeight = hgHtmlDocument_height(mHgHtmlRenderer);
     SetVirtualSize(htmlWidth, htmlHeight);
-
-    // Request a full redraw of the window.
-    Refresh(false);
   }
+
+  // Request a full redraw of the window.
+  // TODO: refresh only if params (w,h) is changed for device, area, html.
+  Refresh(false);
 }
 
 void HgKamvaWxWindow::onPaint(wxPaintEvent& event)
 {
   wxPaintDC dc(this);
-  DoPrepareDC(dc);
+  //DoPrepareDC(dc);
 
   int width, height;
   dc.GetSize(&width, &height);
@@ -255,8 +263,10 @@ void HgKamvaWxWindow::onPaint(wxPaintEvent& event)
   wxRect rect;
   while(regions) {
     rect = regions.GetRect();
-    int xd = rect.x + mNewHtmlX;
-    int yd = rect.y + mNewHtmlY;
+    //int xd = rect.x + mNewHtmlX;  // with DoPrepareDC(dc);
+    //int yd = rect.y + mNewHtmlY;  // with DoPrepareDC(dc);
+    int xd = rect.x;
+    int yd = rect.y;
     int xs = rect.x;
     int ys = rect.y;
     dc.Blit(xd, yd, rect.width, rect.height, &mMemoryDC, xs, ys);

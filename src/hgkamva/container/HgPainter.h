@@ -46,15 +46,21 @@ public:
       unsigned int width,
       unsigned int height,
       int stride) = 0;
-  virtual void setRendererColor(const litehtml::web_color& color) = 0;
+  virtual void setPaintColor(const litehtml::web_color& color) = 0;
+  virtual bool clipBox(int x1, int y1, int x2, int y2) = 0;
+  virtual void resetClipping(bool visibility) = 0;
   virtual void clear() = 0;
   virtual void blendHLine(int x1, int y, int x2, unsigned char cover) = 0;
   virtual void copyHLine(int x1, int y, int x2) = 0;
+  virtual void copyBar(int x1, int y1, int x2, int y2) = 0;
   virtual void blendFromColor(const HgPainter* src,
-      const litehtml::web_color& color,
+      const litehtml::position* srcRect,
       int dx = 0,
       int dy = 0) = 0;
-  virtual void copyFrom(const HgPainter* src, int dx = 0, int dy = 0) = 0;
+  virtual void copyFrom(const HgPainter* src,
+      const litehtml::position* srcRect,
+      int dx = 0,
+      int dy = 0) = 0;
 
 };  // class HgRenderer
 

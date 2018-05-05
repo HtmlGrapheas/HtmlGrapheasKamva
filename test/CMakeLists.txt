@@ -125,31 +125,31 @@ if(BUILD_TESTING)
   endmacro()
 
   # StringUtil tests.
-  add_hg_test("StringUtil_test" 
+  add_hg_test("StringUtil_test"
     ${hgk_SRC_DIR}/hgkamva/util/StringUtil_test.cpp
     htmlgrapheaskamva
   )
 
   # HgFontLibrary tests.
-  add_hg_test("HgFontLibrary_test" 
+  add_hg_test("HgFontLibrary_test"
     ${hgk_SRC_DIR}/hgkamva/container/HgFontLibrary_test.cpp
     htmlgrapheaskamva
   )
 
   # HgFont tests.
-  add_hg_test("HgFont_test" 
+  add_hg_test("HgFont_test"
     ${hgk_SRC_DIR}/hgkamva/container/HgFont_test.cpp
     htmlgrapheaskamva
   )
 
   # HgContainer tests.
-  add_hg_test("HgContainer_test" 
+  add_hg_test("HgContainer_test"
     ${hgk_SRC_DIR}/hgkamva/container/HgContainer_test.cpp
     htmlgrapheaskamva
   )
   
   # HgAggHtmlRenderer tests.
-  add_hg_test("HgAggHtmlRenderer_test" 
+  add_hg_test("HgAggHtmlRenderer_test"
     ${hgk_SRC_DIR}/hgkamva/container/HgAggHtmlRenderer_test.cpp
     htmlgrapheaskamva
   )

@@ -62,6 +62,13 @@ private:
   std::shared_ptr<HgContainer> mHgContainer;
   std::shared_ptr<litehtml::context> mHtmlContext;
   litehtml::document::ptr mHtmlDocument;
+
+  unsigned char* mBuffer;
+  int mBufferWidth;
+  int mBufferHeight;
+  int mBufferStride;
+  int mHtmlX;
+  int mHtmlY;
 };
 
 inline void HgHtmlRenderer::setBackgroundColor(const litehtml::web_color& color)
