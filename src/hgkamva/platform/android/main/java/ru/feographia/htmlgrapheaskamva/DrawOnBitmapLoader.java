@@ -36,7 +36,7 @@ public class DrawOnBitmapLoader
     extends AsyncTaskLoader<Bitmap>
     implements HtmlGrapheasView.OnHtmlParamsChangeListener
 {
-  private long mHgHtmlRenderer;
+  private long          mHgHtmlRenderer;
   private Bitmap.Config mBitmapConfig;
 
   private int mBackgroundColor;
@@ -45,7 +45,8 @@ public class DrawOnBitmapLoader
   private int mHtmlX;
   private int mHtmlY;
 
-  private Bitmap mBitmap;
+  private Bitmap  mBitmap            = null;
+  private boolean mBitmapSizeChanged = true;
 
   public DrawOnBitmapLoader(
       Context context, long hgHtmlRenderer, Bitmap.Config config,
@@ -63,15 +64,18 @@ public class DrawOnBitmapLoader
     mHtmlY = htmlY;
   }
 
-  private Bitmap renderHtmlToBitmap()
+  private void renderHtmlToBitmap()
   {
+    HgKamvaApiJni.hgContainer_setDeviceWidth(mHgHtmlRenderer, mWidth);
+    HgKamvaApiJni.hgContainer_setDeviceHeight(mHgHtmlRenderer, mHeight);
+    HgKamvaApiJni.hgContainer_setDisplayAreaWidth(mHgHtmlRenderer, mWidth);
+    HgKamvaApiJni.hgContainer_setDisplayAreaHeight(mHgHtmlRenderer, mHeight);
+
     int htmlWidth = HgKamvaApiJni.hgHtmlDocument_width(mHgHtmlRenderer);
     if (htmlWidth != mWidth) {
       // Render HTML document.
       HgKamvaApiJni.hgHtmlRenderer_renderHtml(mHgHtmlRenderer, mWidth, mHeight);
     }
-
-    Bitmap bitmap = Bitmap.createBitmap(mWidth, mHeight, mBitmapConfig);
 
     short red = (short) Color.red(mBackgroundColor);
     short green = (short) Color.green(mBackgroundColor);
@@ -82,9 +86,7 @@ public class DrawOnBitmapLoader
     HgKamvaApiJni.hgHtmlRenderer_setBackgroundColor(
         mHgHtmlRenderer, red, green, blue, alpha);
     HgKamvaApiJni.hgHtmlRenderer_drawHtml(
-        mHgHtmlRenderer, bitmap, mHtmlX, mHtmlY);
-
-    return bitmap;
+        mHgHtmlRenderer, mBitmap, mHtmlX, mHtmlY);
   }
 
   /**
@@ -95,7 +97,17 @@ public class DrawOnBitmapLoader
   @Override
   public Bitmap loadInBackground()
   {
-    return renderHtmlToBitmap();
+    if (mBitmapSizeChanged && mBitmap != null) {
+      onReleaseResources(mBitmap);
+      mBitmap = null;
+    }
+
+    if (mBitmap == null) {
+      mBitmap = Bitmap.createBitmap(mWidth, mHeight, mBitmapConfig);
+    }
+
+    renderHtmlToBitmap();
+    return mBitmap;
   }
 
   /**
@@ -111,6 +123,7 @@ public class DrawOnBitmapLoader
       // We don't need the result.
       if (bitmap != null) {
         onReleaseResources(bitmap);
+        bitmap = null;
       }
     }
 
@@ -140,10 +153,13 @@ public class DrawOnBitmapLoader
   @Override
   protected void onStartLoading()
   {
-    if (mBitmap != null) {
+    if (!mBitmapSizeChanged && mBitmap != null) {
       // If we currently have a result available, deliver it
       // immediately.
       deliverResult(mBitmap);
+    } else if (mBitmap != null) {
+      onReleaseResources(mBitmap);
+      mBitmap = null;
     }
 
     // Start watching for changes in the bitmap.
@@ -175,6 +191,10 @@ public class DrawOnBitmapLoader
   public void onCanceled(Bitmap bitmap)
   {
     super.onCanceled(bitmap);
+
+    if (bitmap == mBitmap) {
+      mBitmap = null;
+    }
 
     // At this point we can release the resources
     // associated with 'bitmap' if needed.
@@ -220,9 +240,13 @@ public class DrawOnBitmapLoader
 
   @Override
   public void onHtmlParamsChange(
-      int backgroundColor, int width, int height, int htmlX, int htmlY,
-      boolean reset)
+      long hgHtmlRenderer, int backgroundColor, int width, int height,
+      int htmlX, int htmlY)
   {
+    mBitmapSizeChanged = mBitmap != null && (mBitmap.getWidth() != width
+        || mBitmap.getHeight() != height);
+
+    mHgHtmlRenderer = hgHtmlRenderer;
     mBackgroundColor = backgroundColor;
     mWidth = width;
     mHeight = height;

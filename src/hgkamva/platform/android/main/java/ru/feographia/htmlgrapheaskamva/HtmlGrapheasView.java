@@ -113,6 +113,7 @@ public class HtmlGrapheasView
     // Using example of destructor for HgHtmlRenderer.
     // if(mHgHtmlRenderer != 0) {
     //   HgKamvaApiJni.hgDeleteHtmlRenderer(mHgHtmlRenderer);
+    //   mHgHtmlRenderer = 0;
     // }
 
     // Here mBitmap is used as converter
@@ -121,6 +122,18 @@ public class HtmlGrapheasView
     mHgHtmlRenderer = HgKamvaApiJni.hgNewHtmlRenderer(mBitmap);
     mBitmap = null;
     initHgContainer();
+  }
+
+  @Override
+  protected void finalize()
+      throws Throwable
+  {
+    if (mHgHtmlRenderer != 0) {
+      HgKamvaApiJni.hgDeleteHtmlRenderer(mHgHtmlRenderer);
+      mHgHtmlRenderer = 0;
+    }
+
+    super.finalize();
   }
 
   protected void setNewHtmlX(int x)
@@ -359,7 +372,7 @@ public class HtmlGrapheasView
   @Override
   protected void onSizeChanged(int w, int h, int oldw, int oldh)
   {
-    resetBitmapParams();
+    resetBitmapParams(w, h);
   }
 
   @Override
@@ -390,8 +403,9 @@ public class HtmlGrapheasView
       mHtmlY = mNewHtmlY;
 
       if (mOnHtmlParamsChangeListener != null) {
-        mOnHtmlParamsChangeListener.onHtmlParamsChange(mBackgroundColor,
-            mVisibleHtmlWidth, mVisibleHtmlHeight, mNewHtmlX, mNewHtmlY, false);
+        mOnHtmlParamsChangeListener.onHtmlParamsChange(mHgHtmlRenderer,
+            mBackgroundColor, mVisibleHtmlWidth, mVisibleHtmlHeight, mNewHtmlX,
+            mNewHtmlY);
         mWaitBitmap = true;
       }
     }
@@ -576,6 +590,15 @@ public class HtmlGrapheasView
     LoaderManager lm = getActivity().getSupportLoaderManager();
     int loaderId = 1231;
     Loader loader = lm.getLoader(loaderId);
+
+    if (mOnHtmlParamsChangeListener == null && loader != null
+        && loader instanceof DrawOnBitmapLoader) {
+      DrawOnBitmapLoader bitmapLoader = (DrawOnBitmapLoader) loader;
+      setOnHtmlParamsChangeListener(bitmapLoader);
+      // Set new params to loader here, not in constructor, loader is exist.
+      resetBitmapParams(mVisibleHtmlWidth, mVisibleHtmlHeight);
+    }
+
     if (null != loader && loader.isStarted()) {
       lm.restartLoader(loaderId, null, this);
     } else {
@@ -603,11 +626,13 @@ public class HtmlGrapheasView
       @NonNull
           Loader<Bitmap> loader, Bitmap bitmap)
   {
-    mBitmap = bitmap;
-    mWaitBitmap = false;
-    mHtmlWidth = HgKamvaApiJni.hgHtmlDocument_width(mHgHtmlRenderer);
-    mHtmlHeight = HgKamvaApiJni.hgHtmlDocument_height(mHgHtmlRenderer);
-    invalidate();
+    if (!bitmap.isRecycled()) {
+      mBitmap = bitmap.copy(BITMAP_CONFIG, false);
+      mWaitBitmap = false;
+      mHtmlWidth = HgKamvaApiJni.hgHtmlDocument_width(mHgHtmlRenderer);
+      mHtmlHeight = HgKamvaApiJni.hgHtmlDocument_height(mHgHtmlRenderer);
+      invalidate();
+    }
   }
 
   @Override
@@ -616,17 +641,24 @@ public class HtmlGrapheasView
           Loader<Bitmap> loader)
   {
     setOnHtmlParamsChangeListener(null);
-    resetBitmapParams();
+    resetBitmapParams(mVisibleHtmlWidth, mVisibleHtmlHeight);
     invalidate();
   }
 
-  private void resetBitmapParams()
+  private void resetBitmapParams(int width, int height)
   {
     mBitmap = null;
-    mVisibleHtmlWidth = 0;
-    mVisibleHtmlHeight = 0;
+    mVisibleHtmlWidth = width;
+    mVisibleHtmlHeight = height;
     mHtmlWidth = 0;
     mHtmlHeight = 0;
+
+    if (mOnHtmlParamsChangeListener != null) {
+      mOnHtmlParamsChangeListener.onHtmlParamsChange(mHgHtmlRenderer,
+          mBackgroundColor, mVisibleHtmlWidth, mVisibleHtmlHeight, mNewHtmlX,
+          mNewHtmlY);
+      mWaitBitmap = true;
+    }
   }
 
   public void setOnHtmlParamsChangeListener(
@@ -638,7 +670,7 @@ public class HtmlGrapheasView
   interface OnHtmlParamsChangeListener
   {
     void onHtmlParamsChange(
-        int backgroundColor, int width, int height, int htmlX, int htmlY,
-        boolean reset);
+        long hgHtmlRenderer, int backgroundColor, int width, int height,
+        int htmlX, int htmlY);
   }
 }
