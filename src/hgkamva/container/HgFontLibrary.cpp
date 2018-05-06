@@ -27,7 +27,7 @@ namespace hg
 {
 HgFontLibrary::HgFontLibrary()
 {
-  mFcConfig = FcConfigCreate();
+  mFcConfig = FcInitLoadConfig();
   FT_Init_FreeType(&mFtLibrary);
 }
 

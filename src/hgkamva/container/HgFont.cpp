@@ -313,7 +313,7 @@ void HgFont::drawText(const std::string& text,
     HgPainter* hgPainter,
     int x,
     int y,
-    litehtml::web_color color)
+    const litehtml::web_color& color)
 {
   /* About params int x and int y:
      The pen/baseline start coordinates in window coordinate system

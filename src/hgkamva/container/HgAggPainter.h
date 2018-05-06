@@ -24,6 +24,7 @@
 #ifndef HG_AGG_PAINTER_H
 #define HG_AGG_PAINTER_H
 
+#include <cstdlib>
 #include <memory>
 #include <vector>
 
@@ -96,7 +97,8 @@ inline void HgAggPainter<PixelFormat>::attachNewBuffer(
     unsigned int width, unsigned int height, int stride)
 {
   // stride == width * bytesPerPixel
-  mBuffer = std::make_shared<Buffer>(stride * height);
+  // stride may be negative.
+  mBuffer = std::make_shared<Buffer>(abs(stride) * height);
   attach(mBuffer->data(), width, height, stride);
 }
 
@@ -111,8 +113,11 @@ template <typename PixelFormat>
 inline HgPainterPtr HgAggPainter<PixelFormat>::newHgCachePainter(
     unsigned int width, unsigned int height)
 {
-  int bytesPerPixel = mRenderingBuffer.stride() / mRenderingBuffer.width();
+  int parentStride = mRenderingBuffer.stride();
+  int parentWidth = static_cast<int>(mRenderingBuffer.width());
+  int bytesPerPixel = parentStride / parentWidth;
   int stride = width * bytesPerPixel;
+
   HgAggPainter* aggPainter = new HgAggPainter();
   aggPainter->attachNewBuffer(width, height, stride);
   return std::shared_ptr<HgPainter>(aggPainter);
