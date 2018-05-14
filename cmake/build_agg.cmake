@@ -76,13 +76,9 @@ if(NOT Agg_FOUND)
     UNPACKED_SRC_DIR ${AGG_UNPACKED_SRC_DIR}
     BUILD_DIR ${AGG_BUILD_DIR}
   )
-  
-  # AGG
-  # AggConfig.cmake set the cache var AGG_LIBRARY_DIRS,
-  # which used in parent project in link_directories().
-  # TODO: rewrite AGG's CMake scripts to exclude link_directories().
+
   find_package(Agg REQUIRED CONFIG)
-  
+
 else()
   cmr_print_message(
     "AGG is installed, skip building and installing it.")
