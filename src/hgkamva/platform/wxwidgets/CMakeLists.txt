@@ -40,11 +40,6 @@ add_subdirectory(
   "${PROJECT_BINARY_DIR}/HtmlGrapheasKamva"
 )
 
-# TODO: rewrite AGG's CMake scripts to exclude link_directories().
-# AGG_LIBRARY_DIRS is cache var from AggConfig.cmake
-# by find_package(Agg REQUIRED CONFIG) in HtmlGrapheasKamva.
-link_directories(${AGG_LIBRARY_DIRS})
-
 
 #-----------------------------------------------------------------------
 # wxWidgets platform

@@ -185,7 +185,7 @@ endif()
 # AGG
 # Export AGG includes.
 target_include_directories(${hgk_LIB_NAME} PUBLIC ${AGG_INCLUDE_DIRS})
-target_link_libraries(${hgk_LIB_NAME} PRIVATE ${AGG_LIBRARIES})
+target_link_libraries(${hgk_LIB_NAME} PRIVATE ${AGG_LIBRARY})
 
 # STLCache
 target_include_directories(${hgk_LIB_NAME} PRIVATE ${STLCACHE_INCLUDE_DIR})

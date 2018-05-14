@@ -87,11 +87,6 @@ if(BUILD_TESTING)
       "${HGRAPH_TEST_DATA_DIR}"
   )
 
-  # TODO: rewrite AGG's CMake scripts to exclude link_directories().
-  # AGG_LIBRARY_DIRS is cache var from AggConfig.cmake
-  # by find_package(Agg REQUIRED CONFIG) in HtmlGrapheasKamva.
-  link_directories(${AGG_LIBRARY_DIRS})
-
   macro(add_hg_test test_NAME test_SRC_FILES test_LIBS)
     add_executable(${test_NAME} ${test_SRC_FILES})
     set_target_properties(${test_NAME} PROPERTIES
@@ -147,13 +142,13 @@ if(BUILD_TESTING)
     ${hgk_SRC_DIR}/hgkamva/container/HgContainer_test.cpp
     htmlgrapheaskamva
   )
-  
+
   # HgAggHtmlRenderer tests.
   add_hg_test("HgAggHtmlRenderer_test"
     ${hgk_SRC_DIR}/hgkamva/container/HgAggHtmlRenderer_test.cpp
     htmlgrapheaskamva
   )
-  
+
 endif()
 
 

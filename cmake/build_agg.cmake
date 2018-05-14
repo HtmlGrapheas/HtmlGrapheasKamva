@@ -46,9 +46,6 @@ set(AGG_DIR "${EXTERNAL_INSTALL_DIR}")
 set(ENV{AGG_DIR} "${AGG_DIR}")
 set(AGG_DIR_BIN "${AGG_DIR}/bin")
 
-# Var antigrain_SOURCE_DIR is set in lib_cmaker_agg() from UNPACKED_SRC_DIR.
-# Var antigrain_BINARY_DIR is set in lib_cmaker_agg() from CMAKE_INSTALL_PREFIX.
-
 option(agg_USE_GPC "Use Gpc Boolean library" OFF)
 option(agg_USE_FREETYPE "Use Freetype library" OFF)
 option(agg_USE_EXPAT "Use Expat library" OFF)
