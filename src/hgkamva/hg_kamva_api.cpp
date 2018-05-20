@@ -25,8 +25,10 @@
 
 #include <cassert>
 
+#include "agg_pixfmt_rgb.h"
+#include "agg_pixfmt_rgba.h"
+
 #include "hgkamva/container/HgAggHtmlRenderer.h"
-#include "hgkamva/container/HgAggIdToAggPixelFormat.h"
 #include "hgkamva/container/HgHtmlRenderer.h"
 
 using namespace hg;
@@ -75,23 +77,34 @@ int hgPixelFormatIdToColorBits(enum hgPixelFormatId pixFmtId)
 
 // HgHtmlRenderer methods.
 
-HgHtmlRendererPtr hgNewHtmlRenderer(enum hgPixelFormatId pixFmtId)
+HgHtmlRendererPtr hgNewHtmlRendererRgb24()
 {
-  switch(pixFmtId) {
-    case hgPixelFormatId::RGB24:
-      return new HgAggHtmlRenderer<agg::pixfmt_rgb24>();
-    case hgPixelFormatId::BGR24:
-      return new HgAggHtmlRenderer<agg::pixfmt_bgr24>();
-    case hgPixelFormatId::RGBA32:
-      return new HgAggHtmlRenderer<agg::pixfmt_rgba32>();
-    case hgPixelFormatId::BGRA32:
-      return new HgAggHtmlRenderer<agg::pixfmt_bgra32>();
-    case hgPixelFormatId::ARGB32:
-      return new HgAggHtmlRenderer<agg::pixfmt_argb32>();
-    case hgPixelFormatId::ABGR32:
-      return new HgAggHtmlRenderer<agg::pixfmt_abgr32>();
-  }
-  return nullptr;
+  return new HgAggHtmlRenderer<agg::pixfmt_rgb24>();
+}
+
+HgHtmlRendererPtr hgNewHtmlRendererBgr24()
+{
+  return new HgAggHtmlRenderer<agg::pixfmt_bgr24>();
+}
+
+HgHtmlRendererPtr hgNewHtmlRendererRgba32()
+{
+  return new HgAggHtmlRenderer<agg::pixfmt_rgba32>();
+}
+
+HgHtmlRendererPtr hgNewHtmlRendererBgra32()
+{
+  return new HgAggHtmlRenderer<agg::pixfmt_bgra32>();
+}
+
+HgHtmlRendererPtr hgNewHtmlRendererArgb32()
+{
+  return new HgAggHtmlRenderer<agg::pixfmt_argb32>();
+}
+
+HgHtmlRendererPtr hgNewHtmlRendererAbgr32()
+{
+  return new HgAggHtmlRenderer<agg::pixfmt_abgr32>();
 }
 
 void hgDeleteHtmlRenderer(HgHtmlRendererPtr renderer)
@@ -146,8 +159,7 @@ HgBool hgContainer_addFontDir(HgHtmlRendererPtr renderer, const char* dirPath)
   return getHgContainer(renderer)->addFontDir(dirPath);
 }
 
-void hgContainer_setFontTextCacheSize(
-    HgHtmlRendererPtr renderer, int size)
+void hgContainer_setFontTextCacheSize(HgHtmlRendererPtr renderer, int size)
 {
   return getHgContainer(renderer)->setFontTextCacheSize(size);
 }

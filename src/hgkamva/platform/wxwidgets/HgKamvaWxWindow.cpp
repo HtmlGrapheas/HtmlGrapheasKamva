@@ -64,7 +64,7 @@ HgKamvaWxWindow::HgKamvaWxWindow(wxWindow* parent,
     , mNewHtmlX(0)
     , mNewHtmlY(0)
 {
-  mHgHtmlRenderer = hgNewHtmlRenderer(mPixFmtId);
+  mHgHtmlRenderer = hgNewHtmlRendererFunc();
   initHgContainer();
 
   // This part makes the scrollbars show up.

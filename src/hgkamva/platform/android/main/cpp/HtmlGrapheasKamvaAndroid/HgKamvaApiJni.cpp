@@ -89,8 +89,7 @@ Java_ru_feographia_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgNewHtmlRendere
   enum hgPixelFormatId pixFmtId;
   switch(bitmapInfo.format) {
     case ANDROID_BITMAP_FORMAT_RGBA_8888: {
-      pixFmtId = hgPixelFormatId::RGBA32;
-      break;
+      return reinterpret_cast<jlong>(hgNewHtmlRendererRgba32());
     }
     default: {
       std::cout << "hgHtmlRenderer_drawHtml(), unsupported bitmap format\n";
@@ -98,8 +97,6 @@ Java_ru_feographia_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgNewHtmlRendere
       return 0;
     }
   }
-
-  return reinterpret_cast<jlong>(hgNewHtmlRenderer(pixFmtId));
 }
 
 JNIEXPORT void JNICALL

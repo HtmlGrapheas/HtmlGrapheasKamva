@@ -33,6 +33,7 @@
 #ifndef HTMLGRAPHEASKAMVAWX_H
 #define HTMLGRAPHEASKAMVAWX_H
 
+#include <functional>
 #include <memory>
 
 #include <wx/bitmap.h>
@@ -43,7 +44,7 @@
 #include <wx/windowid.h>
 
 #include "hgkamva/hg_kamva_api.h"
-#include "hgkamva/platform/wxwidgets/wxPixelFormatToId.h"
+#include "hgkamva/platform/wxwidgets/wxPixelFormatToHgHtmlRenderer.h"
 
 namespace hg
 {
@@ -55,7 +56,7 @@ namespace hg
 class HgKamvaWxWindow : public wxScrolledCanvas
 {
 private:
-  using PixelFormat = wxPixelFormatToId<wxNativePixelFormat>;
+  using PixelFormat = wxPixelFormatToHgHtmlRenderer<wxNativePixelFormat>;
   using PixelData = wxPixelData<wxBitmap, PixelFormat::wxWidgetsType>;
 
 public:
@@ -98,6 +99,8 @@ private:
   std::shared_ptr<wxBitmap> mBitmap;  ///< wxWidgets bitmap for AGG to draw into
 
   const enum hgPixelFormatId mPixFmtId = PixelFormat::id;
+  std::function<HgHtmlRendererPtr()> hgNewHtmlRendererFunc =
+      PixelFormat::hgNewHtmlRendererFunc;
   HgHtmlRendererPtr mHgHtmlRenderer;
 
   int mVisibleHtmlWidth;

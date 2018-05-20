@@ -47,7 +47,7 @@ add_subdirectory(
 
 set(lib_HEADERS
   HgKamvaWxWindow.h
-  wxPixelFormatToId.h
+  wxPixelFormatToHgHtmlRenderer.h
 )
 
 set(lib_SOURCES

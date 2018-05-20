@@ -34,8 +34,13 @@ typedef unsigned char HgByte;
 
 HG_KAMVA_EXTERNC int hgPixelFormatIdToColorBits(enum hgPixelFormatId pixFmtId);
 
-HG_KAMVA_EXTERNC HgHtmlRendererPtr hgNewHtmlRenderer(
-    enum hgPixelFormatId pixFmtId);
+HG_KAMVA_EXTERNC HgHtmlRendererPtr hgNewHtmlRendererRgb24();
+HG_KAMVA_EXTERNC HgHtmlRendererPtr hgNewHtmlRendererBgr24();
+HG_KAMVA_EXTERNC HgHtmlRendererPtr hgNewHtmlRendererRgba32();
+HG_KAMVA_EXTERNC HgHtmlRendererPtr hgNewHtmlRendererBgra32();
+HG_KAMVA_EXTERNC HgHtmlRendererPtr hgNewHtmlRendererArgb32();
+HG_KAMVA_EXTERNC HgHtmlRendererPtr hgNewHtmlRendererAbgr32();
+
 HG_KAMVA_EXTERNC void hgDeleteHtmlRenderer(HgHtmlRendererPtr renderer);
 
 HG_KAMVA_EXTERNC void hgHtmlRenderer_createHtmlDocumentFromUtf8(

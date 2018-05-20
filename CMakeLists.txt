@@ -125,7 +125,6 @@ set(hgk_HEADERS
   ${hgk_SRC_DIR}/hgkamva/hg_kamva_common.h
 
   ${hgk_SRC_DIR}/hgkamva/container/HgAggHtmlRenderer.h
-  ${hgk_SRC_DIR}/hgkamva/container/HgAggIdToAggPixelFormat.h
   ${hgk_SRC_DIR}/hgkamva/container/HgAggPainter.h
   ${hgk_SRC_DIR}/hgkamva/container/HgContainer.h
   ${hgk_SRC_DIR}/hgkamva/container/HgFont.h
