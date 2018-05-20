@@ -25,6 +25,7 @@ cmake_minimum_required(VERSION 3.2 FATAL_ERROR)
 
 project(HtmlGrapheasKamvaAndroid CXX)
 set(lib_NAME "htmlgrapheaskamvaandroid")
+set(src_DIR "${PROJECT_SOURCE_DIR}/src")
 
 
 #-----------------------------------------------------------------------
@@ -60,7 +61,7 @@ set(lib_HEADERS
 )
 
 set(lib_SOURCES
-  HgKamvaApiJni.cpp
+  ${src_DIR}/hgkamva/platform/android/HgKamvaApiJni.cpp
 )
 
 add_library(${lib_NAME} SHARED ${lib_SOURCES} ${lib_HEADERS})

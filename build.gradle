@@ -92,7 +92,7 @@ android.variantFilter { variant ->
 // Android Java part
 //-----------------------------------------------------------------------
 
-def String rootModulePath = "${projectDir}/src/hgkamva/platform/android"
+def String rootModulePath = "${projectDir}/platform/android"
 
 android {
   compileSdkVersion compileSdkVer
@@ -141,8 +141,8 @@ dependencies {
   implementation "com.android.support:support-v4:${supportLibVer}"
 
   testImplementation 'junit:junit:4.12'
-  androidTestImplementation 'com.android.support.test:runner:1.0.1'
-  androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
+  androidTestImplementation 'com.android.support.test:runner:1.0.2'
+  androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 }
 
 //-----------------------------------------------------------------------
@@ -228,7 +228,7 @@ android {
   externalNativeBuild {
     cmake {
       path =
-          "${rootModulePath}/main/cpp/HtmlGrapheasKamvaAndroid/CMakeLists.txt"
+          "${rootModulePath}/main/cpp/CMakeLists.txt"
       // https://google.github.io/android-gradle-dsl/current/com.android.build.gradle.internal.dsl.CmakeOptions.html
       buildStagingDirectory = "${rootNativeBuildDir}/${project.name}"
     }

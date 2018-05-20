@@ -25,6 +25,7 @@ cmake_minimum_required(VERSION 3.2 FATAL_ERROR)
 
 project(HtmlGrapheasKamvaWx CXX)
 set(lib_NAME "htmlgrapheaskamvawx")
+set(src_DIR "${PROJECT_SOURCE_DIR}/src")
 
 #-----------------------------------------------------------------------
 # HtmlGrapheasKamva
@@ -46,12 +47,12 @@ add_subdirectory(
 #-----------------------------------------------------------------------
 
 set(lib_HEADERS
-  HgKamvaWxWindow.h
-  wxPixelFormatToHgHtmlRenderer.h
+  ${src_DIR}/hgkamva/platform/wxwidgets/HgKamvaWxWindow.h
+  ${src_DIR}/hgkamva/platform/wxwidgets/wxPixelFormatToHgHtmlRenderer.h
 )
 
 set(lib_SOURCES
-  HgKamvaWxWindow.cpp
+  ${src_DIR}/hgkamva/platform/wxwidgets/HgKamvaWxWindow.cpp
 )
 
 add_library(${lib_NAME} ${lib_SOURCES} ${lib_HEADERS})
@@ -60,7 +61,7 @@ set_target_properties(${lib_NAME} PROPERTIES
   C_STANDARD 11
 )
 # Export HtmlGrapheasKamvaWx includes.
-target_include_directories(${lib_NAME} PUBLIC ${PROJECT_SOURCE_DIR})
+target_include_directories(${lib_NAME} PUBLIC ${src_DIR})
 
 # HtmlGrapheasKamva
 target_link_libraries(${lib_NAME} PUBLIC htmlgrapheaskamva)
