@@ -94,6 +94,12 @@ android.variantFilter { variant ->
 
 def String rootModulePath = "${projectDir}/platform/android"
 
+def String BUILD_SHARED_LIBS = "false"
+if (rootProject.hasProperty("buildGradleDebug") &&
+    rootProject.buildGradleDebug) {
+  BUILD_SHARED_LIBS = "true"
+}
+
 android {
   compileSdkVersion compileSdkVer
   buildToolsVersion buildToolsVer
@@ -114,10 +120,14 @@ android {
       minifyEnabled false
       proguardFiles getDefaultProguardFile("proguard-android.txt"),
           "${rootModulePath}/proguard-rules.pro"
+
+      buildConfigField("Boolean", "BUILD_SHARED_LIBS", "${BUILD_SHARED_LIBS}")
     }
     debug {
       debuggable true
       jniDebuggable true
+
+      buildConfigField("Boolean", "BUILD_SHARED_LIBS", "${BUILD_SHARED_LIBS}")
     }
   }
 
@@ -163,6 +173,8 @@ dependencies {
 //abiFiltersString = abiFiltersString.substring(1, abiFiltersString.length() - 1)
 
 android {
+  def projectNativeBuildDir = "${rootNativeBuildDir}/${project.name}"
+
   defaultConfig {
     ndk {
       abiFilters = abiFilts // what ABIs gradle should package into one apk
@@ -172,18 +184,26 @@ android {
       cmake {
         abiFilters = abiFilts // what ABIs gradle should build
 
-//        targets "cmaketarget1", "cmaketarget2", "cmaketarget3" // TODO:
-
         def String downloadDir = "${rootDir}/.downloads"
         def String assetsDir = "${rootDir}/platform/Android/HtmlGrapheasStasi/src/main/assets"
 
-        // STUB_NOT_USED_CMAKE_VAR is a stub to simply turn off the underlying variables.
+        def String androidStl = "c++_static"
+        if (BUILD_SHARED_LIBS == "true") {
+          androidStl = "c++_shared"
+        }
+
+//        targets "cmaketarget1", "cmaketarget2", "cmaketarget3" // TODO:
+
+        // STUB_NOT_USED_CMAKE_VAR is a stub to simply turn off
+        // the underlying variables with commenting.
         arguments "-DSTUB_NOT_USED_CMAKE_VAR=OFF",
 
             "-DHtmlGrapheasKamva_DIR=${projectDir}",
             "-DEXTERNAL_DOWNLOAD_DIR=${downloadDir}",
             "-DEXTERNAL_UNPACKED_SRC_DIR=${downloadDir}/.unpacked_android",
             "-DHG_APP_ASSETS_DIR=${assetsDir}",
+
+            "-DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}",
 
             // No effect on the build system, so turn off.
             "-Dcmr_BUILD_MULTIPROC=OFF",
@@ -208,7 +228,6 @@ android {
 //            "-DCMAKE_TOOLCHAIN_FILE=${projectDir}/...../android.toolchain.cmake",
 //            "-GAndroid Gradle - Unix Makefiles",
 //            "-DCMAKE_MAKE_PROGRAM=make",
-//            "-DBUILD_SHARED_LIBS=ON",
 
 //            "-DCXX_STANDARD=14",
 //            "-DCXX_STANDARD_REQUIRED=ON",
@@ -221,16 +240,17 @@ android {
 
             // clang
             "-DANDROID_TOOLCHAIN=clang",
-            "-DANDROID_STL=c++_static"
+            "-DANDROID_STL=${androidStl}",
+
+            "-DSTUB_NOT_USED_CMAKE_VAR=OFF"
       }
     }
   }
   externalNativeBuild {
     cmake {
-      path =
-          "${rootModulePath}/main/cpp/CMakeLists.txt"
+      path = "${rootModulePath}/main/cpp/CMakeLists.txt"
       // https://google.github.io/android-gradle-dsl/current/com.android.build.gradle.internal.dsl.CmakeOptions.html
-      buildStagingDirectory = "${rootNativeBuildDir}/${project.name}"
+      buildStagingDirectory = "${projectNativeBuildDir}"
     }
   }
 

@@ -24,6 +24,7 @@
 package ru.feographia.htmlgrapheaskamva.hgkamva_api;
 
 import android.graphics.Bitmap;
+import ru.feographia.htmlgrapheaskamva.BuildConfig;
 
 
 public class HgKamvaApiJni
@@ -104,9 +105,31 @@ public class HgKamvaApiJni
 
   static {
     try {
+      // Needed for shared linking on Android < 4.3 (API < 18).
+      // See also:
+      // https://github.com/KeepSafe/ReLinker
+      // https://github.com/ikonst/android-dl
+      if (BuildConfig.BUILD_SHARED_LIBS) {
+        String libSuffix = (BuildConfig.BUILD_TYPE.equals("debug")) ? "d" : "";
+
+        System.loadLibrary("c++_shared");
+
+        System.loadLibrary("expat");
+        System.loadLibrary("freetype" + libSuffix);
+        System.loadLibrary("harfbuzz");
+        System.loadLibrary("fontconfig");
+        System.loadLibrary("agg");
+
+        System.loadLibrary("gumbo");
+        System.loadLibrary("litehtml");
+        System.loadLibrary("htmlgrapheas");
+        System.loadLibrary("htmlgrapheaskamva");
+      }
+
       System.loadLibrary("htmlgrapheaskamvaandroid");
+
     } catch (UnsatisfiedLinkError e) {
-      System.err.println("Native code library failed to load. \n" + e);
+      System.err.println("Native code library failed to load.\n" + e);
       System.exit(1);
     }
   }

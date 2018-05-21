@@ -76,6 +76,29 @@ target_link_libraries(${lib_NAME} PRIVATE htmlgrapheaskamva)
 # Android libs
 target_link_libraries(${lib_NAME} PRIVATE android jnigraphics)
 
+if(BUILD_SHARED_LIBS)
+  # Copy installed external so-libs to include to apk-file.
+  # We needed to make a copying twice
+  # because of the behavior of the android gradle.
+  add_custom_target(copy_installed_so_libs_before ALL
+    COMMAND ${CMAKE_COMMAND} -E copy
+      "*.so"
+      "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}"
+    WORKING_DIRECTORY
+      "${EXTERNAL_INSTALL_DIR}/lib"
+  )
+  add_dependencies(${lib_NAME} copy_installed_so_libs_before)
+  
+  add_custom_target(copy_installed_so_libs_after ALL
+    COMMAND ${CMAKE_COMMAND} -E copy
+      "*.so"
+      "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}"
+    WORKING_DIRECTORY
+      "${EXTERNAL_INSTALL_DIR}/lib"
+  )
+  add_dependencies(copy_installed_so_libs_after ${lib_NAME})
+endif()
+
 
 #-----------------------------------------------------------------------
 # Android app assets data.
