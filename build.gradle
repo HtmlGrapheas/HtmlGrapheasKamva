@@ -75,6 +75,11 @@ if (rootProject.hasProperty("rootNativeBuildDir")) {
   rootNativeBuildDir = rootProject.rootNativeBuildDir
 }
 
+def BUILD_SHARED_LIBS = false
+if (rootProject.hasProperty("BUILD_SHARED_LIBS")) {
+  BUILD_SHARED_LIBS = rootProject.BUILD_SHARED_LIBS
+}
+
 //-----------------------------------------------------------------------
 // Module properties
 //-----------------------------------------------------------------------
@@ -93,12 +98,6 @@ android.variantFilter { variant ->
 //-----------------------------------------------------------------------
 
 def String rootModulePath = "${projectDir}/platform/android"
-
-def String BUILD_SHARED_LIBS = "false"
-if (rootProject.hasProperty("buildGradleDebug") &&
-    rootProject.buildGradleDebug) {
-  BUILD_SHARED_LIBS = "true"
-}
 
 android {
   compileSdkVersion compileSdkVer
@@ -188,7 +187,7 @@ android {
         def String assetsDir = "${rootDir}/platform/Android/HtmlGrapheasStasi/src/main/assets"
 
         def String androidStl = "c++_static"
-        if (BUILD_SHARED_LIBS == "true") {
+        if (BUILD_SHARED_LIBS) {
           androidStl = "c++_shared"
         }
 
