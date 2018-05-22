@@ -38,8 +38,6 @@
 #include <wx/filename.h>
 #include <wx/stdpaths.h>
 
-#include "litehtml.h"
-
 #include "hgkamva/util/FileUtil.h"
 
 namespace hg

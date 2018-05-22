@@ -158,7 +158,7 @@ set_target_properties(${hgk_LIB_NAME} PROPERTIES
 target_include_directories(${hgk_LIB_NAME} PUBLIC ${hgk_SRC_DIR})
 
 # HtmlGrapheas
-target_link_libraries(${hgk_LIB_NAME} PUBLIC htmlgrapheas)
+target_link_libraries(${hgk_LIB_NAME} PRIVATE htmlgrapheas)
 
 # FontConfig
 target_include_directories(${hgk_LIB_NAME} PRIVATE ${FONTCONFIG_INCLUDE_DIR})
@@ -182,8 +182,7 @@ if(WITH_HarfBuzz)
 endif()
 
 # AGG
-# Export AGG includes.
-target_include_directories(${hgk_LIB_NAME} PUBLIC ${AGG_INCLUDE_DIRS})
+target_include_directories(${hgk_LIB_NAME} PRIVATE ${AGG_INCLUDE_DIRS})
 target_link_libraries(${hgk_LIB_NAME} PRIVATE ${AGG_LIBRARY})
 
 # STLCache
