@@ -31,7 +31,7 @@ include(cmr_print_message)
 # Set vars for LibCMaker_AGG.
 #-----------------------------------------------------------------------
 
-set(AGG_lib_VERSION "2.4.127")
+set(AGG_lib_VERSION "2.4.128")
 
 set(AGG_DOWNLOAD_DIR "${EXTERNAL_DOWNLOAD_DIR}")
 set(AGG_UNPACKED_SRC_DIR "${EXTERNAL_UNPACKED_SRC_DIR}")
