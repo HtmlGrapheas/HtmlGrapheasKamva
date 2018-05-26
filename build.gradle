@@ -184,8 +184,11 @@ android {
         abiFilters = abiFilts // what ABIs gradle should build
 
         def String downloadDir = "${rootDir}/.downloads"
-        // TODO: make var from root build.gradle (appAssertDir)
-        def String assetsDir = "${rootDir}/platform/Android/HtmlGrapheasApp/src/main/assets"
+
+        String appAssetDir = ""
+        if (rootProject.hasProperty("appAssetDir")) {
+          appAssetDir = rootProject.appAssetDir
+        }
 
         def String androidStl = "c++_static"
         if (BUILD_SHARED_LIBS) {
@@ -201,7 +204,7 @@ android {
             "-DHtmlGrapheasKamva_DIR=${projectDir}",
             "-DEXTERNAL_DOWNLOAD_DIR=${downloadDir}",
             "-DEXTERNAL_UNPACKED_SRC_DIR=${downloadDir}/.unpacked_android",
-            "-DHG_APP_ASSETS_DIR=${assetsDir}",
+            "-DHG_APP_ASSETS_DIR=${appAssetDir}",
 
             "-DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}",
 
