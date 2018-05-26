@@ -21,7 +21,7 @@
  *    along with this program. If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
 
-package ru.feographia.htmlgrapheaskamva.hgkamva_api.codes;
+package ru.htmlgrapheas.htmlgrapheaskamva.hgkamva_api.codes;
 
 public final class hgPixelFormatId
 {

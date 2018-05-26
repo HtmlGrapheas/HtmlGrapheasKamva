@@ -24,6 +24,6 @@
   -->
 
 <manifest
-    package="ru.feographia.htmlgrapheaskamva"
+    package="ru.htmlgrapheas.htmlgrapheaskamva"
     xmlns:android="http://schemas.android.com/apk/res/android"
     />

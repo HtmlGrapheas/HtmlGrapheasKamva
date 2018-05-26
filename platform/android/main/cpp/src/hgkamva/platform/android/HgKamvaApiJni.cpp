@@ -45,14 +45,14 @@ inline void* voidpCast(jlong val)
 }
 
 JNIEXPORT jint JNICALL
-Java_ru_feographia_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgPixelFormatIdToColorBits(
+Java_ru_htmlgrapheas_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgPixelFormatIdToColorBits(
     JNIEnv* env, jclass type, jint pixFmtId)
 {
   return hgPixelFormatIdToColorBits(static_cast<hgPixelFormatId>(pixFmtId));
 }
 
 JNIEXPORT jlong JNICALL
-Java_ru_feographia_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgNewHtmlRenderer(
+Java_ru_htmlgrapheas_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgNewHtmlRenderer(
     JNIEnv* env, jclass type, jobject bitmap)
 {
   AndroidBitmapInfo bitmapInfo;
@@ -72,14 +72,14 @@ Java_ru_feographia_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgNewHtmlRendere
 }
 
 JNIEXPORT void JNICALL
-Java_ru_feographia_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgDeleteHtmlRenderer(
+Java_ru_htmlgrapheas_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgDeleteHtmlRenderer(
     JNIEnv* env, jclass type, jlong renderer)
 {
   hgDeleteHtmlRenderer(voidpCast(renderer));
 }
 
 JNIEXPORT void JNICALL
-Java_ru_feographia_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgHtmlRenderer_1createHtmlDocumentFromUtf8(
+Java_ru_htmlgrapheas_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgHtmlRenderer_1createHtmlDocumentFromUtf8(
     JNIEnv* env, jclass type, jlong renderer, jstring htmlText_)
 {
   const char* htmlText = env->GetStringUTFChars(htmlText_, 0);
@@ -88,14 +88,14 @@ Java_ru_feographia_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgHtmlRenderer_1
 }
 
 JNIEXPORT jint JNICALL
-Java_ru_feographia_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgHtmlRenderer_1renderHtml(
+Java_ru_htmlgrapheas_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgHtmlRenderer_1renderHtml(
     JNIEnv* env, jclass type, jlong renderer, jint width, jint height)
 {
   return hgHtmlRenderer_renderHtml(voidpCast(renderer), width, height);
 }
 
 JNIEXPORT void JNICALL
-Java_ru_feographia_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgHtmlRenderer_1drawHtml(
+Java_ru_htmlgrapheas_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgHtmlRenderer_1drawHtml(
     JNIEnv* env,
     jclass type,
     jlong renderer,
@@ -125,7 +125,7 @@ Java_ru_feographia_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgHtmlRenderer_1
 }
 
 JNIEXPORT void JNICALL
-Java_ru_feographia_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgHtmlRenderer_1setBackgroundColor(
+Java_ru_htmlgrapheas_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgHtmlRenderer_1setBackgroundColor(
     JNIEnv* env,
     jclass type,
     jlong renderer,
@@ -139,7 +139,7 @@ Java_ru_feographia_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgHtmlRenderer_1
 }
 
 JNIEXPORT jboolean JNICALL
-Java_ru_feographia_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgContainer_1parseAndLoadFontConfigFromMemory(
+Java_ru_htmlgrapheas_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgContainer_1parseAndLoadFontConfigFromMemory(
     JNIEnv* env,
     jclass type,
     jlong renderer,
@@ -154,7 +154,7 @@ Java_ru_feographia_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgContainer_1par
 }
 
 JNIEXPORT jboolean JNICALL
-Java_ru_feographia_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgContainer_1addFontDir(
+Java_ru_htmlgrapheas_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgContainer_1addFontDir(
     JNIEnv* env, jclass type, jlong renderer, jstring dirPath_)
 {
   const char* dirPath = env->GetStringUTFChars(dirPath_, 0);
@@ -164,14 +164,14 @@ Java_ru_feographia_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgContainer_1add
 }
 
 JNIEXPORT void JNICALL
-Java_ru_feographia_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgContainer_1setFontTextCacheSize(
+Java_ru_htmlgrapheas_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgContainer_1setFontTextCacheSize(
     JNIEnv* env, jclass type, jlong renderer, jint size)
 {
   hgContainer_setFontTextCacheSize(voidpCast(renderer), size);
 }
 
 JNIEXPORT void JNICALL
-Java_ru_feographia_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgContainer_1setDefaultFontName(
+Java_ru_htmlgrapheas_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgContainer_1setDefaultFontName(
     JNIEnv* env, jclass type, jlong renderer, jstring name_)
 {
   const char* name = env->GetStringUTFChars(name_, 0);
@@ -180,77 +180,77 @@ Java_ru_feographia_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgContainer_1set
 }
 
 JNIEXPORT void JNICALL
-Java_ru_feographia_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgContainer_1setDefaultFontSize(
+Java_ru_htmlgrapheas_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgContainer_1setDefaultFontSize(
     JNIEnv* env, jclass type, jlong renderer, jint size)
 {
   hgContainer_setDefaultFontSize(voidpCast(renderer), size);
 }
 
 JNIEXPORT void JNICALL
-Java_ru_feographia_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgContainer_1setDeviceWidth(
+Java_ru_htmlgrapheas_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgContainer_1setDeviceWidth(
     JNIEnv* env, jclass type, jlong renderer, jint width)
 {
   hgContainer_setDeviceWidth(voidpCast(renderer), width);
 }
 
 JNIEXPORT void JNICALL
-Java_ru_feographia_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgContainer_1setDeviceHeight(
+Java_ru_htmlgrapheas_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgContainer_1setDeviceHeight(
     JNIEnv* env, jclass type, jlong renderer, jdouble height)
 {
   hgContainer_setDeviceHeight(voidpCast(renderer), height);
 }
 
 JNIEXPORT void JNICALL
-Java_ru_feographia_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgContainer_1setDeviceDpiX(
+Java_ru_htmlgrapheas_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgContainer_1setDeviceDpiX(
     JNIEnv* env, jclass type, jlong renderer, jdouble dpi)
 {
   hgContainer_setDeviceDpiX(voidpCast(renderer), dpi);
 }
 
 JNIEXPORT void JNICALL
-Java_ru_feographia_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgContainer_1setDeviceDpiY(
+Java_ru_htmlgrapheas_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgContainer_1setDeviceDpiY(
     JNIEnv* env, jclass type, jlong renderer, jdouble dpi)
 {
   hgContainer_setDeviceDpiY(voidpCast(renderer), dpi);
 }
 
 JNIEXPORT void JNICALL
-Java_ru_feographia_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgContainer_1setDisplayAreaWidth(
+Java_ru_htmlgrapheas_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgContainer_1setDisplayAreaWidth(
     JNIEnv* env, jclass type, jlong renderer, jint width)
 {
   hgContainer_setDisplayAreaWidth(voidpCast(renderer), width);
 }
 
 JNIEXPORT void JNICALL
-Java_ru_feographia_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgContainer_1setDisplayAreaHeight(
+Java_ru_htmlgrapheas_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgContainer_1setDisplayAreaHeight(
     JNIEnv* env, jclass type, jlong renderer, jint height)
 {
   hgContainer_setDisplayAreaHeight(voidpCast(renderer), height);
 }
 
 JNIEXPORT void JNICALL
-Java_ru_feographia_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgContainer_1setDeviceMonochromeBits(
+Java_ru_htmlgrapheas_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgContainer_1setDeviceMonochromeBits(
     JNIEnv* env, jclass type, jlong renderer, jint bits)
 {
   hgContainer_setDeviceMonochromeBits(voidpCast(renderer), bits);
 }
 
 JNIEXPORT void JNICALL
-Java_ru_feographia_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgContainer_1setDeviceColorBits(
+Java_ru_htmlgrapheas_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgContainer_1setDeviceColorBits(
     JNIEnv* env, jclass type, jlong renderer, jint bits)
 {
   hgContainer_setDeviceColorBits(voidpCast(renderer), bits);
 }
 
 JNIEXPORT void JNICALL
-Java_ru_feographia_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgContainer_1setDeviceColorIndex(
+Java_ru_htmlgrapheas_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgContainer_1setDeviceColorIndex(
     JNIEnv* env, jclass type, jlong renderer, jint colorIndex)
 {
   hgContainer_setDeviceColorIndex(voidpCast(renderer), colorIndex);
 }
 
 JNIEXPORT void JNICALL
-Java_ru_feographia_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgContainer_1setDeviceMediaType(
+Java_ru_htmlgrapheas_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgContainer_1setDeviceMediaType(
     JNIEnv* env, jclass type_, jlong renderer, int type)
 {
   hgContainer_setDeviceMediaType(
@@ -258,14 +258,14 @@ Java_ru_feographia_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgContainer_1set
 }
 
 JNIEXPORT jint JNICALL
-Java_ru_feographia_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgContainer_1ptToPx(
+Java_ru_htmlgrapheas_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgContainer_1ptToPx(
     JNIEnv* env, jclass type, jlong renderer, jint pt)
 {
   return hgContainer_ptToPx(voidpCast(renderer), pt);
 }
 
 JNIEXPORT void JNICALL
-Java_ru_feographia_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgHtmlContext_1loadMasterStylesheet(
+Java_ru_htmlgrapheas_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgHtmlContext_1loadMasterStylesheet(
     JNIEnv* env, jclass type, jlong renderer, jstring str_)
 {
   const char* str = env->GetStringUTFChars(str_, 0);
@@ -274,14 +274,14 @@ Java_ru_feographia_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgHtmlContext_1l
 }
 
 JNIEXPORT jint JNICALL
-Java_ru_feographia_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgHtmlDocument_1width(
+Java_ru_htmlgrapheas_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgHtmlDocument_1width(
     JNIEnv* env, jclass type, jlong renderer)
 {
   return hgHtmlDocument_width(voidpCast(renderer));
 }
 
 JNIEXPORT jint JNICALL
-Java_ru_feographia_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgHtmlDocument_1height(
+Java_ru_htmlgrapheas_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgHtmlDocument_1height(
     JNIEnv* env, jclass type, jlong renderer)
 {
   return hgHtmlDocument_height(voidpCast(renderer));

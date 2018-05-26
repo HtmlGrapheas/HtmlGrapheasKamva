@@ -21,19 +21,34 @@
  *    along with this program. If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
 
-package ru.feographia.htmlgrapheaskamva.hgkamva_api.codes;
+package ru.htmlgrapheas.htmlgrapheaskamva;
 
-public final class hgLitehtmlMediaType
+import android.content.Context;
+import android.support.test.InstrumentationRegistry;
+import android.support.test.runner.AndroidJUnit4;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import static org.junit.Assert.*;
+
+
+/**
+ * Instrumented test, which will execute on an Android device.
+ *
+ * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
+ */
+@RunWith(AndroidJUnit4.class)
+public class ExampleInstrumentedTest
 {
-  public final static int media_type_none       = 0;
-  public final static int media_type_all        = media_type_none + 1;
-  public final static int media_type_screen     = media_type_all + 1;
-  public final static int media_type_print      = media_type_screen + 1;
-  public final static int media_type_braille    = media_type_print + 1;
-  public final static int media_type_embossed   = media_type_braille + 1;
-  public final static int media_type_handheld   = media_type_embossed + 1;
-  public final static int media_type_projection = media_type_handheld + 1;
-  public final static int media_type_speech     = media_type_projection + 1;
-  public final static int media_type_tty        = media_type_speech + 1;
-  public final static int media_type_tv         = media_type_tty + 1;
+  @Test
+  public void useAppContext()
+      throws Exception
+  {
+    // Context of the app under test.
+    Context appContext = InstrumentationRegistry.getTargetContext();
+
+    assertEquals(
+        "ru.htmlgrapheas.htmlgrapheaskamva.test", appContext.getPackageName());
+  }
 }

@@ -21,7 +21,7 @@
  *    along with this program. If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
 
-package ru.feographia.htmlgrapheaskamva;
+package ru.htmlgrapheas.htmlgrapheaskamva;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -46,8 +46,8 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.widget.OverScroller;
-import ru.feographia.htmlgrapheaskamva.hgkamva_api.HgKamvaApiJni;
-import ru.feographia.htmlgrapheaskamva.hgkamva_api.codes.hgLitehtmlMediaType;
+import ru.htmlgrapheas.htmlgrapheaskamva.hgkamva_api.HgKamvaApiJni;
+import ru.htmlgrapheas.htmlgrapheaskamva.hgkamva_api.codes.hgLitehtmlMediaType;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;

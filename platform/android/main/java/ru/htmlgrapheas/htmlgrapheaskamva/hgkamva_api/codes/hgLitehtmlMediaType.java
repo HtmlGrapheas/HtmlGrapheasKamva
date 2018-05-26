@@ -21,25 +21,19 @@
  *    along with this program. If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
 
-package ru.feographia.htmlgrapheaskamva;
+package ru.htmlgrapheas.htmlgrapheaskamva.hgkamva_api.codes;
 
-import org.junit.Test;
-
-import static org.junit.Assert.*;
-
-
-/**
- * Example local unit test, which will execute on the development machine
- * (host).
- *
- * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
- */
-public class ExampleUnitTest
+public final class hgLitehtmlMediaType
 {
-  @Test
-  public void addition_isCorrect()
-      throws Exception
-  {
-    assertEquals(4, 2 + 2);
-  }
+  public final static int media_type_none       = 0;
+  public final static int media_type_all        = media_type_none + 1;
+  public final static int media_type_screen     = media_type_all + 1;
+  public final static int media_type_print      = media_type_screen + 1;
+  public final static int media_type_braille    = media_type_print + 1;
+  public final static int media_type_embossed   = media_type_braille + 1;
+  public final static int media_type_handheld   = media_type_embossed + 1;
+  public final static int media_type_projection = media_type_handheld + 1;
+  public final static int media_type_speech     = media_type_projection + 1;
+  public final static int media_type_tty        = media_type_speech + 1;
+  public final static int media_type_tv         = media_type_tty + 1;
 }

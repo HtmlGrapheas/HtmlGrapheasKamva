@@ -21,10 +21,10 @@
  *    along with this program. If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
 
-package ru.feographia.htmlgrapheaskamva.hgkamva_api;
+package ru.htmlgrapheas.htmlgrapheaskamva.hgkamva_api;
 
 import android.graphics.Bitmap;
-import ru.feographia.htmlgrapheaskamva.BuildConfig;
+import ru.htmlgrapheas.htmlgrapheaskamva.BuildConfig;
 
 
 public class HgKamvaApiJni

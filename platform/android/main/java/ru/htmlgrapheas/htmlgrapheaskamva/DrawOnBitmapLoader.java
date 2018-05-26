@@ -21,13 +21,13 @@
  *    along with this program. If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
 
-package ru.feographia.htmlgrapheaskamva;
+package ru.htmlgrapheas.htmlgrapheaskamva;
 
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.support.v4.content.AsyncTaskLoader;
-import ru.feographia.htmlgrapheaskamva.hgkamva_api.HgKamvaApiJni;
+import ru.htmlgrapheas.htmlgrapheaskamva.hgkamva_api.HgKamvaApiJni;
 
 
 // See example in
