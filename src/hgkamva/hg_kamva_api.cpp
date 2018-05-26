@@ -24,12 +24,16 @@
 #include "hgkamva/hg_kamva_api.h"
 
 #include <cassert>
+#include <memory>
 
 #include "agg_pixfmt_rgb.h"
 #include "agg_pixfmt_rgba.h"
 
-#include "hgkamva/container/HgAggHtmlRenderer.h"
-#include "hgkamva/container/HgHtmlRenderer.h"
+#include "litehtml.h"
+
+#include "hgkamva/container/HgContainer.h"
+#include "hgkamva/renderer/HgAggHtmlRenderer.h"
+#include "hgkamva/renderer/HgHtmlRenderer.h"
 
 using namespace hg;
 

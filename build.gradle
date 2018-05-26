@@ -184,7 +184,8 @@ android {
         abiFilters = abiFilts // what ABIs gradle should build
 
         def String downloadDir = "${rootDir}/.downloads"
-        def String assetsDir = "${rootDir}/platform/Android/HtmlGrapheasStasi/src/main/assets"
+        // TODO: make var from root build.gradle (appAssertDir)
+        def String assetsDir = "${rootDir}/platform/Android/HtmlGrapheasApp/src/main/assets"
 
         def String androidStl = "c++_static"
         if (BUILD_SHARED_LIBS) {

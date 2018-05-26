@@ -21,7 +21,7 @@
  *    along with this program. If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
 
-#include "hgkamva/container/HgAggHtmlRenderer.h"
+#include "hgkamva/renderer/HgAggHtmlRenderer.h"
 
 #include "gtest/gtest.h"
 

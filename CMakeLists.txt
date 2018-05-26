@@ -124,27 +124,24 @@ set(hgk_HEADERS
   ${hgk_SRC_DIR}/hgkamva/hg_kamva_codes.h
   ${hgk_SRC_DIR}/hgkamva/hg_kamva_common.h
 
-  ${hgk_SRC_DIR}/hgkamva/container/HgAggHtmlRenderer.h
   ${hgk_SRC_DIR}/hgkamva/container/HgAggPainter.h
   ${hgk_SRC_DIR}/hgkamva/container/HgContainer.h
   ${hgk_SRC_DIR}/hgkamva/container/HgFont.h
   ${hgk_SRC_DIR}/hgkamva/container/HgFontLibrary.h
-  ${hgk_SRC_DIR}/hgkamva/container/HgHtmlRenderer.h
   ${hgk_SRC_DIR}/hgkamva/container/HgPainter.h
+  ${hgk_SRC_DIR}/hgkamva/renderer/HgAggHtmlRenderer.h
+  ${hgk_SRC_DIR}/hgkamva/renderer/HgHtmlRenderer.h
   ${hgk_SRC_DIR}/hgkamva/util/FileUtil.h
   ${hgk_SRC_DIR}/hgkamva/util/StringUtil.h
-
-# TODO: remove it from disk
-#  ${hgk_SRC_DIR}/hgkamva/agg_freetype_harfbuzz.h
 )
 
 set(hgk_SOURCES
   ${hgk_SRC_DIR}/hgkamva/hg_kamva_api.cpp
-  
+
   ${hgk_SRC_DIR}/hgkamva/container/HgContainer.cpp
   ${hgk_SRC_DIR}/hgkamva/container/HgFont.cpp
   ${hgk_SRC_DIR}/hgkamva/container/HgFontLibrary.cpp
-  ${hgk_SRC_DIR}/hgkamva/container/HgHtmlRenderer.cpp
+  ${hgk_SRC_DIR}/hgkamva/renderer/HgHtmlRenderer.cpp
   ${hgk_SRC_DIR}/hgkamva/util/FileUtil.cpp
   ${hgk_SRC_DIR}/hgkamva/util/StringUtil.cpp
 )

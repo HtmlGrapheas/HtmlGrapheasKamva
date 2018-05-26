@@ -28,9 +28,6 @@
 
 #include <iostream>
 
-// TODO: remove it.
-//#include "HtmlGrapheasKamvaAndroid.h"
-
 #include "hgkamva/hg_kamva_api.h"
 
 
@@ -46,31 +43,6 @@ inline void* voidpCast(jlong val)
 {
   return reinterpret_cast<void*>(val);
 }
-
-// TODO: remove it.
-//JNIEXPORT void JNICALL
-//Java_ru_feographia_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_drawIntoBitmap(
-//    JNIEnv* env, jclass type, jobject bitmap)
-//{
-//  // https://github.com/AndroidDeveloperLB/AndroidJniBitmapOperations
-//  // http://stackoverflow.com/questions/18250951/jni-bitmap-operations-for-helping-to-avoid-oom-when-using-large-images
-//  // http://stackoverflow.com/questions/17900732/how-to-cache-bitmaps-into-native-memory
-//
-//  AndroidBitmapInfo bitmapInfo;
-//  AndroidBitmap_getInfo(env, bitmap, &bitmapInfo);
-//
-//  int ret;
-//  void* p_pixels;
-//  if((ret = AndroidBitmap_lockPixels(env, bitmap, &p_pixels)) < 0) {
-//    //LOGE("AndroidBitmap_lockPixels() failed! Error=%d", ret);
-//    return;
-//  }
-//
-//  hg::HtmlGrapheasKamvaAndroid::drawIntoBitmap(p_pixels, bitmapInfo.width,
-//      bitmapInfo.height, bitmapInfo.stride, bitmapInfo.format);
-//
-//  AndroidBitmap_unlockPixels(env, bitmap);
-//}
 
 JNIEXPORT jint JNICALL
 Java_ru_feographia_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgPixelFormatIdToColorBits(

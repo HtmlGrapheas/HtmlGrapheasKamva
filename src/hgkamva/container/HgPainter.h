@@ -62,7 +62,7 @@ public:
       int dx = 0,
       int dy = 0) = 0;
 
-};  // class HgRenderer
+};  // class HgPainter
 
 }  // namespace hg
 

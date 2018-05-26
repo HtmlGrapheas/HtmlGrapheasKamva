@@ -54,7 +54,7 @@ private:
   const RendererBase& getRendererBase() const;
 
 public:
-  // HgRenderer interface.
+  // HgPainter interface.
   virtual HgPainterPtr newHgCachePainter(
       unsigned int width, unsigned int height) override;
   virtual void attach(unsigned char* buffer,
@@ -83,7 +83,7 @@ private:
   PixelFormat mPixelFormat;
   RendererBase mRendererBase;
   RendererColor mPaintColor;
-};  // class HgAggRenderer
+};  // class HgAggPainter
 
 template <typename PixelFormat>
 HgAggPainter<PixelFormat>::HgAggPainter()

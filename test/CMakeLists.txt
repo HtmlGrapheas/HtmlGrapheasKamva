@@ -147,7 +147,7 @@ if(BUILD_TESTING)
 
   # HgAggHtmlRenderer tests.
   add_hg_test("HgAggHtmlRenderer_test"
-    ${hgk_SRC_DIR}/hgkamva/container/HgAggHtmlRenderer_test.cpp
+    ${hgk_SRC_DIR}/hgkamva/renderer/HgAggHtmlRenderer_test.cpp
     htmlgrapheaskamva
   )
 
