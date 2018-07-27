@@ -25,6 +25,9 @@
 [submodule "external/LibCMaker_HarfBuzz"]
 	path = external/LibCMaker_HarfBuzz
 	url = git@bitbucket.org:libcmaker/libcmaker_harfbuzz.git
+[submodule "external/LibCMaker_ICU"]
+	path = external/LibCMaker_ICU
+	url = git@bitbucket.org:libcmaker/libcmaker_icu.git
 [submodule "external/LibCMaker_STLCache"]
 	path = external/LibCMaker_STLCache
 	url = git@bitbucket.org:libcmaker/libcmaker_stlcache.git
