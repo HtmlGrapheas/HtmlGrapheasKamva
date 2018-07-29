@@ -1,33 +1,3 @@
 [submodule "HtmlGrapheas"]
 	path = HtmlGrapheas
 	url = git@bitbucket.org:htmlgrapheas/htmlgrapheas.git
-[submodule "external/LibCMaker"]
-	path = external/LibCMaker
-	url = git@bitbucket.org:libcmaker/libcmaker.git
-[submodule "external/LibCMaker_AGG"]
-	path = external/LibCMaker_AGG
-	url = git@bitbucket.org:libcmaker/libcmaker_agg.git
-[submodule "external/LibCMaker_Dirent"]
-	path = external/LibCMaker_Dirent
-	url = git@bitbucket.org:libcmaker/libcmaker_dirent.git
-[submodule "external/LibCMaker_Expat"]
-	path = external/LibCMaker_Expat
-	url = git@bitbucket.org:libcmaker/libcmaker_expat.git
-[submodule "external/LibCMaker_FontConfig"]
-	path = external/LibCMaker_FontConfig
-	url = git@bitbucket.org:libcmaker/libcmaker_fontconfig.git
-[submodule "external/LibCMaker_FreeType"]
-	path = external/LibCMaker_FreeType
-	url = git@bitbucket.org:libcmaker/libcmaker_freetype.git
-[submodule "external/LibCMaker_GoogleTest"]
-	path = external/LibCMaker_GoogleTest
-	url = git@bitbucket.org:libcmaker/libcmaker_googletest.git
-[submodule "external/LibCMaker_HarfBuzz"]
-	path = external/LibCMaker_HarfBuzz
-	url = git@bitbucket.org:libcmaker/libcmaker_harfbuzz.git
-[submodule "external/LibCMaker_ICU"]
-	path = external/LibCMaker_ICU
-	url = git@bitbucket.org:libcmaker/libcmaker_icu.git
-[submodule "external/LibCMaker_STLCache"]
-	path = external/LibCMaker_STLCache
-	url = git@bitbucket.org:libcmaker/libcmaker_stlcache.git
