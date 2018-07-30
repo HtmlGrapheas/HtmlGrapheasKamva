@@ -1,36 +1,3 @@
 [submodule "HtmlGrapheas"]
 	path = HtmlGrapheas
 	url = git@bitbucket.org:htmlgrapheas/htmlgrapheas.git
-[submodule "cmake/LibCMaker"]
-	path = cmake/LibCMaker
-	url = git@bitbucket.org:libcmaker/libcmaker.git
-[submodule "cmake/LibCMaker_AGG"]
-	path = cmake/LibCMaker_AGG
-	url = git@bitbucket.org:libcmaker/libcmaker_agg.git
-[submodule "cmake/LibCMaker_Dirent"]
-	path = cmake/LibCMaker_Dirent
-	url = git@bitbucket.org:libcmaker/libcmaker_dirent.git
-[submodule "cmake/LibCMaker_Expat"]
-	path = cmake/LibCMaker_Expat
-	url = git@bitbucket.org:libcmaker/libcmaker_expat.git
-[submodule "cmake/LibCMaker_FontConfig"]
-	path = cmake/LibCMaker_FontConfig
-	url = git@bitbucket.org:libcmaker/libcmaker_fontconfig.git
-[submodule "cmake/LibCMaker_FreeType"]
-	path = cmake/LibCMaker_FreeType
-	url = git@bitbucket.org:libcmaker/libcmaker_freetype.git
-[submodule "cmake/LibCMaker_GoogleTest"]
-	path = cmake/LibCMaker_GoogleTest
-	url = git@bitbucket.org:libcmaker/libcmaker_googletest.git
-[submodule "cmake/LibCMaker_HarfBuzz"]
-	path = cmake/LibCMaker_HarfBuzz
-	url = git@bitbucket.org:libcmaker/libcmaker_harfbuzz.git
-[submodule "cmake/LibCMaker_ICU"]
-	path = cmake/LibCMaker_ICU
-	url = git@bitbucket.org:libcmaker/libcmaker_icu.git
-[submodule "cmake/LibCMaker_STLCache"]
-	path = cmake/LibCMaker_STLCache
-	url = git@bitbucket.org:libcmaker/libcmaker_stlcache.git
-[submodule "cmake/LibCMaker_wxWidgets"]
-	path = cmake/LibCMaker_wxWidgets
-	url = git@bitbucket.org:libcmaker/libcmaker_wxwidgets.git
