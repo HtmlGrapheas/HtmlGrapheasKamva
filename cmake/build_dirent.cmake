@@ -28,30 +28,27 @@ include(cmr_print_message)
 #-----------------------------------------------------------------------
 
 #-----------------------------------------------------------------------
-# Set vars for LibCMaker_Dirent.
+# Set vars for LibCMaker_Dirent
 #-----------------------------------------------------------------------
 
-# Needed for lib_cmaker_fontconfig() to build FontConfig with Dirent.
 set(LIBCMAKER_DIRENT_SRC_DIR
-  "${EXTERNAL_SRC_DIR}/LibCMaker_Dirent")
-# To use our FindDirent.cmake
+  "${CMAKE_CURRENT_LIST_DIR}/LibCMaker_Dirent"
+)
+# To use our FindDirent.cmake.
 list(APPEND CMAKE_MODULE_PATH "${LIBCMAKER_DIRENT_SRC_DIR}/cmake")
 
-set(DIRENT_lib_VERSION "1.23.1")
-
-set(DIRENT_DOWNLOAD_DIR "${EXTERNAL_DOWNLOAD_DIR}")
-set(DIRENT_UNPACKED_SRC_DIR "${EXTERNAL_UNPACKED_SRC_DIR}")
-set(DIRENT_BUILD_DIR "${EXTERNAL_BIN_DIR}/build_dirent")
+set(DIRENT_lib_VERSION    "1.23.1")
+set(DIRENT_DOWNLOAD_DIR   "${EXTERNAL_DOWNLOAD_DIR}")
+set(DIRENT_UNPACKED_DIR   "${EXTERNAL_UNPACKED_DIR}")
+set(DIRENT_BUILD_DIR      "${EXTERNAL_BIN_DIR}/build_dirent")
 
 set(COPY_DIRENT_CMAKE_BUILD_SCRIPTS ON)
 
 # Library specific vars and options.
-set(DIRENT_DIR "${EXTERNAL_INSTALL_DIR}")
-set(ENV{DIRENT_DIR} "${DIRENT_DIR}")
 
 
 #-----------------------------------------------------------------------
-# Build and install the Dirent.
+# Build and install the Dirent
 #-----------------------------------------------------------------------
 
 # Try to find already installed lib.
@@ -61,12 +58,12 @@ if(NOT DIRENT_FOUND)
   cmr_print_message(
     "Dirent is not installed, build and install it.")
 
-  include(${EXTERNAL_SRC_DIR}/LibCMaker_Dirent/lib_cmaker_dirent.cmake)
+  include(${LIBCMAKER_DIRENT_SRC_DIR}/lib_cmaker_dirent.cmake)
   lib_cmaker_dirent(
-    VERSION ${DIRENT_lib_VERSION}
-    DOWNLOAD_DIR ${DIRENT_DOWNLOAD_DIR}
-    UNPACKED_SRC_DIR ${DIRENT_UNPACKED_SRC_DIR}
-    BUILD_DIR ${DIRENT_BUILD_DIR}
+    VERSION       ${DIRENT_lib_VERSION}
+    DOWNLOAD_DIR  ${DIRENT_DOWNLOAD_DIR}
+    UNPACKED_DIR  ${DIRENT_UNPACKED_DIR}
+    BUILD_DIR     ${DIRENT_BUILD_DIR}
   )
   
   find_package(Dirent REQUIRED)

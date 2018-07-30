@@ -21,39 +21,39 @@
 #    along with this program. If not, see <http://www.gnu.org/licenses/>.
 # ****************************************************************************
 
-cmake_minimum_required(VERSION 3.2 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.3)
 
-project(HtmlGrapheasKamva CXX)
-set(hgk_LIB_NAME "htmlgrapheaskamva")
-set(hgk_SRC_DIR "${PROJECT_SOURCE_DIR}/src")
+# FindThreads work in environments, where only CXX is enabled, since CMake 3.4.
+project(HtmlGrapheasKamva CXX C)
+set(lib_NAME "hgkamva")
+
+include(GNUInstallDirs)
 
 
 #-----------------------------------------------------------------------
-# Configure external libs directories.
+# Configure external libs directories
 #-----------------------------------------------------------------------
 
-set(EXTERNAL_SRC_DIR "${PROJECT_SOURCE_DIR}/external")
+set(EXTERNAL_SRC_DIR "${CMAKE_CURRENT_LIST_DIR}/external")
 if(NOT EXTERNAL_DOWNLOAD_DIR)
-  set(EXTERNAL_DOWNLOAD_DIR "${PROJECT_SOURCE_DIR}/.downloads")
+  set(EXTERNAL_DOWNLOAD_DIR "${CMAKE_CURRENT_LIST_DIR}/.downloads")
 endif()
-if(NOT EXTERNAL_UNPACKED_SRC_DIR)
-  set(EXTERNAL_UNPACKED_SRC_DIR "${PROJECT_BINARY_DIR}/external/sources")
+if(NOT EXTERNAL_UNPACKED_DIR)
+  set(EXTERNAL_UNPACKED_DIR "${PROJECT_BINARY_DIR}/external/sources")
 endif()
 if(NOT EXTERNAL_BIN_DIR)
   set(EXTERNAL_BIN_DIR "${PROJECT_BINARY_DIR}/external/build")
 endif()
 if(NOT EXTERNAL_INSTALL_DIR)
-  set(EXTERNAL_INSTALL_DIR "${PROJECT_BINARY_DIR}/install")
+  set(EXTERNAL_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}")
 endif()
-set(CMAKE_INSTALL_PREFIX "${EXTERNAL_INSTALL_DIR}")
 
 
 #-----------------------------------------------------------------------
-# Configure to find_package.
+# Configure to find_package()
 #-----------------------------------------------------------------------
 
-# Set CMake's search path for find_package(CONFIG mode), find_program(),
-# find_library(), find_file(), and find_path() commands.
+# Set CMake's search path for find_*() commands.
 list(APPEND CMAKE_PREFIX_PATH "${EXTERNAL_INSTALL_DIR}")
 
 if(ANDROID)
@@ -65,125 +65,137 @@ endif()
 # Set path to LibCMaker root
 #-----------------------------------------------------------------------
 
-set(LIBCMAKER_SRC_DIR "${EXTERNAL_SRC_DIR}/LibCMaker")
+set(LIBCMAKER_SRC_DIR "${CMAKE_CURRENT_LIST_DIR}/cmake/LibCMaker")
 
 list(APPEND CMAKE_MODULE_PATH
-  "${PROJECT_SOURCE_DIR}/cmake"
+  "${CMAKE_CURRENT_LIST_DIR}/cmake"
   "${LIBCMAKER_SRC_DIR}/cmake/modules"
 )
 
 
 #-----------------------------------------------------------------------
-# Set standard CMake vars for LibCMaker libs.
+# Set vars to HtmlGrapheasKamva
 #-----------------------------------------------------------------------
 
+# Standard CMake vars.
 #set(BUILD_SHARED_LIBS ON)
 
-#set(SKIP_INSTALL_HEADERS ON)
-#set(SKIP_INSTALL_LIBRARIES ON)
-#set(SKIP_INSTALL_ALL ON)
+# Library specific vars.
 
 
 #-----------------------------------------------------------------------
-# Set common useful vars for LibCMaker libs.
-#-----------------------------------------------------------------------
-
-#set(cmr_PRINT_DEBUG ON)
-
-
-#-----------------------------------------------------------------------
-# Build, install and find required libraries.
+# Build, install and find required libraries
 #-----------------------------------------------------------------------
 
 if(MSVC)
   include(build_dirent)
 endif()
+include(build_stlcache)
 include(build_expat)
+include(build_icu)
 include(build_freetype_with_harfbuzz)
 include(build_fontconfig)
 include(build_agg)
-include(build_stlcache)
 
 
 #-----------------------------------------------------------------------
 # HtmlGrapheas
 #-----------------------------------------------------------------------
 
-set(HtmlGrapheas_DIR "${PROJECT_SOURCE_DIR}/HtmlGrapheas")
+set(HGraph_DIR "${CMAKE_CURRENT_LIST_DIR}/HtmlGrapheas")
 
-add_subdirectory(${HtmlGrapheas_DIR})
+add_subdirectory(${HGraph_DIR} "${PROJECT_BINARY_DIR}/HtmlGrapheas")
 
 
 #-----------------------------------------------------------------------
-# Link to the dependences.
-#-----------------------------------------------------------------------
-
 # HtmlGrapheasKamva
-set(hgk_HEADERS
-  ${hgk_SRC_DIR}/hgkamva/hg_kamva_api.h
-  ${hgk_SRC_DIR}/hgkamva/hg_kamva_codes.h
-  ${hgk_SRC_DIR}/hgkamva/hg_kamva_common.h
+#-----------------------------------------------------------------------
 
-  ${hgk_SRC_DIR}/hgkamva/container/HgAggPainter.h
-  ${hgk_SRC_DIR}/hgkamva/container/HgContainer.h
-  ${hgk_SRC_DIR}/hgkamva/container/HgFont.h
-  ${hgk_SRC_DIR}/hgkamva/container/HgFontLibrary.h
-  ${hgk_SRC_DIR}/hgkamva/container/HgPainter.h
-  ${hgk_SRC_DIR}/hgkamva/renderer/HgAggHtmlRenderer.h
-  ${hgk_SRC_DIR}/hgkamva/renderer/HgHtmlRenderer.h
-  ${hgk_SRC_DIR}/hgkamva/util/FileUtil.h
-  ${hgk_SRC_DIR}/hgkamva/util/StringUtil.h
+set(private_src_DIR "${CMAKE_CURRENT_LIST_DIR}/src")
+set(interface_src_DIR "${CMAKE_INSTALL_INCLUDEDIR}")
+set(build_src_DIR
+  "$<BUILD_INTERFACE:${private_src_DIR}>"
 )
-
-set(hgk_SOURCES
-  ${hgk_SRC_DIR}/hgkamva/hg_kamva_api.cpp
-
-  ${hgk_SRC_DIR}/hgkamva/container/HgContainer.cpp
-  ${hgk_SRC_DIR}/hgkamva/container/HgFont.cpp
-  ${hgk_SRC_DIR}/hgkamva/container/HgFontLibrary.cpp
-  ${hgk_SRC_DIR}/hgkamva/renderer/HgHtmlRenderer.cpp
-  ${hgk_SRC_DIR}/hgkamva/util/FileUtil.cpp
-  ${hgk_SRC_DIR}/hgkamva/util/StringUtil.cpp
+set(install_src_DIR
+  "$<INSTALL_INTERFACE:${interface_src_DIR}>"
 )
+set(public_src_DIR "${build_src_DIR}${install_src_DIR}")
 
-add_library(${hgk_LIB_NAME} ${hgk_SOURCES} ${hgk_HEADERS})
-set_target_properties(${hgk_LIB_NAME} PROPERTIES
+add_library(${lib_NAME} "")
+set_target_properties(${lib_NAME} PROPERTIES
   CXX_STANDARD 11
   C_STANDARD 11
 )
-# Export HtmlGrapheasKamva includes.
-target_include_directories(${hgk_LIB_NAME} PUBLIC ${hgk_SRC_DIR})
+# Export HtmlGrapheasKamva include dirs.
+target_include_directories(${lib_NAME} PUBLIC ${public_src_DIR})
+
+target_sources(${lib_NAME}
+  PRIVATE
+    ${private_src_DIR}/hgkamva/hg_kamva_api.cpp
+  
+    ${private_src_DIR}/hgkamva/container/HgContainer.cpp
+    ${private_src_DIR}/hgkamva/container/HgFont.cpp
+    ${private_src_DIR}/hgkamva/container/HgFontLibrary.cpp
+    ${private_src_DIR}/hgkamva/renderer/HgHtmlRenderer.cpp
+    ${private_src_DIR}/hgkamva/util/FileUtil.cpp
+    ${private_src_DIR}/hgkamva/util/StringUtil.cpp
+
+  PUBLIC
+    # TODO: all are public?
+    ${public_src_DIR}/hgkamva/hg_kamva_api.h
+    ${public_src_DIR}/hgkamva/hg_kamva_codes.h
+    ${public_src_DIR}/hgkamva/hg_kamva_common.h
+  
+    ${public_src_DIR}/hgkamva/container/HgAggPainter.h
+    ${public_src_DIR}/hgkamva/container/HgContainer.h
+    ${public_src_DIR}/hgkamva/container/HgFont.h
+    ${public_src_DIR}/hgkamva/container/HgFontLibrary.h
+    ${public_src_DIR}/hgkamva/container/HgPainter.h
+    ${public_src_DIR}/hgkamva/renderer/HgAggHtmlRenderer.h
+    ${public_src_DIR}/hgkamva/renderer/HgHtmlRenderer.h
+    ${public_src_DIR}/hgkamva/util/FileUtil.h
+    ${public_src_DIR}/hgkamva/util/StringUtil.h
+)
+
+
+#-----------------------------------------------------------------------
+# Link to the libraries
+#-----------------------------------------------------------------------
 
 # HtmlGrapheas
-target_link_libraries(${hgk_LIB_NAME} PRIVATE htmlgrapheas)
+target_link_libraries(${lib_NAME} PRIVATE hgraph)
+
+# AGG
+target_include_directories(${lib_NAME} PRIVATE ${AGG_INCLUDE_DIRS})
+target_link_libraries(${lib_NAME} PRIVATE ${AGG_LIBRARY})
 
 # FontConfig
-target_include_directories(${hgk_LIB_NAME} PRIVATE ${FONTCONFIG_INCLUDE_DIR})
-target_link_libraries(${hgk_LIB_NAME} PRIVATE ${FONTCONFIG_LIBRARY})
-
-# Expat
-target_include_directories(${hgk_LIB_NAME} PRIVATE ${EXPAT_INCLUDE_DIR})
-target_link_libraries(${hgk_LIB_NAME} PRIVATE ${EXPAT_LIBRARY})
+target_include_directories(${lib_NAME} PRIVATE ${FONTCONFIG_INCLUDE_DIR})
+target_link_libraries(${lib_NAME} PRIVATE ${FONTCONFIG_LIBRARY})
 
 # FreeType
-target_include_directories(${hgk_LIB_NAME} PRIVATE ${FREETYPE_INCLUDE_DIRS})
-target_link_libraries(${hgk_LIB_NAME} PRIVATE ${FREETYPE_LIBRARIES})
+target_include_directories(${lib_NAME} PRIVATE ${FREETYPE_INCLUDE_DIRS})
+target_link_libraries(${lib_NAME} PRIVATE ${FREETYPE_LIBRARIES})
 
 # HarfBuzz
 if(WITH_HarfBuzz)
-  target_include_directories(${hgk_LIB_NAME} PRIVATE ${HARFBUZZ_INCLUDE_DIRS})
+  target_include_directories(${lib_NAME} PRIVATE ${HARFBUZZ_INCLUDE_DIRS})
   # From <freetype sources>/docs/CHANGES:
   #  Note that HarfBuzz depends on FreeType.
-  target_link_libraries(${hgk_LIB_NAME} PRIVATE
+  target_link_libraries(${lib_NAME} PRIVATE
     ${HARFBUZZ_LIBRARIES} ${FREETYPE_LIBRARIES})
 endif()
 
-# AGG
-target_include_directories(${hgk_LIB_NAME} PRIVATE ${AGG_INCLUDE_DIRS})
-target_link_libraries(${hgk_LIB_NAME} PRIVATE ${AGG_LIBRARY})
+# ICU
+target_link_libraries(${lib_NAME} PRIVATE ICU::i18n)
+
+# Expat
+target_include_directories(${lib_NAME} PRIVATE ${EXPAT_INCLUDE_DIR})
+target_link_libraries(${lib_NAME} PRIVATE ${EXPAT_LIBRARY})
 
 # STLCache
-target_include_directories(${hgk_LIB_NAME} PRIVATE ${STLCACHE_INCLUDE_DIR})
+target_include_directories(${lib_NAME} PRIVATE ${STLCACHE_INCLUDE_DIR})
+
 
 #-----------------------------------------------------------------------
 # Testing

@@ -25,75 +25,97 @@
 if(BUILD_TESTING)
   include(build_googletest)
 
-  set(HGRAPH_TEST_DIR "${CMAKE_CURRENT_BINARY_DIR}")
-  set(HGRAPH_TEST_FONT_DIR "${HGRAPH_TEST_DIR}/fonts")
-  set(HGRAPH_TEST_DATA_DIR "${HGRAPH_TEST_DIR}/data")
+  set(HGKamva_TEST_DIR "${CMAKE_CURRENT_BINARY_DIR}")
+  set(HGKamva_TEST_FONT_DIR "${HGKamva_TEST_DIR}/fonts")
+  set(HGKamva_TEST_DATA_DIR "${HGKamva_TEST_DIR}/data")
   
   add_custom_target(clean_test_temp_dir ALL
     COMMAND
-      ${CMAKE_COMMAND} -E remove_directory "${HGRAPH_TEST_DIR}/temp"
+      ${CMAKE_COMMAND} -E remove_directory "${HGKamva_TEST_DIR}/temp"
   )
 
   add_custom_target(prepare_test_fonts ALL
     COMMAND
-      ${CMAKE_COMMAND} -E make_directory "${HGRAPH_TEST_FONT_DIR}"
+      ${CMAKE_COMMAND} -E make_directory "${HGKamva_TEST_FONT_DIR}"
 
+    # Arimo font files
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
-      # Arimo font files
       "${PROJECT_SOURCE_DIR}/fonts/Arimo/Arimo-BoldItalic.ttf"
+      "${HGKamva_TEST_FONT_DIR}"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
       "${PROJECT_SOURCE_DIR}/fonts/Arimo/Arimo-Bold.ttf"
+      "${HGKamva_TEST_FONT_DIR}"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
       "${PROJECT_SOURCE_DIR}/fonts/Arimo/Arimo-Italic.ttf"
+      "${HGKamva_TEST_FONT_DIR}"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
       "${PROJECT_SOURCE_DIR}/fonts/Arimo/Arimo-Regular.ttf"
+      "${HGKamva_TEST_FONT_DIR}"
 
-      # Tinos font files
+    # Tinos font files
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
       "${PROJECT_SOURCE_DIR}/fonts/Tinos/Tinos-BoldItalic.ttf"
+      "${HGKamva_TEST_FONT_DIR}"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
       "${PROJECT_SOURCE_DIR}/fonts/Tinos/Tinos-Bold.ttf"
+      "${HGKamva_TEST_FONT_DIR}"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
       "${PROJECT_SOURCE_DIR}/fonts/Tinos/Tinos-Italic.ttf"
+      "${HGKamva_TEST_FONT_DIR}"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
       "${PROJECT_SOURCE_DIR}/fonts/Tinos/Tinos-Regular.ttf"
-
-      # To dir 'fonts'
-      "${HGRAPH_TEST_FONT_DIR}"
+      "${HGKamva_TEST_FONT_DIR}"
   )
   
   add_custom_target(prepare_test_font_conf ALL
     COMMAND ${CMAKE_COMMAND} -E copy_directory
       "${CMAKE_INSTALL_PREFIX}/etc/fonts"
-
-      # To dir 'fonts'
-      "${HGRAPH_TEST_FONT_DIR}"
+      "${HGKamva_TEST_FONT_DIR}"
   )
 
-  set(HGRAPH_TEST_GRAPHICS_DIR "${PROJECT_SOURCE_DIR}/test/data")
+  set(HGKamva_TEST_GRAPHICS_DIR "${CMAKE_CURRENT_LIST_DIR}/data")
   if(MINGW)
-    set(HGRAPH_TEST_GRAPHICS_DIR "${HGRAPH_TEST_GRAPHICS_DIR}/MinGW")
+    set(HGKamva_TEST_GRAPHICS_DIR "${HGKamva_TEST_GRAPHICS_DIR}/MinGW")
   endif()
   
   add_custom_target(prepare_test_data ALL
     COMMAND
-      ${CMAKE_COMMAND} -E make_directory "${HGRAPH_TEST_DATA_DIR}"
+      ${CMAKE_COMMAND} -E make_directory "${HGKamva_TEST_DATA_DIR}"
 
+    # Graphic data
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
-      # Graphic data
-      "${HGRAPH_TEST_GRAPHICS_DIR}/HgContainer_1.ppm"
-      "${HGRAPH_TEST_GRAPHICS_DIR}/HgContainer_2.ppm"
-      "${HGRAPH_TEST_GRAPHICS_DIR}/HgFontTest_1.ppm"
-      "${HGRAPH_TEST_GRAPHICS_DIR}/HgFontTest_2.ppm"
-      "${HGRAPH_TEST_GRAPHICS_DIR}/HtmlDocument_1.ppm"
+      "${HGKamva_TEST_GRAPHICS_DIR}/HgContainer_1.ppm"
+      "${HGKamva_TEST_DATA_DIR}"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+      "${HGKamva_TEST_GRAPHICS_DIR}/HgContainer_2.ppm"
+      "${HGKamva_TEST_DATA_DIR}"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+      "${HGKamva_TEST_GRAPHICS_DIR}/HgFontTest_1.ppm"
+      "${HGKamva_TEST_DATA_DIR}"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+      "${HGKamva_TEST_GRAPHICS_DIR}/HgFontTest_2.ppm"
+      "${HGKamva_TEST_DATA_DIR}"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+      "${HGKamva_TEST_GRAPHICS_DIR}/HtmlDocument_1.ppm"
+      "${HGKamva_TEST_DATA_DIR}"
 
-      # master.css
-      "${PROJECT_SOURCE_DIR}/test/data/master.css"
-
-      # To dir 'data'
-      "${HGRAPH_TEST_DATA_DIR}"
+    # master.css
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+      "${CMAKE_CURRENT_LIST_DIR}/data/master.css"
+      "${HGKamva_TEST_DATA_DIR}"
   )
 
   macro(add_hg_test test_NAME test_SRC_FILES test_LIBS)
-    add_executable(${test_NAME} ${test_SRC_FILES})
+    add_executable(${test_NAME} "")
+    target_sources(${test_NAME}
+      PRIVATE
+        ${test_SRC_FILES}
+    )
     set_target_properties(${test_NAME} PROPERTIES
       CXX_STANDARD 11
       C_STANDARD 11
     )
-    target_link_libraries(${test_NAME} PRIVATE htmlgrapheas)
+    target_link_libraries(${test_NAME} PRIVATE hgraph)
     target_include_directories(${test_NAME} PRIVATE ${FREETYPE_INCLUDE_DIRS})
     if(WITH_HarfBuzz)
       target_include_directories(${test_NAME} PRIVATE ${HARFBUZZ_INCLUDE_DIRS})
@@ -109,46 +131,46 @@ if(BUILD_TESTING)
     # https://cmake.org/pipermail/cmake-developers/2013-June/019217.html
     set_property(TEST ${test_NAME} PROPERTY
       ENVIRONMENT
-        HGRAPH_TEST_DIR=${HGRAPH_TEST_DIR}
+        HGKamva_TEST_DIR=${HGKamva_TEST_DIR}
     )
     set_property(TEST ${test_NAME} APPEND PROPERTY
       ENVIRONMENT
-        HGRAPH_TEST_FONT_DIR=${HGRAPH_TEST_FONT_DIR}
+        HGKamva_TEST_FONT_DIR=${HGKamva_TEST_FONT_DIR}
     )
     set_property(TEST ${test_NAME} APPEND PROPERTY
       ENVIRONMENT
-        HGRAPH_TEST_DATA_DIR=${HGRAPH_TEST_DATA_DIR}
+        HGKamva_TEST_DATA_DIR=${HGKamva_TEST_DATA_DIR}
     )
   endmacro()
 
   # StringUtil tests.
   add_hg_test("StringUtil_test"
-    ${hgk_SRC_DIR}/hgkamva/util/StringUtil_test.cpp
-    htmlgrapheaskamva
+    ${private_src_DIR}/hgkamva/util/StringUtil_test.cpp
+    hgkamva
   )
 
   # HgFontLibrary tests.
   add_hg_test("HgFontLibrary_test"
-    ${hgk_SRC_DIR}/hgkamva/container/HgFontLibrary_test.cpp
-    htmlgrapheaskamva
+    ${private_src_DIR}/hgkamva/container/HgFontLibrary_test.cpp
+    hgkamva
   )
 
   # HgFont tests.
   add_hg_test("HgFont_test"
-    ${hgk_SRC_DIR}/hgkamva/container/HgFont_test.cpp
-    htmlgrapheaskamva
+    ${private_src_DIR}/hgkamva/container/HgFont_test.cpp
+    hgkamva
   )
 
   # HgContainer tests.
   add_hg_test("HgContainer_test"
-    ${hgk_SRC_DIR}/hgkamva/container/HgContainer_test.cpp
-    htmlgrapheaskamva
+    ${private_src_DIR}/hgkamva/container/HgContainer_test.cpp
+    hgkamva
   )
 
   # HgAggHtmlRenderer tests.
   add_hg_test("HgAggHtmlRenderer_test"
-    ${hgk_SRC_DIR}/hgkamva/renderer/HgAggHtmlRenderer_test.cpp
-    htmlgrapheaskamva
+    ${private_src_DIR}/hgkamva/renderer/HgAggHtmlRenderer_test.cpp
+    hgkamva
   )
 
 endif()

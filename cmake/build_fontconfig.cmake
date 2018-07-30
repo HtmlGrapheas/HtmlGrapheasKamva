@@ -28,29 +28,27 @@ include(cmr_print_message)
 #-----------------------------------------------------------------------
 
 #-----------------------------------------------------------------------
-# Set vars for LibCMaker_FontConfig.
+# Set vars for LibCMaker_FontConfig
 #-----------------------------------------------------------------------
 
 set(LIBCMAKER_FONTCONFIG_SRC_DIR
-  "${EXTERNAL_SRC_DIR}/LibCMaker_FontConfig")
-# To use our FindFontConfig.cmake
+  "${CMAKE_CURRENT_LIST_DIR}/LibCMaker_FontConfig"
+)
+# To use our FindFontConfig.cmake.
 list(APPEND CMAKE_MODULE_PATH "${LIBCMAKER_FONTCONFIG_SRC_DIR}/cmake")
 
-set(FONTCONFIG_lib_VERSION "2.13.0")
-
-set(FONTCONFIG_DOWNLOAD_DIR "${EXTERNAL_DOWNLOAD_DIR}")
-set(FONTCONFIG_UNPACKED_SRC_DIR "${EXTERNAL_UNPACKED_SRC_DIR}")
-set(FONTCONFIG_BUILD_DIR "${EXTERNAL_BIN_DIR}/build_fontconfig")
+set(FONTCONFIG_lib_VERSION    "2.13.0")
+set(FONTCONFIG_DOWNLOAD_DIR   "${EXTERNAL_DOWNLOAD_DIR}")
+set(FONTCONFIG_UNPACKED_DIR   "${EXTERNAL_UNPACKED_DIR}")
+set(FONTCONFIG_BUILD_DIR      "${EXTERNAL_BIN_DIR}/build_fontconfig")
 
 set(COPY_FONTCONFIG_CMAKE_BUILD_SCRIPTS ON)
 
 # Library specific vars and options.
-set(FONTCONFIG_DIR "${EXTERNAL_INSTALL_DIR}")
-set(ENV{FONTCONFIG_DIR} "${FONTCONFIG_DIR}")
 
 
 #-----------------------------------------------------------------------
-# Build and install the FontConfig.
+# Build and install the FontConfig
 #-----------------------------------------------------------------------
 
 # Try to find already installed lib.
@@ -60,12 +58,12 @@ if(NOT FONTCONFIG_FOUND)
   cmr_print_message(
     "FontConfig is not installed, build and install it.")
 
-  include(${EXTERNAL_SRC_DIR}/LibCMaker_FontConfig/lib_cmaker_fontconfig.cmake)
+  include(${LIBCMAKER_FONTCONFIG_SRC_DIR}/lib_cmaker_fontconfig.cmake)
   lib_cmaker_fontconfig(
-    VERSION ${FONTCONFIG_lib_VERSION}
-    DOWNLOAD_DIR ${FONTCONFIG_DOWNLOAD_DIR}
-    UNPACKED_SRC_DIR ${FONTCONFIG_UNPACKED_SRC_DIR}
-    BUILD_DIR ${FONTCONFIG_BUILD_DIR}
+    VERSION       ${FONTCONFIG_lib_VERSION}
+    DOWNLOAD_DIR  ${FONTCONFIG_DOWNLOAD_DIR}
+    UNPACKED_DIR  ${FONTCONFIG_UNPACKED_DIR}
+    BUILD_DIR     ${FONTCONFIG_BUILD_DIR}
   )
   
   find_package(FontConfig REQUIRED)

@@ -241,6 +241,12 @@ android {
 //            "-DANDROID_TOOLCHAIN=gcc",
 //            "-DANDROID_STL=gnustl_static",
 
+// TODO: Build with Boost, see in cmr_boost_get_os_specifics.cmake:
+//    # Whether to link to static or shared C and C++ runtime.
+//    # TODO: see BUILD_SHARED_LIBS and ANDROID_STL=c++_static/c++_shared
+//    list(APPEND os_specifics "runtime-link=shared")
+
+
             // clang
             "-DANDROID_TOOLCHAIN=clang",
             "-DANDROID_STL=${androidStl}",

@@ -28,19 +28,19 @@ include(cmr_print_message)
 #-----------------------------------------------------------------------
 
 #-----------------------------------------------------------------------
-# Set vars for LibCMaker_FreeType and LibCMaker_HarfBuzz.
+# Set vars for LibCMaker_FreeType and LibCMaker_HarfBuzz
 #-----------------------------------------------------------------------
 
-# Needed for lib_cmaker_harfbuzz() to build HarfBuzz with FreeType.
-set(LIBCMAKER_FREETYPE_SRC_DIR "${EXTERNAL_SRC_DIR}/LibCMaker_FreeType")
+set(LIBCMAKER_FREETYPE_SRC_DIR
+  "${CMAKE_CURRENT_LIST_DIR}/LibCMaker_FreeType"
+)
 # To use our FindFreetype.cmake.
 list(APPEND CMAKE_MODULE_PATH "${LIBCMAKER_FREETYPE_SRC_DIR}/cmake/")
 
-set(FT_lib_VERSION "2.8.1")
-
-set(FT_DOWNLOAD_DIR "${EXTERNAL_DOWNLOAD_DIR}")
-set(FT_UNPACKED_SRC_DIR "${EXTERNAL_UNPACKED_SRC_DIR}")
-set(FT_BUILD_DIR "${EXTERNAL_BIN_DIR}/build_freetype")
+set(FT_lib_VERSION    "2.8.1")
+set(FT_DOWNLOAD_DIR   "${EXTERNAL_DOWNLOAD_DIR}")
+set(FT_UNPACKED_DIR   "${EXTERNAL_UNPACKED_DIR}")
+set(FT_BUILD_DIR      "${EXTERNAL_BIN_DIR}/build_freetype")
 
 # Library specific vars.
 set(FREETYPE_NO_DIST ON)
@@ -50,28 +50,22 @@ set(WITH_BZip2 OFF)
 set(WITH_PNG OFF)
 set(WITH_HarfBuzz ON)
 
-# Needed to find FreeType in lib_cmaker_harfbuzz() and here.
-set(ENV{FREETYPE_DIR} "${EXTERNAL_INSTALL_DIR}")
-
 if(WITH_HarfBuzz)
   # Needed for lib_cmaker_freetype() to build HarfBuzz.
   set(LIBCMAKER_HARFBUZZ_SRC_DIR
-    "${EXTERNAL_SRC_DIR}/LibCMaker_HarfBuzz")
+    "${CMAKE_CURRENT_LIST_DIR}/LibCMaker_HarfBuzz")
   # To use our FindHarfBuzz.cmake.
   list(APPEND CMAKE_MODULE_PATH "${LIBCMAKER_HARFBUZZ_SRC_DIR}/cmake/")
 
-  set(HB_lib_VERSION "1.6.3")
-
-  set(HB_DOWNLOAD_DIR "${EXTERNAL_DOWNLOAD_DIR}")
-  set(HB_UNPACKED_SRC_DIR "${EXTERNAL_UNPACKED_SRC_DIR}")
-  set(HB_BUILD_DIR "${EXTERNAL_BIN_DIR}/build_harfbuzz")
-
-  # Needed to find HarfBuzz in lib_cmaker_freetype() and here.
-  set(ENV{HARFBUZZ_DIR} "${EXTERNAL_INSTALL_DIR}")
+  set(HB_lib_VERSION    "1.6.3")
+  set(HB_DOWNLOAD_DIR   "${EXTERNAL_DOWNLOAD_DIR}")
+  set(HB_UNPACKED_DIR   "${EXTERNAL_UNPACKED_DIR}")
+  set(HB_BUILD_DIR      "${EXTERNAL_BIN_DIR}/build_harfbuzz")
 endif()
 
+
 #-----------------------------------------------------------------------
-# Build and install the FreeType (and HarfBuzz in lib_cmaker_freetype()).
+# Build and install the FreeType (and HarfBuzz in lib_cmaker_freetype())
 #-----------------------------------------------------------------------
 
 # Try to find already installed libs.
@@ -89,12 +83,12 @@ if(NOT FREETYPE_FOUND OR (WITH_HarfBuzz AND NOT HarfBuzz_FOUND))
       "FreeType is not installed, build and install it.")
   endif()
 
-  include(${EXTERNAL_SRC_DIR}/LibCMaker_FreeType/lib_cmaker_freetype.cmake)
+  include(${LIBCMAKER_FREETYPE_SRC_DIR}/lib_cmaker_freetype.cmake)
   lib_cmaker_freetype(
-    VERSION ${FT_lib_VERSION}
-    DOWNLOAD_DIR ${FT_DOWNLOAD_DIR}
-    UNPACKED_SRC_DIR ${FT_UNPACKED_SRC_DIR}
-    BUILD_DIR ${FT_BUILD_DIR}
+    VERSION       ${FT_lib_VERSION}
+    DOWNLOAD_DIR  ${FT_DOWNLOAD_DIR}
+    UNPACKED_DIR  ${FT_UNPACKED_DIR}
+    BUILD_DIR     ${FT_BUILD_DIR}
   )
   
   find_package(Freetype REQUIRED)

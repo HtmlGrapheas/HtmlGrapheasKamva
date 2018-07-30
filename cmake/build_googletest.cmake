@@ -39,20 +39,17 @@ include(cmr_print_message)
 #-----------------------------------------------------------------------
 
 set(LIBCMAKER_GOOGLETEST_SRC_DIR
-  "${EXTERNAL_SRC_DIR}/LibCMaker_GoogleTest")
-# To use our FindGTest.cmake
+  "${CMAKE_CURRENT_LIST_DIR}/LibCMaker_GoogleTest"
+)
+# To use our FindGTest.cmake.
 list(APPEND CMAKE_MODULE_PATH "${LIBCMAKER_GOOGLETEST_SRC_DIR}/cmake")
 
-set(GOOGLETEST_lib_VERSION "1.8.20180314")
-
-set(GOOGLETEST_DOWNLOAD_DIR "${EXTERNAL_DOWNLOAD_DIR}")
-set(GOOGLETEST_UNPACKED_SRC_DIR "${EXTERNAL_UNPACKED_SRC_DIR}")
-set(GOOGLETEST_BUILD_DIR "${EXTERNAL_BIN_DIR}/build_googletest")
+set(GOOGLETEST_lib_VERSION    "1.8.20180314")
+set(GOOGLETEST_DOWNLOAD_DIR   "${EXTERNAL_DOWNLOAD_DIR}")
+set(GOOGLETEST_UNPACKED_DIR   "${EXTERNAL_UNPACKED_DIR}")
+set(GOOGLETEST_BUILD_DIR      "${EXTERNAL_BIN_DIR}/build_googletest")
 
 # Library specific vars and options.
-set(GTEST_ROOT "${EXTERNAL_INSTALL_DIR}")
-set(ENV{GTEST_ROOT} "${GTEST_ROOT}")
-
 
 #-----------------------------------------------------------------------
 # Common Google Test and Google Mock options
@@ -68,7 +65,6 @@ option(BUILD_SHARED_LIBS "Build shared libraries (DLLs)." OFF)
 #-----------------------------------------------------------------------
 # Google Test options
 #
-
 # When other libraries are using a shared version of runtime libraries,
 # Google Test also has to use one.
 option(
@@ -92,7 +88,7 @@ option(gmock_build_tests "Build all of Google Mock's own tests." OFF)
 
 
 #-----------------------------------------------------------------------
-# Build and install the Google Test.
+# Build and install the Google Test
 #-----------------------------------------------------------------------
 
 # From "FindGTest.cmake":
@@ -110,12 +106,12 @@ if(NOT GTEST_FOUND)
     "Google Test is not installed, build and install it.")
 
   include(
-    ${EXTERNAL_SRC_DIR}/LibCMaker_GoogleTest/lib_cmaker_googletest.cmake)
+    ${LIBCMAKER_GOOGLETEST_SRC_DIR}/lib_cmaker_googletest.cmake)
   lib_cmaker_googletest(
-    VERSION           ${GOOGLETEST_lib_VERSION}
-    DOWNLOAD_DIR      ${GOOGLETEST_DOWNLOAD_DIR}
-    UNPACKED_SRC_DIR  ${GOOGLETEST_UNPACKED_SRC_DIR}
-    BUILD_DIR         ${GOOGLETEST_BUILD_DIR}
+    VERSION       ${GOOGLETEST_lib_VERSION}
+    DOWNLOAD_DIR  ${GOOGLETEST_DOWNLOAD_DIR}
+    UNPACKED_DIR  ${GOOGLETEST_UNPACKED_DIR}
+    BUILD_DIR     ${GOOGLETEST_BUILD_DIR}
   )
   
   find_package(GTest REQUIRED)

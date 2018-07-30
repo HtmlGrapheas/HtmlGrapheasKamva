@@ -35,11 +35,11 @@ TEST(HgAggHtmlRenderer, drawHtml)
   //////// Init part.
 
   // Get dirs from env vars.
-  const char* testDir = std::getenv("HGRAPH_TEST_DIR");
+  const char* testDir = std::getenv("HGKamva_TEST_DIR");
   EXPECT_NE(testDir, nullptr);
-  const char* fontDir = std::getenv("HGRAPH_TEST_FONT_DIR");
+  const char* fontDir = std::getenv("HGKamva_TEST_FONT_DIR");
   EXPECT_NE(fontDir, nullptr);
-  const char* dataDir = std::getenv("HGRAPH_TEST_DATA_DIR");
+  const char* dataDir = std::getenv("HGKamva_TEST_DATA_DIR");
   EXPECT_NE(dataDir, nullptr);
 
   //// AGG init.

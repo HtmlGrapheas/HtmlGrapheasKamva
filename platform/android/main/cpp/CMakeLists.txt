@@ -21,10 +21,10 @@
 #    along with this program. If not, see <http://www.gnu.org/licenses/>.
 # ****************************************************************************
 
-cmake_minimum_required(VERSION 3.2 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.3)
 
 project(HtmlGrapheasKamvaAndroid CXX)
-set(lib_NAME "htmlgrapheaskamvaandroid")
+set(lib_NAME "hgkamva_android")
 set(src_DIR "${PROJECT_SOURCE_DIR}/src")
 
 

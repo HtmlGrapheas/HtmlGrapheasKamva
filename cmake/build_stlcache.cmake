@@ -28,30 +28,27 @@ include(cmr_print_message)
 #-----------------------------------------------------------------------
 
 #-----------------------------------------------------------------------
-# Set vars for LibCMaker_STLCache.
+# Set vars for LibCMaker_STLCache
 #-----------------------------------------------------------------------
 
-# Needed for lib_cmaker_fontconfig() to build FontConfig with STLCache.
 set(LIBCMAKER_STLCACHE_SRC_DIR
-  "${EXTERNAL_SRC_DIR}/LibCMaker_STLCache")
-# To use our FindSTLCache.cmake
+  "${CMAKE_CURRENT_LIST_DIR}/LibCMaker_STLCache"
+)
+# To use our FindSTLCache.cmake.
 list(APPEND CMAKE_MODULE_PATH "${LIBCMAKER_STLCACHE_SRC_DIR}/cmake")
 
-set(STLCACHE_lib_VERSION "0.2.20180405")
-
-set(STLCACHE_DOWNLOAD_DIR "${EXTERNAL_DOWNLOAD_DIR}")
-set(STLCACHE_UNPACKED_SRC_DIR "${EXTERNAL_UNPACKED_SRC_DIR}")
-set(STLCACHE_BUILD_DIR "${EXTERNAL_BIN_DIR}/build_stlcache")
+set(STLCACHE_lib_VERSION    "0.2.20180405")
+set(STLCACHE_DOWNLOAD_DIR   "${EXTERNAL_DOWNLOAD_DIR}")
+set(STLCACHE_UNPACKED_DIR   "${EXTERNAL_UNPACKED_DIR}")
+set(STLCACHE_BUILD_DIR      "${EXTERNAL_BIN_DIR}/build_stlcache")
 
 set(COPY_STLCACHE_CMAKE_BUILD_SCRIPTS ON)
 
 # Library specific vars and options.
-set(STLCACHE_DIR "${EXTERNAL_INSTALL_DIR}")
-set(ENV{STLCACHE_DIR} "${STLCACHE_DIR}")
 
 
 #-----------------------------------------------------------------------
-# Build and install the STLCache.
+# Build and install the STLCache
 #-----------------------------------------------------------------------
 
 # Try to find already installed lib.
@@ -61,12 +58,12 @@ if(NOT STLCACHE_FOUND)
   cmr_print_message(
     "STLCache is not installed, build and install it.")
 
-  include(${EXTERNAL_SRC_DIR}/LibCMaker_STLCache/lib_cmaker_stlcache.cmake)
+  include(${LIBCMAKER_STLCACHE_SRC_DIR}/lib_cmaker_stlcache.cmake)
   lib_cmaker_stlcache(
-    VERSION ${STLCACHE_lib_VERSION}
-    DOWNLOAD_DIR ${STLCACHE_DOWNLOAD_DIR}
-    UNPACKED_SRC_DIR ${STLCACHE_UNPACKED_SRC_DIR}
-    BUILD_DIR ${STLCACHE_BUILD_DIR}
+    VERSION       ${STLCACHE_lib_VERSION}
+    DOWNLOAD_DIR  ${STLCACHE_DOWNLOAD_DIR}
+    UNPACKED_DIR  ${STLCACHE_UNPACKED_DIR}
+    BUILD_DIR     ${STLCACHE_BUILD_DIR}
   )
   
   find_package(STLCache REQUIRED)
