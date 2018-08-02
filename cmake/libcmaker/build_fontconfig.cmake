@@ -31,6 +31,17 @@ include(cmr_print_message)
 # Set vars for LibCMaker_FontConfig
 #-----------------------------------------------------------------------
 
+# Used in 'cmr_build_rules_fontconfig.cmake'.
+set(LIBCMAKER_DIRENT_SRC_DIR
+  "${CMAKE_CURRENT_LIST_DIR}/LibCMaker_Dirent"
+)
+set(LIBCMAKER_EXPAT_SRC_DIR
+  "${CMAKE_CURRENT_LIST_DIR}/LibCMaker_Expat"
+)
+set(LIBCMAKER_FREETYPE_SRC_DIR
+  "${CMAKE_CURRENT_LIST_DIR}/LibCMaker_FreeType"
+)
+
 set(LIBCMAKER_FONTCONFIG_SRC_DIR
   "${CMAKE_CURRENT_LIST_DIR}/LibCMaker_FontConfig"
 )

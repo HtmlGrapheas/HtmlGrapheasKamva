@@ -24,7 +24,7 @@
 cmake_minimum_required(VERSION 3.3)
 
 project(HtmlGrapheasKamvaWx CXX)
-set(lib_NAME "hgkamvawx")
+set(lib_NAME "hgkamva_wx")
 
 
 #-----------------------------------------------------------------------

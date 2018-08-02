@@ -23,7 +23,7 @@
 
 import org.gradle.internal.os.OperatingSystem;
 
-apply plugin: 'com.android.library'
+apply plugin: "com.android.library"
 
 //-----------------------------------------------------------------------
 // Common vars from root project
@@ -197,23 +197,26 @@ android {
 
 //        targets "cmaketarget1", "cmaketarget2", "cmaketarget3" // TODO:
 
-        // STUB_NOT_USED_CMAKE_VAR is a stub to simply turn off
-        // the underlying variables with commenting.
-        arguments "-DSTUB_NOT_USED_CMAKE_VAR=OFF",
+// TODO: to build host tools to cross-compilation use
+// TODO: https://github.com/awrichar/gradle-external-build
 
-            "-DHtmlGrapheasKamva_DIR=${projectDir}",
+        // NOT_USED_STUB_CMAKE_VAR is a stub to simply turn off
+        // the underlying variables with commenting.
+        arguments "-DNOT_USED_STUB_CMAKE_VAR=OFF",
+
+            "-DHGKamva_DIR=${projectDir}",
             "-DEXTERNAL_DOWNLOAD_DIR=${downloadDir}",
-            "-DEXTERNAL_UNPACKED_SRC_DIR=${downloadDir}/.unpacked_android",
+            "-DEXTERNAL_UNPACKED_DIR=${downloadDir}/.unpacked_android",
             "-DHG_APP_ASSETS_DIR=${appAssetDir}",
 
             "-DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}",
 
             // No effect on the build system, so turn off.
-            "-Dcmr_BUILD_MULTIPROC=OFF",
+//            "-Dcmr_BUILD_MULTIPROC=OFF",
 //            "-Dcmr_BUILD_MULTIPROC_CNT=6",
 
 //            "-Dcmr_PRINT_DEBUG=ON",
-//            "-DCMAKE_VERBOSE_MAKEFILE=TRUE",
+//            "-DCMAKE_VERBOSE_MAKEFILE=ON",
 
 //            "-DANDROID_PLATFORM=android-9", // ${getNdkPlatformLevel(abi)}
 // We could not specify ANDROID_PLATFORM:
@@ -251,7 +254,7 @@ android {
             "-DANDROID_TOOLCHAIN=clang",
             "-DANDROID_STL=${androidStl}",
 
-            "-DSTUB_NOT_USED_CMAKE_VAR=OFF"
+            "-DNOT_USED_STUB_CMAKE_VAR=OFF"
       }
     }
   }

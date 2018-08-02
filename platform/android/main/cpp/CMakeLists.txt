@@ -25,12 +25,26 @@ cmake_minimum_required(VERSION 3.3)
 
 project(HtmlGrapheasKamvaAndroid CXX)
 set(lib_NAME "hgkamva_android")
-set(src_DIR "${PROJECT_SOURCE_DIR}/src")
+
+if(NOT HGKamva_DIR)
+  message(FATAL_ERROR
+    "Please set HGKamva_DIR with path to HtmlGrapheasKamva library.")
+endif()
 
 
 #-----------------------------------------------------------------------
-# Configure external libs directories.
+# Configure external libs directories
 #-----------------------------------------------------------------------
+
+if(NOT EXTERNAL_DOWNLOAD_DIR)
+  set(EXTERNAL_DOWNLOAD_DIR "${CMAKE_CURRENT_LIST_DIR}/.downloads")
+endif()
+if(NOT EXTERNAL_UNPACKED_DIR)
+  set(EXTERNAL_UNPACKED_DIR "${PROJECT_BINARY_DIR}/external/sources")
+endif()
+if(NOT EXTERNAL_BIN_DIR)
+  set(EXTERNAL_BIN_DIR "${PROJECT_BINARY_DIR}/external/build")
+endif()
 
 if(NOT EXTERNAL_INSTALL_DIR)
   set(EXTERNAL_INSTALL_DIR "${PROJECT_BINARY_DIR}/install")
@@ -39,39 +53,72 @@ set(CMAKE_INSTALL_PREFIX "${EXTERNAL_INSTALL_DIR}")
 
 
 #-----------------------------------------------------------------------
+# Configure to find_package()
+#-----------------------------------------------------------------------
+
+# Set CMake's search path for find_*() commands.
+list(APPEND CMAKE_PREFIX_PATH "${EXTERNAL_INSTALL_DIR}")
+
+if(ANDROID)
+  list(APPEND CMAKE_FIND_ROOT_PATH "${EXTERNAL_INSTALL_DIR}")
+endif()
+
+
+#-----------------------------------------------------------------------
+# Set path to LibCMaker root
+#-----------------------------------------------------------------------
+
+set(libcmaker_root_DIR "${HGKamva_DIR}/cmake/libcmaker")
+set(LIBCMAKER_SRC_DIR "${libcmaker_root_DIR}/LibCMaker")
+
+list(APPEND CMAKE_MODULE_PATH
+#  "${CMAKE_CURRENT_LIST_DIR}/cmake"
+  "${LIBCMAKER_SRC_DIR}/cmake/modules"
+)
+
+
+#-----------------------------------------------------------------------
+# Set vars to HtmlGrapheasKamvaAndroid
+#-----------------------------------------------------------------------
+
+# Standard CMake vars.
+#set(BUILD_SHARED_LIBS ON)
+
+# Library specific vars.
+
+
+#-----------------------------------------------------------------------
 # HtmlGrapheasKamva
 #-----------------------------------------------------------------------
 
-if(NOT HtmlGrapheasKamva_DIR)
-  message(FATAL_ERROR
-    "Please set HtmlGrapheasKamva_DIR with path to HtmlGrapheasKamva library.")
-endif()
-
-add_subdirectory(
-  "${HtmlGrapheasKamva_DIR}"
-  "${PROJECT_BINARY_DIR}/HtmlGrapheasKamva"
-)
+add_subdirectory("${HGKamva_DIR}" "${PROJECT_BINARY_DIR}/HtmlGrapheasKamva")
 
 
 #-----------------------------------------------------------------------
-# Android platform
+# HtmlGrapheasKamvaAndroid
 #-----------------------------------------------------------------------
 
-set(lib_HEADERS
-)
+set(private_src_DIR "${CMAKE_CURRENT_LIST_DIR}/src")
 
-set(lib_SOURCES
-  ${src_DIR}/hgkamva/platform/android/HgKamvaApiJni.cpp
-)
-
-add_library(${lib_NAME} SHARED ${lib_SOURCES} ${lib_HEADERS})
+add_library(${lib_NAME} SHARED "")
 set_target_properties(${lib_NAME} PROPERTIES
   CXX_STANDARD 11
   C_STANDARD 11
 )
+target_include_directories(${lib_NAME} PRIVATE ${public_src_DIR})
+
+target_sources(${lib_NAME}
+  PRIVATE
+    ${private_src_DIR}/hgkamva/platform/android/HgKamvaApiJni.cpp
+)
+
+
+#-----------------------------------------------------------------------
+# Link to the libraries
+#-----------------------------------------------------------------------
 
 # HtmlGrapheasKamva
-target_link_libraries(${lib_NAME} PRIVATE htmlgrapheaskamva)
+target_link_libraries(${lib_NAME} PRIVATE hgkamva)
 
 # Android libs
 target_link_libraries(${lib_NAME} PRIVATE android jnigraphics)
@@ -80,7 +127,7 @@ if(BUILD_SHARED_LIBS)
   # Copy installed external so-libs to include to apk-file.
   # We needed to make a copying twice
   # because of the behavior of the android gradle.
-  add_custom_target(copy_installed_so_libs_before ALL
+  add_custom_target(copy_installed_so_libs_before
     COMMAND ${CMAKE_COMMAND} -E copy
       "*.so"
       "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}"
@@ -89,7 +136,7 @@ if(BUILD_SHARED_LIBS)
   )
   add_dependencies(${lib_NAME} copy_installed_so_libs_before)
   
-  add_custom_target(copy_installed_so_libs_after ALL
+  add_custom_target(copy_installed_so_libs_after
     COMMAND ${CMAKE_COMMAND} -E copy
       "*.so"
       "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}"
@@ -101,7 +148,7 @@ endif()
 
 
 #-----------------------------------------------------------------------
-# Android app assets data.
+# Android app assets data
 #-----------------------------------------------------------------------
 
 if(HG_APP_ASSETS_DIR)
@@ -112,28 +159,38 @@ if(HG_APP_ASSETS_DIR)
     COMMAND
       ${CMAKE_COMMAND} -E make_directory "${HG_APP_ASSETS_FONT_DIR}"
 
+    # Arimo font files
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
-      # Arimo font files
-      "${HtmlGrapheasKamva_DIR}/fonts/Arimo/Arimo-BoldItalic.ttf"
-      "${HtmlGrapheasKamva_DIR}/fonts/Arimo/Arimo-Bold.ttf"
-      "${HtmlGrapheasKamva_DIR}/fonts/Arimo/Arimo-Italic.ttf"
-      "${HtmlGrapheasKamva_DIR}/fonts/Arimo/Arimo-Regular.ttf"
+      "${HGKamva_DIR}/fonts/Arimo/Arimo-BoldItalic.ttf"
+      "${HG_APP_ASSETS_FONT_DIR}"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+      "${HGKamva_DIR}/fonts/Arimo/Arimo-Bold.ttf"
+      "${HG_APP_ASSETS_FONT_DIR}"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+      "${HGKamva_DIR}/fonts/Arimo/Arimo-Italic.ttf"
+      "${HG_APP_ASSETS_FONT_DIR}"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+      "${HGKamva_DIR}/fonts/Arimo/Arimo-Regular.ttf"
+      "${HG_APP_ASSETS_FONT_DIR}"
 
-      # Tinos font files
-      "${HtmlGrapheasKamva_DIR}/fonts/Tinos/Tinos-BoldItalic.ttf"
-      "${HtmlGrapheasKamva_DIR}/fonts/Tinos/Tinos-Bold.ttf"
-      "${HtmlGrapheasKamva_DIR}/fonts/Tinos/Tinos-Italic.ttf"
-      "${HtmlGrapheasKamva_DIR}/fonts/Tinos/Tinos-Regular.ttf"
-
-      # To dir 'fonts'
+    # Tinos font files
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+      "${HGKamva_DIR}/fonts/Tinos/Tinos-BoldItalic.ttf"
+      "${HG_APP_ASSETS_FONT_DIR}"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+      "${HGKamva_DIR}/fonts/Tinos/Tinos-Bold.ttf"
+      "${HG_APP_ASSETS_FONT_DIR}"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+      "${HGKamva_DIR}/fonts/Tinos/Tinos-Italic.ttf"
+      "${HG_APP_ASSETS_FONT_DIR}"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+      "${HGKamva_DIR}/fonts/Tinos/Tinos-Regular.ttf"
       "${HG_APP_ASSETS_FONT_DIR}"
   )
 
   add_custom_target(prepare_app_assets_font_conf ALL
     COMMAND ${CMAKE_COMMAND} -E copy_directory
-      "${EXTERNAL_INSTALL_DIR}/etc/fonts"
-
-      # To dir 'fonts'
+      "${CMAKE_INSTALL_PREFIX}/etc/fonts"
       "${HG_APP_ASSETS_FONT_DIR}"
   )
 
@@ -142,10 +199,11 @@ if(HG_APP_ASSETS_DIR)
       ${CMAKE_COMMAND} -E make_directory "${HG_APP_ASSETS_DATA_DIR}"
 
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
-      "${HtmlGrapheasKamva_DIR}/test/data/master.css"
-      "${HtmlGrapheasKamva_DIR}/test/data/test.html"
+      "${HGKamva_DIR}/test/data/master.css"
+      "${HG_APP_ASSETS_DATA_DIR}"
 
-      # To dir 'data'
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+      "${HGKamva_DIR}/test/data/test.html"
       "${HG_APP_ASSETS_DATA_DIR}"
   )
   

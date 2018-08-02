@@ -31,6 +31,7 @@ include(cmr_print_message)
 # Set vars for LibCMaker_FreeType and LibCMaker_HarfBuzz
 #-----------------------------------------------------------------------
 
+# Used in 'cmr_build_rules_harfbuzz.cmake' 
 set(LIBCMAKER_FREETYPE_SRC_DIR
   "${CMAKE_CURRENT_LIST_DIR}/LibCMaker_FreeType"
 )
@@ -51,7 +52,7 @@ set(WITH_PNG OFF)
 set(WITH_HarfBuzz ON)
 
 if(WITH_HarfBuzz)
-  # Needed for lib_cmaker_freetype() to build HarfBuzz.
+  # Used in 'cmr_build_rules_freetype.cmake'.
   set(LIBCMAKER_HARFBUZZ_SRC_DIR
     "${CMAKE_CURRENT_LIST_DIR}/LibCMaker_HarfBuzz")
   # To use our FindHarfBuzz.cmake.
