@@ -29,12 +29,12 @@ if(BUILD_TESTING)
   set(HGKamva_TEST_FONT_DIR "${HGKamva_TEST_DIR}/fonts")
   set(HGKamva_TEST_DATA_DIR "${HGKamva_TEST_DIR}/data")
   
-  add_custom_target(clean_test_temp_dir ALL
+  add_custom_target(clean_test_temp_dir
     COMMAND
       ${CMAKE_COMMAND} -E remove_directory "${HGKamva_TEST_DIR}/temp"
   )
 
-  add_custom_target(prepare_test_fonts ALL
+  add_custom_target(prepare_test_fonts
     COMMAND
       ${CMAKE_COMMAND} -E make_directory "${HGKamva_TEST_FONT_DIR}"
 
@@ -67,7 +67,7 @@ if(BUILD_TESTING)
       "${HGKamva_TEST_FONT_DIR}"
   )
   
-  add_custom_target(prepare_test_font_conf ALL
+  add_custom_target(prepare_test_font_conf
     COMMAND ${CMAKE_COMMAND} -E copy_directory
       "${CMAKE_INSTALL_PREFIX}/etc/fonts"
       "${HGKamva_TEST_FONT_DIR}"
@@ -78,7 +78,7 @@ if(BUILD_TESTING)
     set(HGKamva_TEST_GRAPHICS_DIR "${HGKamva_TEST_GRAPHICS_DIR}/MinGW")
   endif()
   
-  add_custom_target(prepare_test_data ALL
+  add_custom_target(prepare_test_data
     COMMAND
       ${CMAKE_COMMAND} -E make_directory "${HGKamva_TEST_DATA_DIR}"
 

@@ -28,7 +28,7 @@ include(cmr_print_message)
 #-----------------------------------------------------------------------
 
 #-----------------------------------------------------------------------
-# Set vars for LibCMaker_ICU
+# Set vars to LibCMaker_ICU
 #-----------------------------------------------------------------------
 
 set(LIBCMAKER_ICU_SRC_DIR
@@ -48,9 +48,20 @@ set(COPY_ICU_CMAKE_BUILD_SCRIPTS ON)
 
 # Enable cross compiling
 set(ICU_CROSS_COMPILING OFF)
-if(NOT ICU_CROSS_BUILDROOT)
-  # Specify an absolute path to the build directory of an ICU built for the current platform
-  set(ICU_CROSS_BUILDROOT "")
+if(IOS OR ANDROID OR WINDOWS_STORE)
+  set(ICU_CROSS_COMPILING ON)
+endif()
+# Specify an absolute path to the build directory of an ICU built for the current platform
+set(ICU_CROSS_BUILDROOT "")
+if(ICU_CROSS_COMPILING)
+  if(NOT HOST_TOOLS_BUILD_DIR)
+    cmr_print_fatal_error(
+      "Please set HOST_TOOLS_BUILD_DIR with path to built host tools to cross compilation."
+    )
+  endif()
+  set(ICU_CROSS_BUILDROOT
+    "${HOST_TOOLS_BUILD_DIR}/external/build/build_icu_host_tools/icu-${ICU_lib_VERSION}/source"
+  )
 endif()
 # Compile with strict compiler options
 set(ICU_ENABLE_STRICT ON)
@@ -70,6 +81,9 @@ set(ICU_DISABLE_DYLOAD OFF)
 set(ICU_ENABLE_RPATH OFF)
 # Build ICU extras
 set(ICU_ENABLE_EXTRAS OFF) # TODO: not released
+if(ICU_CROSS_COMPILING)
+  set(ICU_ENABLE_EXTRAS OFF)
+endif()
 # Build ICU's icuio library
 set(ICU_ENABLE_ICUIO ON)
 # Build ICU's Paragraph Layout library. icu-le-hb must be available via find_package(icu-le-hb). See http://harfbuzz.org
@@ -78,6 +92,9 @@ set(ICU_ENABLE_LAYOUTEX OFF) # TODO: not released
 #set(ICU_ENABLE_LAYOUT OFF)
 # Build ICU's tools
 set(ICU_ENABLE_TOOLS ON)
+if(ICU_CROSS_COMPILING)
+  set(ICU_ENABLE_TOOLS OFF)
+endif()
 # Specify how to package ICU data. Possible values: files, archive, library, static, auto. See http://userguide.icu-project.org/icudata for more info
 set(ICU_DATA_PACKAGING "auto") # TODO: 'files' mode is not released
 # Tag a suffix to the library names

@@ -155,7 +155,7 @@ if(HG_APP_ASSETS_DIR)
   set(HG_APP_ASSETS_FONT_DIR "${HG_APP_ASSETS_DIR}/fonts")
   set(HG_APP_ASSETS_DATA_DIR "${HG_APP_ASSETS_DIR}/data")
 
-  add_custom_target(prepare_app_assets_fonts ALL
+  add_custom_target(prepare_app_assets_fonts
     COMMAND
       ${CMAKE_COMMAND} -E make_directory "${HG_APP_ASSETS_FONT_DIR}"
 
@@ -188,13 +188,13 @@ if(HG_APP_ASSETS_DIR)
       "${HG_APP_ASSETS_FONT_DIR}"
   )
 
-  add_custom_target(prepare_app_assets_font_conf ALL
+  add_custom_target(prepare_app_assets_font_conf
     COMMAND ${CMAKE_COMMAND} -E copy_directory
       "${CMAKE_INSTALL_PREFIX}/etc/fonts"
       "${HG_APP_ASSETS_FONT_DIR}"
   )
 
-  add_custom_target(prepare_app_assets_data ALL
+  add_custom_target(prepare_app_assets_data
     COMMAND
       ${CMAKE_COMMAND} -E make_directory "${HG_APP_ASSETS_DATA_DIR}"
 
