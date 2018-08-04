@@ -28,7 +28,7 @@ if(BUILD_TESTING)
   set(HGKamva_TEST_DIR "${CMAKE_CURRENT_BINARY_DIR}")
   set(HGKamva_TEST_FONT_DIR "${HGKamva_TEST_DIR}/fonts")
   set(HGKamva_TEST_DATA_DIR "${HGKamva_TEST_DIR}/data")
-  
+
   add_custom_target(clean_test_temp_dir
     COMMAND
       ${CMAKE_COMMAND} -E remove_directory "${HGKamva_TEST_DIR}/temp"
@@ -66,7 +66,7 @@ if(BUILD_TESTING)
       "${PROJECT_SOURCE_DIR}/fonts/Tinos/Tinos-Regular.ttf"
       "${HGKamva_TEST_FONT_DIR}"
   )
-  
+
   add_custom_target(prepare_test_font_conf
     COMMAND ${CMAKE_COMMAND} -E copy_directory
       "${CMAKE_INSTALL_PREFIX}/etc/fonts"
@@ -77,7 +77,7 @@ if(BUILD_TESTING)
   if(MINGW)
     set(HGKamva_TEST_GRAPHICS_DIR "${HGKamva_TEST_GRAPHICS_DIR}/MinGW")
   endif()
-  
+
   add_custom_target(prepare_test_data
     COMMAND
       ${CMAKE_COMMAND} -E make_directory "${HGKamva_TEST_DATA_DIR}"
@@ -125,9 +125,15 @@ if(BUILD_TESTING)
       ${test_LIBS}
       GTest::GTest GTest::Main
     )
-    
+    add_dependencies(${test_NAME}
+      clean_test_temp_dir
+      prepare_test_fonts
+      prepare_test_font_conf
+      prepare_test_data
+    )
+
     add_test(NAME ${test_NAME} COMMAND ${test_NAME})
-    
+
     # https://cmake.org/pipermail/cmake-developers/2013-June/019217.html
     set_property(TEST ${test_NAME} PROPERTY
       ENVIRONMENT
