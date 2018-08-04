@@ -21,7 +21,7 @@
 #    along with this program. If not, see <http://www.gnu.org/licenses/>.
 # ****************************************************************************
 
-include(cmr_print_message)
+include(cmr_print_status)
 
 #-----------------------------------------------------------------------
 # Build, install and find Expat library
@@ -73,7 +73,7 @@ endif()
 find_package(EXPAT QUIET)
 
 if(NOT EXPAT_FOUND)
-  cmr_print_message(
+  cmr_print_status(
     "Expat is not installed, build and install it.")
 
   include(${LIBCMAKER_EXPAT_SRC_DIR}/lib_cmaker_expat.cmake)
@@ -87,6 +87,6 @@ if(NOT EXPAT_FOUND)
   find_package(EXPAT REQUIRED)
   
 else()
-  cmr_print_message(
+  cmr_print_status(
     "Expat is installed, skip building and installing it.")
 endif()

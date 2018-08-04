@@ -21,7 +21,7 @@
 #    along with this program. If not, see <http://www.gnu.org/licenses/>.
 # ****************************************************************************
 
-include(cmr_print_message)
+include(cmr_print_status)
 
 #-----------------------------------------------------------------------
 # Build, install and find ICU library
@@ -55,7 +55,7 @@ endif()
 set(ICU_CROSS_BUILDROOT "")
 if(ICU_CROSS_COMPILING)
   if(NOT HOST_TOOLS_BUILD_DIR)
-    cmr_print_fatal_error(
+    cmr_print_error(
       "Please set HOST_TOOLS_BUILD_DIR with path to built host tools to cross compilation."
     )
   endif()
@@ -113,7 +113,7 @@ set(ICU_ENABLE_SAMPLES OFF) # TODO: not released
 find_package(ICU ${ICU_lib_VERSION} CONFIG QUIET)
 
 if(NOT ICU_FOUND)
-  cmr_print_message(
+  cmr_print_status(
     "ICU is not installed, build and install it.")
 
   include(${LIBCMAKER_ICU_SRC_DIR}/lib_cmaker_icu.cmake)
@@ -127,6 +127,6 @@ if(NOT ICU_FOUND)
   find_package(ICU ${ICU_lib_VERSION} REQUIRED CONFIG)
   
 else()
-  cmr_print_message(
+  cmr_print_status(
     "ICU is installed, skip building and installing it.")
 endif()

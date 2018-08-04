@@ -21,7 +21,7 @@
 #    along with this program. If not, see <http://www.gnu.org/licenses/>.
 # ****************************************************************************
 
-include(cmr_print_message)
+include(cmr_print_status)
 
 #-----------------------------------------------------------------------
 # Build the host tools of the ICU library
@@ -157,7 +157,7 @@ if(NOT EXISTS ${tmp_ICU_CROSS_BUILDROOT}/bin/pkgdata)
 endif()
 
 if(NOT ICU_HOST_TOOLS_FOUND)
-  cmr_print_message("ICU host tools is not built, build it.")
+  cmr_print_status("ICU host tools is not built, build it.")
 
   include(${LIBCMAKER_ICU_SRC_DIR}/lib_cmaker_icu.cmake)
   lib_cmaker_icu(
@@ -217,5 +217,5 @@ if(NOT ICU_HOST_TOOLS_FOUND)
   endif()
 
 else()
-  cmr_print_message("ICU host tools is built, skip building it.")
+  cmr_print_status("ICU host tools is built, skip building it.")
 endif()

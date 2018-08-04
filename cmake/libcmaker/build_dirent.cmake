@@ -21,7 +21,7 @@
 #    along with this program. If not, see <http://www.gnu.org/licenses/>.
 # ****************************************************************************
 
-include(cmr_print_message)
+include(cmr_print_status)
 
 #-----------------------------------------------------------------------
 # Build, install and find Dirent library
@@ -55,7 +55,7 @@ set(COPY_DIRENT_CMAKE_BUILD_SCRIPTS ON)
 find_package(Dirent QUIET)
 
 if(NOT DIRENT_FOUND)
-  cmr_print_message(
+  cmr_print_status(
     "Dirent is not installed, build and install it.")
 
   include(${LIBCMAKER_DIRENT_SRC_DIR}/lib_cmaker_dirent.cmake)
@@ -69,6 +69,6 @@ if(NOT DIRENT_FOUND)
   find_package(Dirent REQUIRED)
   
 else()
-  cmr_print_message(
+  cmr_print_status(
     "Dirent is installed, skip building and installing it.")
 endif()

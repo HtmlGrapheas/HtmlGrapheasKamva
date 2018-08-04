@@ -21,7 +21,7 @@
 #    along with this program. If not, see <http://www.gnu.org/licenses/>.
 # ****************************************************************************
 
-include(cmr_print_message)
+include(cmr_print_status)
 
 #-----------------------------------------------------------------------
 # Build, install and find Google Test library
@@ -102,7 +102,7 @@ endif()
 find_package(GTest QUIET)
 
 if(NOT GTEST_FOUND)
-  cmr_print_message(
+  cmr_print_status(
     "Google Test is not installed, build and install it.")
 
   include(
@@ -117,6 +117,6 @@ if(NOT GTEST_FOUND)
   find_package(GTest REQUIRED)
   
 else()
-  cmr_print_message(
+  cmr_print_status(
     "Google Test is installed, skip building and installing it.")
 endif()

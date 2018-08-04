@@ -21,7 +21,7 @@
 #    along with this program. If not, see <http://www.gnu.org/licenses/>.
 # ****************************************************************************
 
-include(cmr_print_message)
+include(cmr_print_status)
 
 #-----------------------------------------------------------------------
 # Build, install and find AGG library
@@ -71,7 +71,7 @@ option(agg_USE_AGG2D_FREETYPE "Agg 2D graphical context uses freetype" OFF)
 find_package(Agg CONFIG QUIET)
 
 if(NOT Agg_FOUND)
-  cmr_print_message(
+  cmr_print_status(
     "AGG is not installed, build and install it.")
 
   include(${LIBCMAKER_AGG_SRC_DIR}/lib_cmaker_agg.cmake)
@@ -85,7 +85,7 @@ if(NOT Agg_FOUND)
   find_package(Agg REQUIRED CONFIG)
 
 else()
-  cmr_print_message(
+  cmr_print_status(
     "AGG is installed, skip building and installing it.")
 endif()
 

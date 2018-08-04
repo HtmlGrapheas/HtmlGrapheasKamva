@@ -21,7 +21,7 @@
 #    along with this program. If not, see <http://www.gnu.org/licenses/>.
 # ****************************************************************************
 
-include(cmr_print_message)
+include(cmr_print_status)
 
 #-----------------------------------------------------------------------
 # Build, install and find FreeType and HarfBuzz libraries
@@ -77,10 +77,10 @@ endif()
 
 if(NOT FREETYPE_FOUND OR (WITH_HarfBuzz AND NOT HarfBuzz_FOUND))
   if(WITH_HarfBuzz)
-    cmr_print_message(
+    cmr_print_status(
       "FreeType or HarfBuzz are not installed, build and install them.")
   else()
-    cmr_print_message(
+    cmr_print_status(
       "FreeType is not installed, build and install it.")
   endif()
 
@@ -99,10 +99,10 @@ if(NOT FREETYPE_FOUND OR (WITH_HarfBuzz AND NOT HarfBuzz_FOUND))
   
 else()
   if(WITH_HarfBuzz)
-    cmr_print_message(
+    cmr_print_status(
       "FreeType and HarfBuzz are installed, skip building and installing them.")
   else()
-    cmr_print_message(
+    cmr_print_status(
       "FreeType is installed, skip building and installing it.")
   endif()
 endif()

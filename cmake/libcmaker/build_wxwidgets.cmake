@@ -21,7 +21,7 @@
 #    along with this program. If not, see <http://www.gnu.org/licenses/>.
 # ****************************************************************************
 
-include(cmr_print_message)
+include(cmr_print_status)
 
 #-----------------------------------------------------------------------
 # Build, install and find wxWidgets library
@@ -135,7 +135,7 @@ endif()
 set(WX_lib_EXPORT_FILE "${WX_BUILD_DIR}/export-wxWidgets.cmake")
 
 if(NOT wxWidgets_FOUND AND NOT EXISTS ${WX_lib_EXPORT_FILE})
-  cmr_print_message("wxWidgets is not built, build it.")
+  cmr_print_status("wxWidgets is not built, build it.")
 
   # Build specified library version.
   include(${LIBCMAKER_WX_SRC_DIR}/lib_cmaker_wxwidgets.cmake)
@@ -154,7 +154,7 @@ if(NOT wxWidgets_FOUND AND NOT EXISTS ${WX_lib_EXPORT_FILE})
   endif()
   
 else()
-  cmr_print_message("wxWidgets is built, skip its building.")
+  cmr_print_status("wxWidgets is built, skip its building.")
 endif()
 
 if(WX_USE_FIND_PACKAGE_MODULE)

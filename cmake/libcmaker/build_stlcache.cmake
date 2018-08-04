@@ -21,7 +21,7 @@
 #    along with this program. If not, see <http://www.gnu.org/licenses/>.
 # ****************************************************************************
 
-include(cmr_print_message)
+include(cmr_print_status)
 
 #-----------------------------------------------------------------------
 # Build, install and find STLCache library
@@ -55,7 +55,7 @@ set(COPY_STLCACHE_CMAKE_BUILD_SCRIPTS ON)
 find_package(STLCache QUIET)
 
 if(NOT STLCACHE_FOUND)
-  cmr_print_message(
+  cmr_print_status(
     "STLCache is not installed, build and install it.")
 
   include(${LIBCMAKER_STLCACHE_SRC_DIR}/lib_cmaker_stlcache.cmake)
@@ -69,6 +69,6 @@ if(NOT STLCACHE_FOUND)
   find_package(STLCache REQUIRED)
   
 else()
-  cmr_print_message(
+  cmr_print_status(
     "STLCache is installed, skip building and installing it.")
 endif()

@@ -21,7 +21,7 @@
 #    along with this program. If not, see <http://www.gnu.org/licenses/>.
 # ****************************************************************************
 
-include(cmr_print_message)
+include(cmr_print_status)
 
 #-----------------------------------------------------------------------
 # Build, install and find FontConfig library
@@ -66,7 +66,7 @@ set(COPY_FONTCONFIG_CMAKE_BUILD_SCRIPTS ON)
 find_package(FontConfig QUIET)
 
 if(NOT FONTCONFIG_FOUND)
-  cmr_print_message(
+  cmr_print_status(
     "FontConfig is not installed, build and install it.")
 
   include(${LIBCMAKER_FONTCONFIG_SRC_DIR}/lib_cmaker_fontconfig.cmake)
@@ -80,6 +80,6 @@ if(NOT FONTCONFIG_FOUND)
   find_package(FontConfig REQUIRED)
   
 else()
-  cmr_print_message(
+  cmr_print_status(
     "FontConfig is installed, skip building and installing it.")
 endif()
