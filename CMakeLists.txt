@@ -189,7 +189,13 @@ if(WITH_HarfBuzz)
 endif()
 
 # ICU
-target_link_libraries(${lib_NAME} PRIVATE ICU::i18n)
+set(ICU_data ICU::data)
+set(ICU_i18n ICU::i18n)
+if(WIN32)
+  set(ICU_data ICU::dt)
+  set(ICU_i18n ICU::in)
+endif()
+target_link_libraries(${lib_NAME} PRIVATE ${ICU_i18n})
 
 # Expat
 target_include_directories(${lib_NAME} PRIVATE ${EXPAT_INCLUDE_DIR})
