@@ -83,9 +83,9 @@ if(NOT EXPAT_FOUND)
     UNPACKED_DIR  ${EXPAT_UNPACKED_DIR}
     BUILD_DIR     ${EXPAT_BUILD_DIR}
   )
-  
+
   find_package(EXPAT REQUIRED)
-  
+
 else()
   cmr_print_status(
     "Expat is installed, skip building and installing it.")

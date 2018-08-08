@@ -65,9 +65,9 @@ if(NOT DIRENT_FOUND)
     UNPACKED_DIR  ${DIRENT_UNPACKED_DIR}
     BUILD_DIR     ${DIRENT_BUILD_DIR}
   )
-  
+
   find_package(Dirent REQUIRED)
-  
+
 else()
   cmr_print_status(
     "Dirent is installed, skip building and installing it.")

@@ -113,9 +113,9 @@ if(NOT GTEST_FOUND)
     UNPACKED_DIR  ${GOOGLETEST_UNPACKED_DIR}
     BUILD_DIR     ${GOOGLETEST_BUILD_DIR}
   )
-  
+
   find_package(GTest REQUIRED)
-  
+
 else()
   cmr_print_status(
     "Google Test is installed, skip building and installing it.")

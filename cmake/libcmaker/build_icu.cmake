@@ -38,6 +38,10 @@ set(LIBCMAKER_ICU_SRC_DIR
 list(APPEND CMAKE_MODULE_PATH "${LIBCMAKER_ICU_SRC_DIR}/cmake")
 
 set(ICU_lib_VERSION   "61.1")
+if(BUILD_FOR_WINXP OR CMAKE_GENERATOR_TOOLSET STREQUAL "v141_xp")
+  # This is the last ICU4C release that works on Windows XP and Windows Vista.
+  set(ICU_lib_VERSION   "58.2")
+endif()
 set(ICU_DOWNLOAD_DIR  "${EXTERNAL_DOWNLOAD_DIR}")
 set(ICU_UNPACKED_DIR  "${EXTERNAL_UNPACKED_DIR}")
 set(ICU_BUILD_DIR     "${EXTERNAL_BIN_DIR}/build_icu")
@@ -123,9 +127,9 @@ if(NOT ICU_FOUND)
     UNPACKED_DIR  ${ICU_UNPACKED_DIR}
     BUILD_DIR     ${ICU_BUILD_DIR}
   )
-  
+
   find_package(ICU ${ICU_lib_VERSION} REQUIRED CONFIG)
-  
+
 else()
   cmr_print_status(
     "ICU is installed, skip building and installing it.")

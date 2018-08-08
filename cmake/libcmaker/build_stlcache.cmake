@@ -65,9 +65,9 @@ if(NOT STLCACHE_FOUND)
     UNPACKED_DIR  ${STLCACHE_UNPACKED_DIR}
     BUILD_DIR     ${STLCACHE_BUILD_DIR}
   )
-  
+
   find_package(STLCache REQUIRED)
-  
+
 else()
   cmr_print_status(
     "STLCache is installed, skip building and installing it.")

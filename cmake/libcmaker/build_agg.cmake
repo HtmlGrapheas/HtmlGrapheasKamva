@@ -58,7 +58,7 @@ option(agg_USE_SDL_PLATFORM "Use SDL as platform" OFF)
 option(agg_USE_PACK "Package Agg" OFF)
 option(agg_USE_AGG2D "Agg 2D graphical context" OFF)
 option(agg_USE_DEBUG "For debug version" OFF)
-option(agg_USE_AGG2D_FREETYPE "Agg 2D graphical context uses freetype" OFF)    
+option(agg_USE_AGG2D_FREETYPE "Agg 2D graphical context uses freetype" OFF)
 
 # TODO: set ENV{FREETYPE_DIR} to AGG if agg_USE_FREETYPE==ON
 

@@ -31,7 +31,7 @@ include(cmr_print_status)
 # Set vars for LibCMaker_FreeType and LibCMaker_HarfBuzz
 #-----------------------------------------------------------------------
 
-# Used in 'cmr_build_rules_harfbuzz.cmake' 
+# Used in 'cmr_build_rules_harfbuzz.cmake'
 set(LIBCMAKER_FREETYPE_SRC_DIR
   "${CMAKE_CURRENT_LIST_DIR}/LibCMaker_FreeType"
 )
@@ -91,12 +91,12 @@ if(NOT FREETYPE_FOUND OR (WITH_HarfBuzz AND NOT HarfBuzz_FOUND))
     UNPACKED_DIR  ${FT_UNPACKED_DIR}
     BUILD_DIR     ${FT_BUILD_DIR}
   )
-  
+
   find_package(Freetype REQUIRED)
   if(WITH_HarfBuzz)
     find_package(HarfBuzz REQUIRED)
   endif()
-  
+
 else()
   if(WITH_HarfBuzz)
     cmr_print_status(

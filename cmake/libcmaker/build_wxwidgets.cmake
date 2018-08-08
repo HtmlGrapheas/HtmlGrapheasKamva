@@ -152,7 +152,7 @@ if(NOT wxWidgets_FOUND AND NOT EXISTS ${WX_lib_EXPORT_FILE})
       REQUIRED COMPONENTS ${WX_lib_COMPONENTS}
     )
   endif()
-  
+
 else()
   cmr_print_status("wxWidgets is built, skip its building.")
 endif()

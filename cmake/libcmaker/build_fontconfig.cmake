@@ -76,9 +76,9 @@ if(NOT FONTCONFIG_FOUND)
     UNPACKED_DIR  ${FONTCONFIG_UNPACKED_DIR}
     BUILD_DIR     ${FONTCONFIG_BUILD_DIR}
   )
-  
+
   find_package(FontConfig REQUIRED)
-  
+
 else()
   cmr_print_status(
     "FontConfig is installed, skip building and installing it.")
