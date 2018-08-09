@@ -180,7 +180,7 @@ target_include_directories(${lib_NAME} PRIVATE ${FREETYPE_INCLUDE_DIRS})
 target_link_libraries(${lib_NAME} PRIVATE ${FREETYPE_LIBRARIES})
 
 # HarfBuzz
-if(WITH_HarfBuzz)
+if(FT_WITH_HarfBuzz)
   target_include_directories(${lib_NAME} PRIVATE ${HARFBUZZ_INCLUDE_DIRS})
   # From <freetype sources>/docs/CHANGES:
   #  Note that HarfBuzz depends on FreeType.
