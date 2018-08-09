@@ -26,6 +26,9 @@ if(BUILD_TESTING)
   include(build_googletest)
 
   set(HGKamva_TEST_DIR "${CMAKE_CURRENT_BINARY_DIR}")
+  if(MSVC)
+    set(HGKamva_TEST_DIR "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>")
+  endif()
   set(HGKamva_TEST_FONT_DIR "${HGKamva_TEST_DIR}/fonts")
   set(HGKamva_TEST_DATA_DIR "${HGKamva_TEST_DIR}/data")
 
