@@ -115,18 +115,26 @@ public class HgKamvaApiJni
         System.loadLibrary("c++_shared");
 
         System.loadLibrary("expat");
+
+        System.loadLibrary("icudata");
+        System.loadLibrary("icuuc");
+        System.loadLibrary("icui18n");
+        System.loadLibrary("icuio");  // TODO: needed?
+
         System.loadLibrary("freetype" + libSuffix);
         System.loadLibrary("harfbuzz");
         System.loadLibrary("fontconfig");
+
         System.loadLibrary("agg");
 
         System.loadLibrary("gumbo");
         System.loadLibrary("litehtml");
-        System.loadLibrary("htmlgrapheas");
-        System.loadLibrary("htmlgrapheaskamva");
+
+        System.loadLibrary("hgraph");
+        System.loadLibrary("hgkamva");
       }
 
-      System.loadLibrary("htmlgrapheaskamvaandroid");
+      System.loadLibrary("hgkamva_android");
 
     } catch (UnsatisfiedLinkError e) {
       System.err.println("Native code library failed to load.\n" + e);
