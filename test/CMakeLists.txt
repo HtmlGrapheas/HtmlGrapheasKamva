@@ -118,16 +118,36 @@ if(BUILD_TESTING)
       CXX_STANDARD 11
       C_STANDARD 11
     )
+
     target_link_libraries(${test_NAME} PRIVATE hgraph)
-    target_include_directories(${test_NAME} PRIVATE ${FREETYPE_INCLUDE_DIRS})
-    if(FT_WITH_HarfBuzz)
-      target_include_directories(${test_NAME} PRIVATE ${HARFBUZZ_INCLUDE_DIRS})
-    endif()
+
     target_include_directories(${test_NAME} PRIVATE ${AGG_INCLUDE_DIRS})
+    target_link_libraries(${test_NAME} PRIVATE ${AGG_LIBRARY})
+
+    target_include_directories(${test_NAME} PRIVATE ${FONTCONFIG_INCLUDE_DIR})
+    target_link_libraries(${test_NAME} PRIVATE ${FONTCONFIG_LIBRARY})
+
+    target_link_libraries(${test_NAME} PRIVATE Freetype::Freetype)
+
+    if(FT_WITH_HarfBuzz)
+      target_include_directories(${test_NAME} PRIVATE ${HARFBUZZ_INCLUDE_DIR})
+      target_link_libraries(${test_NAME} PRIVATE
+        ${HARFBUZZ_LIBRARY} Freetype::Freetype
+      )
+    endif()
+
+    target_link_libraries(${test_NAME} PRIVATE ICU::i18n ICU::uc ICU::data)
+
+    target_include_directories(${test_NAME} PRIVATE ${EXPAT_INCLUDE_DIR})
+    target_link_libraries(${test_NAME} PRIVATE ${EXPAT_LIBRARY})
+
+    target_include_directories(${test_NAME} PRIVATE ${STLCACHE_INCLUDE_DIR})
+
     target_link_libraries(${test_NAME} PRIVATE
       ${test_LIBS}
       GTest::GTest GTest::Main
     )
+
     add_dependencies(${test_NAME}
       clean_test_temp_dir
       prepare_test_fonts

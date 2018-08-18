@@ -40,20 +40,20 @@ endif()
 # Configure external libs directories
 #-----------------------------------------------------------------------
 
-if(NOT EXTERNAL_DOWNLOAD_DIR)
-  set(EXTERNAL_DOWNLOAD_DIR "${CMAKE_CURRENT_LIST_DIR}/.downloads")
+if(NOT cmr_DOWNLOAD_DIR)
+  set(cmr_DOWNLOAD_DIR "${CMAKE_CURRENT_LIST_DIR}/.downloads")
 endif()
-if(NOT EXTERNAL_UNPACKED_DIR)
-  set(EXTERNAL_UNPACKED_DIR "${PROJECT_BINARY_DIR}/external/sources")
+if(NOT cmr_UNPACKED_DIR)
+  set(cmr_UNPACKED_DIR "${PROJECT_BINARY_DIR}/external/sources")
 endif()
-if(NOT EXTERNAL_BIN_DIR)
-  set(EXTERNAL_BIN_DIR "${PROJECT_BINARY_DIR}/external/build")
+if(NOT cmr_BUILD_DIR)
+  set(cmr_BUILD_DIR "${PROJECT_BINARY_DIR}/external/build")
 endif()
 
-if(NOT EXTERNAL_INSTALL_DIR)
-  set(EXTERNAL_INSTALL_DIR "${PROJECT_BINARY_DIR}/install")
+if(NOT cmr_INSTALL_DIR)
+  set(cmr_INSTALL_DIR "${PROJECT_BINARY_DIR}/install")
 endif()
-set(CMAKE_INSTALL_PREFIX "${EXTERNAL_INSTALL_DIR}")
+set(CMAKE_INSTALL_PREFIX "${cmr_INSTALL_DIR}")
 
 
 #-----------------------------------------------------------------------
@@ -61,10 +61,10 @@ set(CMAKE_INSTALL_PREFIX "${EXTERNAL_INSTALL_DIR}")
 #-----------------------------------------------------------------------
 
 # Set CMake's search path for find_*() commands.
-list(APPEND CMAKE_PREFIX_PATH "${EXTERNAL_INSTALL_DIR}")
+list(APPEND CMAKE_PREFIX_PATH "${cmr_INSTALL_DIR}")
 
 if(ANDROID)
-  list(APPEND CMAKE_FIND_ROOT_PATH "${EXTERNAL_INSTALL_DIR}")
+  list(APPEND CMAKE_FIND_ROOT_PATH "${cmr_INSTALL_DIR}")
 endif()
 
 
@@ -72,12 +72,13 @@ endif()
 # Set path to LibCMaker root
 #-----------------------------------------------------------------------
 
+# TODO:
 set(libcmaker_root_DIR "${HGKamva_DIR}/cmake/libcmaker")
-set(LIBCMAKER_SRC_DIR "${libcmaker_root_DIR}/LibCMaker")
+set(LibCMaker_DIR "${libcmaker_root_DIR}/LibCMaker")
 
 list(APPEND CMAKE_MODULE_PATH
   "${libcmaker_root_DIR}"
-  "${LIBCMAKER_SRC_DIR}/cmake/modules"
+  "${LibCMaker_DIR}/cmake/modules"
 )
 
 

@@ -33,51 +33,6 @@ endif()
 
 
 #-----------------------------------------------------------------------
-# Configure external libs directories
-#-----------------------------------------------------------------------
-
-if(NOT EXTERNAL_DOWNLOAD_DIR)
-  set(EXTERNAL_DOWNLOAD_DIR "${CMAKE_CURRENT_LIST_DIR}/.downloads")
-endif()
-if(NOT EXTERNAL_UNPACKED_DIR)
-  set(EXTERNAL_UNPACKED_DIR "${PROJECT_BINARY_DIR}/external/sources")
-endif()
-if(NOT EXTERNAL_BIN_DIR)
-  set(EXTERNAL_BIN_DIR "${PROJECT_BINARY_DIR}/external/build")
-endif()
-
-if(NOT EXTERNAL_INSTALL_DIR)
-  set(EXTERNAL_INSTALL_DIR "${PROJECT_BINARY_DIR}/install")
-endif()
-set(CMAKE_INSTALL_PREFIX "${EXTERNAL_INSTALL_DIR}")
-
-
-#-----------------------------------------------------------------------
-# Configure to find_package()
-#-----------------------------------------------------------------------
-
-# Set CMake's search path for find_*() commands.
-list(APPEND CMAKE_PREFIX_PATH "${EXTERNAL_INSTALL_DIR}")
-
-if(ANDROID)
-  list(APPEND CMAKE_FIND_ROOT_PATH "${EXTERNAL_INSTALL_DIR}")
-endif()
-
-
-#-----------------------------------------------------------------------
-# Set path to LibCMaker root
-#-----------------------------------------------------------------------
-
-set(libcmaker_root_DIR "${HGKamva_DIR}/cmake/libcmaker")
-set(LIBCMAKER_SRC_DIR "${libcmaker_root_DIR}/LibCMaker")
-
-list(APPEND CMAKE_MODULE_PATH
-#  "${CMAKE_CURRENT_LIST_DIR}/cmake"
-  "${LIBCMAKER_SRC_DIR}/cmake/modules"
-)
-
-
-#-----------------------------------------------------------------------
 # Set vars to HtmlGrapheasKamvaAndroid
 #-----------------------------------------------------------------------
 
@@ -85,13 +40,6 @@ list(APPEND CMAKE_MODULE_PATH
 #set(BUILD_SHARED_LIBS ON)
 
 # Library specific vars.
-
-
-#-----------------------------------------------------------------------
-# HtmlGrapheasKamva
-#-----------------------------------------------------------------------
-
-add_subdirectory("${HGKamva_DIR}" "${PROJECT_BINARY_DIR}/HtmlGrapheasKamva")
 
 
 #-----------------------------------------------------------------------
@@ -132,16 +80,16 @@ if(BUILD_SHARED_LIBS)
       "*.so"
       "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}"
     WORKING_DIRECTORY
-      "${EXTERNAL_INSTALL_DIR}/lib"
+      "${cmr_INSTALL_DIR}/lib"
   )
   add_dependencies(${lib_NAME} copy_installed_so_libs_before)
-  
+
   add_custom_target(copy_installed_so_libs_after
     COMMAND ${CMAKE_COMMAND} -E copy
       "*.so"
       "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}"
     WORKING_DIRECTORY
-      "${EXTERNAL_INSTALL_DIR}/lib"
+      "${cmr_INSTALL_DIR}/lib"
   )
   add_dependencies(copy_installed_so_libs_after ${lib_NAME})
 endif()
@@ -206,7 +154,7 @@ if(HG_APP_ASSETS_DIR)
       "${HGKamva_DIR}/test/data/test.html"
       "${HG_APP_ASSETS_DATA_DIR}"
   )
-  
+
   add_dependencies(${lib_NAME}
     prepare_app_assets_fonts
     prepare_app_assets_font_conf
