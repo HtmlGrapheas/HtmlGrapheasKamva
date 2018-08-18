@@ -21,14 +21,7 @@
  *    along with this program. If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
 
-import org.gradle.internal.os.OperatingSystem;
-
 apply plugin: "com.android.library"
-
-// https://github.com/awrichar/gradle-external-build
-apply plugin: 'com.cisco.external-build'
-import com.cisco.gradle.externalbuild.ExternalNativeExecutableSpec
-import com.cisco.gradle.externalbuild.tasks.CMake
 
 
 //-----------------------------------------------------------------------
@@ -65,8 +58,7 @@ if (rootProject.hasProperty("supportLibVersion")) {
   supportLibVer = rootProject.supportLibVersion
 }
 
-//def abiFilts = ["armeabi-v7a", "arm64-v8a", "x86", "x86_64"]
-def abiFilts = ["x86"]
+def abiFilts = ["armeabi-v7a", "arm64-v8a", "x86", "x86_64"]
 if (rootProject.hasProperty("abiFilters")) {
   abiFilts = rootProject.abiFilters
 }
@@ -81,10 +73,6 @@ if (rootProject.hasProperty("rootNativeBuildDir")) {
   rootNativeBuildDir = rootProject.rootNativeBuildDir
 }
 
-def BUILD_SHARED_LIBS = false
-if (rootProject.hasProperty("BUILD_SHARED_LIBS")) {
-  BUILD_SHARED_LIBS = rootProject.BUILD_SHARED_LIBS
-}
 
 //-----------------------------------------------------------------------
 // Module properties
@@ -98,6 +86,7 @@ android.variantFilter { variant ->
     variant.setIgnore(true)
   }
 }
+
 
 //-----------------------------------------------------------------------
 // Android Java part
@@ -150,415 +139,16 @@ android {
 }
 
 dependencies {
-  implementation fileTree(dir: 'libs', include: ['*.jar'])
+  implementation fileTree(dir: "libs", include: ["*.jar"])
   implementation "com.android.support:appcompat-v7:${supportLibVer}"
   implementation "com.android.support:support-compat:${supportLibVer}"
   implementation "com.android.support:support-v4:${supportLibVer}"
 
-  testImplementation 'junit:junit:4.12'
-  androidTestImplementation 'com.android.support.test:runner:1.0.2'
-  androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+  testImplementation "junit:junit:4.12"
+  androidTestImplementation "com.android.support.test:runner:1.0.2"
+  androidTestImplementation "com.android.support.test.espresso:espresso-core:3.0.2"
 }
 
-//-----------------------------------------------------------------------
-// Native CMake part
-//-----------------------------------------------------------------------
-
-// useful links
-// https://developer.android.com/studio/projects/add-native-code.html
-// https://developer.android.com/ndk/guides/cmake.html#variables
-// https://developer.android.com/ndk/guides/abis.html#sa
-
-// From Android Studio 2.2 Preview 6 (July 22, 2016) report:
-// significantly improve build/deploy/debug cycle by only building the ABI
-// that is needed for the target device or emulator.
-
-//def cmAndroidAbis = ["armeabi-v7a", "arm64-v8a", "x86", "x86_64"]
-//def String abiFiltersString = cmAndroidAbis.toString()
-//abiFiltersString = abiFiltersString.substring(1, abiFiltersString.length() - 1)
-
-
-def cmr_BUILD_MULTIPROC = true
-//def cmr_BUILD_MULTIPROC = false
-
-def cmr_BUILD_MULTIPROC_CNT = ""
-//def cmr_BUILD_MULTIPROC_CNT = 4
-
-def cmr_PRINT_DEBUG = false
-//def cmr_PRINT_DEBUG = true
-
-def CMAKE_VERBOSE_MAKEFILE = false
-//def CMAKE_VERBOSE_MAKEFILE = true
-
-
-def getHostToolsBuildDir = { binary ->
-  file("${buildDir}/host_tools/${binary.component.name}/${binary.targetPlatform.name}/build")
-}
-
-def getHostToolsInstallDir = { binary ->
-  file("${buildDir}/host_tools/${binary.component.name}/${binary.targetPlatform.name}/install")
-}
-
-
-def String downloadDir = "${rootDir}/.downloads"
-def hostToolsBuildlDir = "${buildDir}/host_tools/build"
-def hostToolsInstallDir = "${buildDir}/host_tools/install"
-def hostToolsStampFileName = "host_tools_stamp"
-
-// https://github.com/awrichar/gradle-external-build
-model {
-  components {
-    // Task HtmlGrapheasKamva:hostToolsExecutable
-    hostTools(ExternalNativeExecutableSpec) {
-      buildConfig(CMake) {
-        // Uncomment for easier debugging.
-        redirectOutput = false
-
-        def sourceDir = "${projectDir}/host_tools"
-//        hostToolsBuildlDir = getHostToolsBuildDir(binary)
-//        hostToolsInstallDir = getHostToolsInstallDir(binary)
-
-        cmakeExecutable = getCMakeCmd()
-        cmakeRoot sourceDir
-
-        cmakeArgs "-DNOT_USED_STUB_CMAKE_VAR=OFF",
-
-            "-DHGKamva_DIR=${projectDir}",
-            "-DEXTERNAL_DOWNLOAD_DIR=${downloadDir}",
-            "-DEXTERNAL_UNPACKED_DIR=${downloadDir}/.unpacked_android_host_tools",
-            "-DEXTERNAL_INSTALL_DIR=${hostToolsInstallDir}",
-
-            "-DBUILD_SHARED_LIBS=OFF",
-            "-DCMAKE_BUILD_TYPE=Release",
-
-            "-DHOST_TOOLS_STAMP_FILE_NAME=${hostToolsStampFileName}",
-
-            "-Dcmr_BUILD_MULTIPROC=${cmr_BUILD_MULTIPROC}",
-            "-Dcmr_BUILD_MULTIPROC_CNT=${cmr_BUILD_MULTIPROC_CNT}",
-
-            "-Dcmr_PRINT_DEBUG=${cmr_PRINT_DEBUG}",
-            "-DCMAKE_VERBOSE_MAKEFILE=${CMAKE_VERBOSE_MAKEFILE}",
-
-            "-DNOT_USED_STUB_CMAKE_VAR=OFF"
-
-//        targets "all", "install"
-        targets "all"
-
-        workingDir hostToolsBuildlDir
-//        environment = [
-//          "PATH": toolChainPath,
-//        ]
-
-        inputs.dir "${sourceDir}"
-        inputs.file "${sourceDir}/CMakeLists.txt"
-        outputs.dir hostToolsInstallDir
-      }
-
-      buildOutput {
-        def outputDir = getHostToolsBuildDir(binary)
-        outputFile = file("${outputDir}/${hostToolsStampFileName}")
-      }
-    }
-  }
-}
-
-android {
-  def projectNativeBuildDir = "${rootNativeBuildDir}/${project.name}"
-
-  defaultConfig {
-    ndk {
-      abiFilters = abiFilts // what ABIs gradle should package into one apk
-    }
-
-    externalNativeBuild {
-      cmake {
-        abiFilters = abiFilts // what ABIs gradle should build
-
-        String appAssetDir = ""
-        if (rootProject.hasProperty("appAssetDir")) {
-          appAssetDir = rootProject.appAssetDir
-        }
-
-        def String androidStl = "c++_static"
-        if (BUILD_SHARED_LIBS) {
-          androidStl = "c++_shared"
-        }
-
-//        targets "all", "install", "cmaketarget3" // TODO:
-
-        // NOT_USED_STUB_CMAKE_VAR is a stub to simply turn off
-        // the underlying variables with commenting.
-        arguments "-DNOT_USED_STUB_CMAKE_VAR=OFF",
-
-            "-Dcmr_BUILD_MULTIPROC=${cmr_BUILD_MULTIPROC}",
-            "-Dcmr_BUILD_MULTIPROC_CNT=${cmr_BUILD_MULTIPROC_CNT}",
-
-            "-Dcmr_PRINT_DEBUG=${cmr_PRINT_DEBUG}",
-            "-DCMAKE_VERBOSE_MAKEFILE=${CMAKE_VERBOSE_MAKEFILE}",
-
-            "-DHGKamva_DIR=${projectDir}",
-            "-DEXTERNAL_DOWNLOAD_DIR=${downloadDir}",
-            "-DEXTERNAL_UNPACKED_DIR=${downloadDir}/.unpacked_android",
-            "-DHG_APP_ASSETS_DIR=${appAssetDir}",
-
-            "-DHOST_TOOLS_BUILD_DIR=${hostToolsBuildlDir}",
-            "-DHOST_TOOLS_INSTALL_DIR=${hostToolsInstallDir}",
-
-            "-DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}",
-//            "-DCMAKE_BUILD_TYPE=Release", // let's always release ${buildTypeName}
-
-// TODO: Build with Boost, see in cmr_boost_get_os_specifics.cmake:
-//    # Whether to link to static or shared C and C++ runtime.
-//    # TODO: see BUILD_SHARED_LIBS and ANDROID_STL=c++_static/c++_shared
-//    list(APPEND os_specifics "runtime-link=shared")
-
-            // clang
-            "-DANDROID_TOOLCHAIN=clang",
-            "-DANDROID_STL=${androidStl}",
-
-//            "-DANDROID_CPP_FEATURES=rtti exceptions",
-
-//            "-DANDROID_PLATFORM=android-9", // ${getNdkPlatformLevel(abi)}
-// We could not specify ANDROID_PLATFORM:
-// From Android Studio 2.2 Preview 5 (July 8, 2016) report:
-// Enhanced logic for selecting platform version for ndk-build and CMake:
-//  (1) get the set of ABIs based on compileSdkVersion.
-//  (2) then for each of these ABIs we have decided to build for,
-//      (a) if platforms/android-[min sdk]/arch-[ABI] exists,
-//          then use the min sdk  as platform for that ABI.
-//      (b) else if there exists platforms/android-[platform]/arch-[ABI] such that
-//          platform < min sdk, use max(platform where platform < min sdk).
-//      (c) else use min(platform where platforms/android-[platform]/arch-[ABI]  exists).
-
-//            "-DCMAKE_TOOLCHAIN_FILE=${projectDir}/...../android.toolchain.cmake",
-
-//            "-GAndroid Gradle - Unix Makefiles", // Only to CMake 3.6 from Android NDK.
-//            "-DCMAKE_MAKE_PROGRAM=make",
-
-            // gcc
-//            "-DANDROID_TOOLCHAIN=gcc",
-//            "-DANDROID_STL=gnustl_static",
-
-            "-DNOT_USED_STUB_CMAKE_VAR=OFF"
-      }
-    }
-  }
-  externalNativeBuild {
-    cmake {
-      path = "${rootModulePath}/main/cpp/CMakeLists.txt"
-      // https://google.github.io/android-gradle-dsl/current/com.android.build.gradle.internal.dsl.CmakeOptions.html
-      buildStagingDirectory = "${projectNativeBuildDir}"
-    }
-  }
-
-// TODO:
-//  androidAbis.each { androidAbi ->
-//    task "cleanNative-${androidAbi}"(type: Exec) {
-//      workingDir getWorkDir(androidAbi)
-//      def cmakeCmd = "cmake --build . --target clean"
-//      commandLine getShell(), getShellArg(), "${cmakeCmd}"
-//    }
-//  }
-//  clean.dependsOn androidAbis.collect {
-//    androidAbi -> "cleanNative-${androidAbi}"
-//  }
-}
-
-tasks.all {
-  task ->
-    if (task.name.contains("generateJsonModel")) {
-      task.dependsOn "hostToolsExecutable"
-    }
-}
-
-// Waiting for fix: https://code.google.com/p/android/issues/detail?id=52962
-
-// For Build -- Generate Signed APK:
-// defaultPublishConfig "release" (the default value)
-// buildConfig = android.defaultPublishConfig.toString()
-
-// For Build -- Make Project
-// defaultPublishConfig "release" (the default value)
-// buildConfig = "debug"
-
-// OR (for the debug of the native code)
-// defaultPublishConfig "debug"
-// buildConfig = android.defaultPublishConfig.toString()
-
-//android {
-//  defaultPublishConfig "debug" // uncomment it for the debug of the native code
-//}
-
-//-----------------------------------------------------------------------
-// Copy a native bindings to the java source tree
-//-----------------------------------------------------------------------
-
-//def String buildConfig = android.defaultPublishConfig.toString()
-////def String buildConfig = "debug"
-//def String buildConfigUpper = buildConfig.substring(0, 1).toUpperCase() +
-//    buildConfig.substring(1, buildConfig.length())
-//
-//android {
-////  def String srcJavaDir = "${rootDir}/libname/bindings/java"
-//  def String genSrcJavaDir = "${projectDir}/.externalNativeBuild/cmake/${buildConfig}" +
-//      "/${cmAndroidAbis.get(0)}/libname/libname2/bindings"
-//
-//  task cmCopyJSources(type: Copy) {
-//    description "Copy java files."
-//
-////    from(new File(srcJavaDir)) { include "*.java" }
-//    from(new File(genSrcJavaDir)) { include "*.java" }
-//    into new File("src/main/java/ru/firmname/libname/bindings")
-//  }
-//
-//  cmCopyJSources.dependsOn {
-//    // TODO: set from buildType
-//    // externalNativeBuildDebug is before externalNativeBuildRelease
-//    // if externalNativeBuildDebug is enabled then externalNativeBuildDebug else externalNativeBuildRelease
-//    tasks.findAll {
-//      task -> task.name.contains("externalNativeBuild${buildConfigUpper}")
-//    }
-//  }
-//
-//  task cmMoveJSources(type: Delete, dependsOn: cmCopyJSources) {
-//    delete fileTree(new File(genSrcJavaDir)) { include "*.java" }
-//  }
-//}
-//
-//def String dependedTask = "compile${buildConfigUpper}JavaWithJavac"
-//
-//tasks.all {
-//  task ->
-//    if (task.name.contains(dependedTask)) {
-//// TODO: uncomment it. Copy java files binded to jni
-////      task.dependsOn cmMoveJSources
-//    }
-//}
-
-//-----------------------------------------------------------------------
-// Useful functions
-//-----------------------------------------------------------------------
-
-def getNdkPlatformLevel(abi)
-{
-// API < 14 is deprecated
-  def platform32 = 14
-  def platform64 = 21
-
-  switch (abi) {
-// armeabi is deprecated
-//    case "armeabi":
-//        return platform32
-    case "armeabi-v7a":
-      return platform32
-    case "x86":
-      return platform32
-// mips is deprecated
-//    case "mips":
-//        return platform32
-    default:
-      return platform32
-
-    case "arm64-v8a":
-      return platform64
-    case "x86_64":
-      return platform64
-// mips64 is deprecated
-//    case "mips64":
-//        return platform64
-  }
-}
-
-def getSdkDir()
-{
-  if (System.env.ANDROID_HOME != null) {
-    return System.env.ANDROID_HOME
-  }
-
-  Properties properties = new Properties()
-  properties.load(project.rootProject.file("local.properties").
-      newDataInputStream())
-  def sdkdir = properties.getProperty("sdk.dir", null)
-  if (sdkdir == null) {
-    throw new GradleException("""\
-                SDK location is not found.
-                Define location with sdk.dir in the local.properties file
-                or with an ANDROID_HOME environment variable.""")
-  }
-
-  return sdkdir
-}
-
-def getNdkDir()
-{
-  if (System.env.ANDROID_NDK_ROOT != null) {
-    return System.env.ANDROID_NDK_ROOT
-  }
-
-  Properties properties = new Properties()
-  properties.load(project.rootProject.file("local.properties").
-      newDataInputStream())
-  def ndkdir = properties.getProperty("ndk.dir", null)
-  if (ndkdir == null) {
-    throw new GradleException("""\
-                NDK location is not found.
-                Define location with ndk.dir in the local.properties file
-                or with an ANDROID_NDK_ROOT environment variable.""")
-  }
-
-  return ndkdir
-}
-
-def getCMakeDir()
-{
-  Properties properties = new Properties()
-  properties.load(project.rootProject.file("local.properties").
-      newDataInputStream())
-  def cmakedir = properties.getProperty("cmake.dir", null)
-  if (cmakedir == null) {
-    throw new GradleException("""\
-                CMake location is not found.
-                Define location with cmake.dir in the local.properties file.""")
-  }
-
-  return cmakedir
-}
-
-def getNdkBuildCmd()
-{
-  def ndkbuild = getNdkDir() + "/ndk-build"
-  if (OperatingSystem.current().isWindows()) {
-    ndkbuild += ".cmd"
-  }
-  return ndkbuild
-}
-
-def getCMakeCmd()
-{
-  def cmakecmd = getCMakeDir() + "/bin/cmake"
-  if (OperatingSystem.current().isWindows()) {
-    cmakecmd += ".exe"
-  }
-  return cmakecmd
-}
-
-def getShell()
-{
-  if (OperatingSystem.current().isWindows()) {
-    return "cmd"
-  } else {
-    return "sh"
-  }
-}
-
-def getShellArg()
-{
-  if (OperatingSystem.current().isWindows()) {
-    return "/c"
-  } else {
-    return "-c"
-  }
-}
 
 //-----------------------------------------------------------------------
 // Debug printing
