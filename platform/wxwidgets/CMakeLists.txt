@@ -64,6 +64,10 @@ target_sources(${lib_NAME}
 # Link to the libraries
 #-----------------------------------------------------------------------
 
+if(WX_USE_FIND_PACKAGE_MODULE)
+  find_package(wxWidgets REQUIRED)
+endif()
+
 # HtmlGrapheasKamva
 target_link_libraries(${lib_NAME} PUBLIC hgkamva)
 

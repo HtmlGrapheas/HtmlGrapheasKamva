@@ -23,7 +23,7 @@
 
 # Testing with Google Test.
 if(BUILD_TESTING)
-  include(build_googletest)
+  find_package(GTest REQUIRED)
 
   set(HGKamva_TEST_DIR "${CMAKE_CURRENT_BINARY_DIR}")
   if(MSVC)

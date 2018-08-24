@@ -33,11 +33,6 @@ include(GNUInstallDirs)
 # Set vars to HtmlGrapheasKamva
 #-----------------------------------------------------------------------
 
-# Standard CMake vars.
-#set(BUILD_SHARED_LIBS ON)
-
-# Library specific vars.
-
 
 #-----------------------------------------------------------------------
 # HtmlGrapheasKamva
@@ -93,6 +88,18 @@ target_sources(${lib_NAME}
 #-----------------------------------------------------------------------
 # Link to the libraries
 #-----------------------------------------------------------------------
+
+find_package(Threads REQUIRED)
+if(MSVC)
+  find_package(Dirent REQUIRED)
+endif()
+find_package(STLCache REQUIRED)
+find_package(EXPAT REQUIRED)
+find_package(ICU REQUIRED COMPONENTS i18n uc data)
+find_package(Freetype REQUIRED)
+find_package(HarfBuzz REQUIRED)
+find_package(FontConfig REQUIRED)
+find_package(Agg REQUIRED CONFIG)
 
 # HtmlGrapheas
 target_link_libraries(${lib_NAME} PRIVATE hgraph)
