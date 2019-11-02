@@ -124,19 +124,16 @@ if(BUILD_TESTING)
     target_include_directories(${test_NAME} PRIVATE ${AGG_INCLUDE_DIRS})
     target_link_libraries(${test_NAME} PRIVATE ${AGG_LIBRARY})
 
-    target_include_directories(${test_NAME} PRIVATE ${FONTCONFIG_INCLUDE_DIR})
-    target_link_libraries(${test_NAME} PRIVATE ${FONTCONFIG_LIBRARY})
+    target_link_libraries(${test_NAME} PRIVATE Fontconfig::Fontconfig)
 
     target_link_libraries(${test_NAME} PRIVATE Freetype::Freetype)
 
-    if(FT_WITH_HarfBuzz)
+    if(FT_WITH_HARFBUZZ)
       target_include_directories(${test_NAME} PRIVATE ${HARFBUZZ_INCLUDE_DIR})
       target_link_libraries(${test_NAME} PRIVATE
         ${HARFBUZZ_LIBRARY} Freetype::Freetype
       )
     endif()
-
-    target_link_libraries(${test_NAME} PRIVATE ICU::i18n ICU::uc ICU::data)
 
     target_include_directories(${test_NAME} PRIVATE ${EXPAT_INCLUDE_DIR})
     target_link_libraries(${test_NAME} PRIVATE ${EXPAT_LIBRARY})
@@ -147,6 +144,10 @@ if(BUILD_TESTING)
       ${test_LIBS}
       GTest::GTest GTest::Main
     )
+
+    if(ANDROID AND ANDROID_NATIVE_API_LEVEL LESS 21)
+      target_link_libraries(${test_NAME} PRIVATE android_support)
+    endif()
 
     add_dependencies(${test_NAME}
       clean_test_temp_dir

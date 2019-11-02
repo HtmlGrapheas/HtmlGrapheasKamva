@@ -90,15 +90,16 @@ target_sources(${lib_NAME}
 #-----------------------------------------------------------------------
 
 find_package(Threads REQUIRED)
+find_package(STLCache REQUIRED)
 if(MSVC)
   find_package(Dirent REQUIRED)
 endif()
-find_package(STLCache REQUIRED)
 find_package(EXPAT REQUIRED)
-find_package(ICU REQUIRED COMPONENTS i18n uc data)
 find_package(Freetype REQUIRED)
-find_package(HarfBuzz REQUIRED)
-find_package(FontConfig REQUIRED)
+if(FT_WITH_HARFBUZZ)
+  find_package(HarfBuzz REQUIRED)
+endif()
+find_package(Fontconfig REQUIRED)
 find_package(Agg REQUIRED CONFIG)
 
 # HtmlGrapheas
@@ -109,14 +110,13 @@ target_include_directories(${lib_NAME} PRIVATE ${AGG_INCLUDE_DIRS})
 target_link_libraries(${lib_NAME} PRIVATE ${AGG_LIBRARY})
 
 # FontConfig
-target_include_directories(${lib_NAME} PRIVATE ${FONTCONFIG_INCLUDE_DIR})
-target_link_libraries(${lib_NAME} PRIVATE ${FONTCONFIG_LIBRARY})
+target_link_libraries(${lib_NAME} PRIVATE Fontconfig::Fontconfig)
 
 # FreeType
 target_link_libraries(${lib_NAME} PRIVATE Freetype::Freetype)
 
 # HarfBuzz
-if(FT_WITH_HarfBuzz)
+if(FT_WITH_HARFBUZZ)
   target_include_directories(${lib_NAME} PRIVATE ${HARFBUZZ_INCLUDE_DIR})
   # From <freetype sources>/docs/CHANGES:
   #  Note that HarfBuzz depends on FreeType.
@@ -125,15 +125,17 @@ if(FT_WITH_HarfBuzz)
   )
 endif()
 
-# ICU
-target_link_libraries(${lib_NAME} PRIVATE ICU::i18n ICU::uc ICU::data)
-
 # Expat
 target_include_directories(${lib_NAME} PRIVATE ${EXPAT_INCLUDE_DIR})
 target_link_libraries(${lib_NAME} PRIVATE ${EXPAT_LIBRARY})
 
 # STLCache
 target_include_directories(${lib_NAME} PRIVATE ${STLCACHE_INCLUDE_DIR})
+
+# android_support
+if(ANDROID AND ANDROID_NATIVE_API_LEVEL LESS 21)
+  target_link_libraries(${lib_NAME} PRIVATE android_support)
+endif()
 
 
 #-----------------------------------------------------------------------
