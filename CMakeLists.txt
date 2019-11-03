@@ -34,8 +34,9 @@ include(GNUInstallDirs)
 #-----------------------------------------------------------------------
 
 if(NOT FT_WITH_HARFBUZZ)
-  # Just to verify that FreeType is compiled with HarfBuzz.
-  message(FATAL_ERROR "Please set FT_WITH_HARFBUZZ to ON.")
+  message(FATAL_ERROR
+    "Please set FT_WITH_HARFBUZZ=ON and build FreeType with HarfBuzz."
+  )
 endif()
 
 
