@@ -119,27 +119,33 @@ if(BUILD_TESTING)
       C_STANDARD 11
     )
 
+    # HtmlGrapheas
     target_link_libraries(${test_NAME} PRIVATE hgraph)
 
+    # AGG
     target_include_directories(${test_NAME} PRIVATE ${AGG_INCLUDE_DIRS})
     target_link_libraries(${test_NAME} PRIVATE ${AGG_LIBRARY})
 
+    # FontConfig
     target_link_libraries(${test_NAME} PRIVATE Fontconfig::Fontconfig)
 
+    # FreeType
     target_link_libraries(${test_NAME} PRIVATE Freetype::Freetype)
 
-    if(FT_WITH_HARFBUZZ)
-      target_include_directories(${test_NAME} PRIVATE ${HARFBUZZ_INCLUDE_DIR})
-      target_link_libraries(${test_NAME} PRIVATE
-        ${HARFBUZZ_LIBRARY} Freetype::Freetype
-      )
-    endif()
+    # HarfBuzz
+    target_include_directories(${test_NAME} PRIVATE ${HARFBUZZ_INCLUDE_DIR})
+    target_link_libraries(${test_NAME} PRIVATE
+      ${HARFBUZZ_LIBRARY} Freetype::Freetype
+    )
 
+    # Expat
     target_include_directories(${test_NAME} PRIVATE ${EXPAT_INCLUDE_DIR})
     target_link_libraries(${test_NAME} PRIVATE ${EXPAT_LIBRARY})
 
+    # STLCache
     target_include_directories(${test_NAME} PRIVATE ${STLCACHE_INCLUDE_DIR})
 
+    # android_support
     target_link_libraries(${test_NAME} PRIVATE
       ${test_LIBS}
       GTest::GTest GTest::Main

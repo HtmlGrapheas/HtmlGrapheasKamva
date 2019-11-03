@@ -33,6 +33,11 @@ include(GNUInstallDirs)
 # Set vars to HtmlGrapheasKamva
 #-----------------------------------------------------------------------
 
+if(NOT FT_WITH_HARFBUZZ)
+  # Just to verify that FreeType is compiled with HarfBuzz.
+  message(FATAL_ERROR "Please set FT_WITH_HARFBUZZ to ON.")
+endif()
+
 
 #-----------------------------------------------------------------------
 # HtmlGrapheasKamva
@@ -96,9 +101,7 @@ if(MSVC)
 endif()
 find_package(EXPAT REQUIRED)
 find_package(Freetype REQUIRED)
-if(FT_WITH_HARFBUZZ)
-  find_package(HarfBuzz REQUIRED)
-endif()
+find_package(HarfBuzz REQUIRED)
 find_package(Fontconfig REQUIRED)
 find_package(Agg REQUIRED CONFIG)
 
@@ -116,14 +119,12 @@ target_link_libraries(${lib_NAME} PRIVATE Fontconfig::Fontconfig)
 target_link_libraries(${lib_NAME} PRIVATE Freetype::Freetype)
 
 # HarfBuzz
-if(FT_WITH_HARFBUZZ)
-  target_include_directories(${lib_NAME} PRIVATE ${HARFBUZZ_INCLUDE_DIR})
-  # From <freetype sources>/docs/CHANGES:
-  #  Note that HarfBuzz depends on FreeType.
-  target_link_libraries(${lib_NAME} PRIVATE
-    ${HARFBUZZ_LIBRARY} Freetype::Freetype
-  )
-endif()
+target_include_directories(${lib_NAME} PRIVATE ${HARFBUZZ_INCLUDE_DIR})
+# From <freetype sources>/docs/CHANGES:
+#  Note that HarfBuzz depends on FreeType.
+target_link_libraries(${lib_NAME} PRIVATE
+  ${HARFBUZZ_LIBRARY} Freetype::Freetype
+)
 
 # Expat
 target_include_directories(${lib_NAME} PRIVATE ${EXPAT_INCLUDE_DIR})
