@@ -26,7 +26,8 @@ package ru.htmlgrapheas.htmlgrapheaskamva;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.support.v4.content.AsyncTaskLoader;
+import androidx.loader.content.AsyncTaskLoader;
+
 import ru.htmlgrapheas.htmlgrapheaskamva.hgkamva_api.HgKamvaApiJni;
 
 

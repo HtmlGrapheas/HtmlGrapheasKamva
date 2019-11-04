@@ -116,11 +116,6 @@ public class HgKamvaApiJni
 
         System.loadLibrary("expat");
 
-        System.loadLibrary("icudata");
-        System.loadLibrary("icuuc");
-        System.loadLibrary("icui18n");
-        System.loadLibrary("icuio");  // TODO: needed?
-
         System.loadLibrary("freetype" + libSuffix);
         System.loadLibrary("harfbuzz");
         System.loadLibrary("fontconfig");
