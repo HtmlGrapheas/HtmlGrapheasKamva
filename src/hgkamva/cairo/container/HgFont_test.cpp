@@ -27,10 +27,7 @@
 
 #include "gtest/gtest.h"
 
-#include "agg_pixfmt_rgb.h"
-//#include "agg_pixfmt_rgba.h"
-
-#include "hgkamva/container/HgAggPainter.h"
+#include "hgkamva/cairo/container/HgCairoPainter.h"
 #include "hgkamva/container/HgFontLibrary.h"
 #include "hgkamva/util/FileUtil.h"
 #include "hgkamva/util/StringUtil.h"

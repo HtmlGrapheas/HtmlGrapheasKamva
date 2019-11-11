@@ -26,13 +26,9 @@
 #include <cassert>
 #include <memory>
 
-#include "agg_pixfmt_rgb.h"
-#include "agg_pixfmt_rgba.h"
-
 #include "litehtml.h"
 
 #include "hgkamva/container/HgContainer.h"
-#include "hgkamva/renderer/HgAggHtmlRenderer.h"
 #include "hgkamva/renderer/HgHtmlRenderer.h"
 
 using namespace hg;
@@ -80,36 +76,6 @@ int hgPixelFormatIdToColorBits(enum hgPixelFormatId pixFmtId)
 }
 
 // HgHtmlRenderer methods.
-
-HgHtmlRendererPtr hgNewHtmlRendererRgb24()
-{
-  return new HgAggHtmlRenderer<agg::pixfmt_rgb24>();
-}
-
-HgHtmlRendererPtr hgNewHtmlRendererBgr24()
-{
-  return new HgAggHtmlRenderer<agg::pixfmt_bgr24>();
-}
-
-HgHtmlRendererPtr hgNewHtmlRendererRgba32()
-{
-  return new HgAggHtmlRenderer<agg::pixfmt_rgba32>();
-}
-
-HgHtmlRendererPtr hgNewHtmlRendererBgra32()
-{
-  return new HgAggHtmlRenderer<agg::pixfmt_bgra32>();
-}
-
-HgHtmlRendererPtr hgNewHtmlRendererArgb32()
-{
-  return new HgAggHtmlRenderer<agg::pixfmt_argb32>();
-}
-
-HgHtmlRendererPtr hgNewHtmlRendererAbgr32()
-{
-  return new HgAggHtmlRenderer<agg::pixfmt_abgr32>();
-}
 
 void hgDeleteHtmlRenderer(HgHtmlRendererPtr renderer)
 {

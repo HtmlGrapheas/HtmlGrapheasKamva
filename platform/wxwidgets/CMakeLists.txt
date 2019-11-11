@@ -21,7 +21,14 @@
 #    along with this program. If not, see <http://www.gnu.org/licenses/>.
 # ****************************************************************************
 
-cmake_minimum_required(VERSION 3.4)
+cmake_minimum_required(VERSION 3.8)
+# C++17 compiler:
+#   GCC 8
+#   Clang 8 (Android NDK r19)
+#   Apple Clang 11.0.0, Xcode 11.0
+#   MSVC 19.15, VS 2017 15.8
+# See: https://en.cppreference.com/w/cpp/compiler_support
+
 
 project(HtmlGrapheasKamvaWx CXX)
 set(lib_NAME "hgkamva_wx")
@@ -43,7 +50,7 @@ set(public_src_DIR "${build_src_DIR}${install_src_DIR}")
 
 add_library(${lib_NAME} "")
 set_target_properties(${lib_NAME} PROPERTIES
-  CXX_STANDARD 11
+  CXX_STANDARD 17
   C_STANDARD 11
 )
 # Export HtmlGrapheasKamvaWx include dirs.

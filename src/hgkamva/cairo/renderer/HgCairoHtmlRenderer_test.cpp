@@ -21,12 +21,9 @@
  *    along with this program. If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
 
-#include "hgkamva/renderer/HgAggHtmlRenderer.h"
+#include "hgkamva/renderer/HgCairoHtmlRenderer.h"
 
 #include "gtest/gtest.h"
-
-#include "agg_pixfmt_rgb.h"
-//#include "agg_pixfmt_rgba.h"
 
 #include "hgkamva/util/FileUtil.h"
 
@@ -42,7 +39,7 @@ TEST(HgAggHtmlRenderer, drawHtml)
   const char* dataDir = std::getenv("HGKamva_TEST_DATA_DIR");
   EXPECT_NE(dataDir, nullptr);
 
-  //// AGG init.
+  //// Cairo init.
 
   enum
   {
@@ -64,9 +61,9 @@ TEST(HgAggHtmlRenderer, drawHtml)
 
   //// HtmlGrapheasKamva init.
 
-  hg::HgAggHtmlRenderer<PixelFormat> hgAggHtmlRenderer;
+  hg::HgCairoHtmlRenderer<PixelFormat> hgCairoHtmlRenderer;
   std::shared_ptr<hg::HgContainer> hgContainer =
-      hgAggHtmlRenderer.getHgContainer();
+      hgCairoHtmlRenderer.getHgContainer();
 
   // Load font config.
   std::string fontConfFile = std::string(fontDir) + "/fonts.conf";
@@ -98,7 +95,7 @@ TEST(HgAggHtmlRenderer, drawHtml)
       hg::FileUtil::readFile(std::string(dataDir) + "/" + "master.css");
   EXPECT_GE(masterCss.size(), 0);
 
-  hgAggHtmlRenderer.getHtmlContext()->load_master_stylesheet(masterCss.c_str());
+  hgCairoHtmlRenderer.getHtmlContext()->load_master_stylesheet(masterCss.c_str());
 
   // Create HTML document from UTF8 string.
   std::string htmlText =
@@ -112,20 +109,20 @@ TEST(HgAggHtmlRenderer, drawHtml)
           </body>
         </html>
       )";
-  hgAggHtmlRenderer.createHtmlDocumentFromUtf8(htmlText);
+  hgCairoHtmlRenderer.createHtmlDocumentFromUtf8(htmlText);
 
   // Render HTML document.
-  int bestWidth = hgAggHtmlRenderer.renderHtml(frameWidth, frameHeight);
+  int bestWidth = hgCairoHtmlRenderer.renderHtml(frameWidth, frameHeight);
   EXPECT_GE(bestWidth, 0);
 
   // Set background color.
-  hgAggHtmlRenderer.setBackgroundColor(litehtml::web_color(255, 255, 255));
+  hgCairoHtmlRenderer.setBackgroundColor(litehtml::web_color(255, 255, 255));
 
   // Draw HTML document.
-  hgAggHtmlRenderer.drawHtml(frameBuf, frameWidth, frameHeight, stride, 0, 0);
+  hgCairoHtmlRenderer.drawHtml(frameBuf, frameWidth, frameHeight, stride, 0, 0);
 
   // Write our picture to file.
-  std::string fileName1 = "HgAggHtmlRenderer_1.ppm";
+  std::string fileName1 = "HgCairoHtmlRenderer_1.ppm";
   std::string fileOutTest1 = std::string(testDir) + "/" + fileName1;
   hg::FileUtil::writePpmFile(
       frameBuf, frameWidth, frameHeight, BYTES_PER_PIXEL, fileOutTest1.c_str());

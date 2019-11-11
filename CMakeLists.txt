@@ -21,7 +21,14 @@
 #    along with this program. If not, see <http://www.gnu.org/licenses/>.
 # ****************************************************************************
 
-cmake_minimum_required(VERSION 3.4)
+cmake_minimum_required(VERSION 3.8)
+# C++17 compiler:
+#   GCC 8
+#   Clang 8 (Android NDK r19)
+#   Apple Clang 11.0.0, Xcode 11.0
+#   MSVC 19.15, VS 2017 15.8
+# See: https://en.cppreference.com/w/cpp/compiler_support
+
 
 project(HtmlGrapheasKamva CXX)
 set(lib_NAME "hgkamva")
@@ -56,7 +63,7 @@ set(public_src_DIR "${build_src_DIR}${install_src_DIR}")
 
 add_library(${lib_NAME} "")
 set_target_properties(${lib_NAME} PROPERTIES
-  CXX_STANDARD 11
+  CXX_STANDARD 17
   C_STANDARD 11
 )
 # Export HtmlGrapheasKamva include dirs.
@@ -79,16 +86,33 @@ target_sources(${lib_NAME}
     ${public_src_DIR}/hgkamva/hg_kamva_codes.h
     ${public_src_DIR}/hgkamva/hg_kamva_common.h
 
-    ${public_src_DIR}/hgkamva/container/HgAggPainter.h
     ${public_src_DIR}/hgkamva/container/HgContainer.h
     ${public_src_DIR}/hgkamva/container/HgFont.h
     ${public_src_DIR}/hgkamva/container/HgFontLibrary.h
     ${public_src_DIR}/hgkamva/container/HgPainter.h
-    ${public_src_DIR}/hgkamva/renderer/HgAggHtmlRenderer.h
     ${public_src_DIR}/hgkamva/renderer/HgHtmlRenderer.h
     ${public_src_DIR}/hgkamva/util/FileUtil.h
     ${public_src_DIR}/hgkamva/util/StringUtil.h
 )
+
+if(HG_AGG_CONTAINER)
+  target_sources(${lib_NAME}
+    PRIVATE
+      ${private_src_DIR}/hgkamva/agg/hg_agg_kamva_api.cpp
+    PUBLIC
+      ${public_src_DIR}/hgkamva/agg/container/HgAggPainter.h
+      ${public_src_DIR}/hgkamva/agg/renderer/HgAggHtmlRenderer.h
+  )
+  target_compile_definitions(${lib_NAME} PUBLIC HG_AGG_CONTAINER)
+else()
+  target_sources(${lib_NAME}
+    PRIVATE
+      ${private_src_DIR}/hgkamva/cairo/hg_cairo_kamva_api.cpp
+    PUBLIC
+      ${public_src_DIR}/hgkamva/cairo/container/HgCairoPainter.h
+      ${public_src_DIR}/hgkamva/cairo/renderer/HgCairoHtmlRenderer.h
+  )
+endif()
 
 
 #-----------------------------------------------------------------------
@@ -96,6 +120,8 @@ target_sources(${lib_NAME}
 #-----------------------------------------------------------------------
 
 find_package(Threads REQUIRED)
+find_package(ZLIB REQUIRED)
+find_package(PNG REQUIRED)
 find_package(STLCache REQUIRED)
 if(MSVC)
   find_package(Dirent REQUIRED)
@@ -104,14 +130,26 @@ find_package(EXPAT REQUIRED)
 find_package(Freetype REQUIRED)
 find_package(HarfBuzz REQUIRED)
 find_package(Fontconfig REQUIRED)
-find_package(Agg REQUIRED CONFIG)
+find_package(Pixman REQUIRED)
+find_package(Cairo REQUIRED)
+if(HG_AGG_CONTAINER)
+  find_package(Agg REQUIRED CONFIG)
+endif()
 
 # HtmlGrapheas
 target_link_libraries(${lib_NAME} PRIVATE hgraph)
 
-# AGG
-target_include_directories(${lib_NAME} PRIVATE ${AGG_INCLUDE_DIRS})
-target_link_libraries(${lib_NAME} PRIVATE ${AGG_LIBRARY})
+if(HG_AGG_CONTAINER)
+  # AGG
+  target_include_directories(${lib_NAME} PRIVATE ${AGG_INCLUDE_DIRS})
+  target_link_libraries(${lib_NAME} PRIVATE ${AGG_LIBRARY})
+endif()
+
+# Cairo
+target_link_libraries(${lib_NAME} PRIVATE Cairo::Cairo)
+
+# Pixman
+target_link_libraries(${lib_NAME} PRIVATE Pixman::Pixman)
 
 # FontConfig
 target_link_libraries(${lib_NAME} PRIVATE Fontconfig::Fontconfig)
@@ -133,6 +171,17 @@ target_link_libraries(${lib_NAME} PRIVATE ${EXPAT_LIBRARY})
 
 # STLCache
 target_include_directories(${lib_NAME} PRIVATE ${STLCACHE_INCLUDE_DIR})
+
+# libpng
+target_link_libraries(${lib_NAME} PRIVATE PNG::PNG)
+
+# zlib
+target_link_libraries(${lib_NAME} PRIVATE ZLIB::ZLIB)  # icluded in PNG::PNG
+
+# Threads, pthread
+if(CMAKE_USE_PTHREADS_INIT)
+  target_link_libraries(${lib_NAME} PRIVATE Threads::Threads)
+endif()
 
 # android_support
 if(ANDROID AND ANDROID_NATIVE_API_LEVEL LESS 21)

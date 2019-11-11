@@ -114,13 +114,20 @@ public class HgKamvaApiJni
 
         System.loadLibrary("c++_shared");
 
+        System.loadLibrary("z");
+        System.loadLibrary("png");
         System.loadLibrary("expat");
 
         System.loadLibrary("freetype" + libSuffix);
         System.loadLibrary("harfbuzz");
         System.loadLibrary("fontconfig");
 
-        System.loadLibrary("agg");
+        System.loadLibrary("pixman-1");
+        System.loadLibrary("cairo");
+
+        if (BuildConfig.HG_AGG_CONTAINER) {
+          System.loadLibrary("agg");
+        }
 
         System.loadLibrary("gumbo");
         System.loadLibrary("litehtml");

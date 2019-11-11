@@ -24,7 +24,7 @@
 #ifndef HG_AGG_HTML_RENDERER_H
 #define HG_AGG_HTML_RENDERER_H
 
-#include "hgkamva/container/HgAggPainter.h"
+#include "hgkamva/agg/container/HgAggPainter.h"
 #include "hgkamva/renderer/HgHtmlRenderer.h"
 
 namespace hg

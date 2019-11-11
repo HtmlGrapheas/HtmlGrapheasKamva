@@ -115,16 +115,27 @@ if(BUILD_TESTING)
         ${test_SRC_FILES}
     )
     set_target_properties(${test_NAME} PROPERTIES
-      CXX_STANDARD 11
+      CXX_STANDARD 17
       C_STANDARD 11
     )
 
     # HtmlGrapheas
     target_link_libraries(${test_NAME} PRIVATE hgraph)
 
-    # AGG
-    target_include_directories(${test_NAME} PRIVATE ${AGG_INCLUDE_DIRS})
-    target_link_libraries(${test_NAME} PRIVATE ${AGG_LIBRARY})
+    if(HG_AGG_CONTAINER)
+      # TODO: needed?
+      target_compile_definitions(${test_NAME} PRIVATE HG_AGG_CONTAINER)
+
+      # AGG
+      target_include_directories(${test_NAME} PRIVATE ${AGG_INCLUDE_DIRS})
+      target_link_libraries(${test_NAME} PRIVATE ${AGG_LIBRARY})
+    endif()
+
+    # Cairo
+    target_link_libraries(${test_NAME} PRIVATE Cairo::Cairo)
+
+    # Pixman
+    target_link_libraries(${test_NAME} PRIVATE Pixman::Pixman)
 
     # FontConfig
     target_link_libraries(${test_NAME} PRIVATE Fontconfig::Fontconfig)
@@ -144,6 +155,17 @@ if(BUILD_TESTING)
 
     # STLCache
     target_include_directories(${test_NAME} PRIVATE ${STLCACHE_INCLUDE_DIR})
+
+    # libpng
+    target_link_libraries(${test_NAME} PRIVATE PNG::PNG)
+
+    # zlib
+    target_link_libraries(${test_NAME} PRIVATE ZLIB::ZLIB)  # icluded in PNG::PNG
+
+    # Threads, pthread
+    if(CMAKE_USE_PTHREADS_INIT)
+      target_link_libraries(${test_NAME} PRIVATE Threads::Threads)
+    endif()
 
     # android_support
     target_link_libraries(${test_NAME} PRIVATE
@@ -191,23 +213,43 @@ if(BUILD_TESTING)
     hgkamva
   )
 
-  # HgFont tests.
-  add_hg_test("HgFont_test"
-    ${private_src_DIR}/hgkamva/container/HgFont_test.cpp
-    hgkamva
-  )
+  if(HG_AGG_CONTAINER)
+    # HgFont tests.
+    add_hg_test("HgFont_test"
+      ${private_src_DIR}/hgkamva/agg/container/HgFont_test.cpp
+      hgkamva
+    )
 
-  # HgContainer tests.
-  add_hg_test("HgContainer_test"
-    ${private_src_DIR}/hgkamva/container/HgContainer_test.cpp
-    hgkamva
-  )
+    # HgContainer tests.
+    add_hg_test("HgContainer_test"
+      ${private_src_DIR}/hgkamva/agg/container/HgContainer_test.cpp
+      hgkamva
+    )
 
-  # HgAggHtmlRenderer tests.
-  add_hg_test("HgAggHtmlRenderer_test"
-    ${private_src_DIR}/hgkamva/renderer/HgAggHtmlRenderer_test.cpp
-    hgkamva
-  )
+    # HgAggHtmlRenderer tests.
+    add_hg_test("HgAggHtmlRenderer_test"
+      ${private_src_DIR}/hgkamva/agg/renderer/HgAggHtmlRenderer_test.cpp
+      hgkamva
+    )
+  else()
+    # HgFont tests.
+    add_hg_test("HgFont_test"
+      ${private_src_DIR}/hgkamva/cairo/container/HgFont_test.cpp
+      hgkamva
+    )
+
+    # HgContainer tests.
+    add_hg_test("HgContainer_test"
+      ${private_src_DIR}/hgkamva/cairo/container/HgContainer_test.cpp
+      hgkamva
+    )
+
+    # HgCairoHtmlRenderer tests.
+    add_hg_test("HgCairoHtmlRenderer_test"
+      ${private_src_DIR}/hgkamva/cairo/renderer/HgCairoHtmlRenderer_test.cpp
+      hgkamva
+    )
+  endif()
 
 endif()
 
