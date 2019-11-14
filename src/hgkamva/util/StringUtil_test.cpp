@@ -25,6 +25,24 @@
 
 #include "gtest/gtest.h"
 
+//int main(int argc, char** argv)
+//{
+//  // See:
+//  // https://stackoverflow.com/a/42772814
+//  // https://stackoverflow.com/a/55579815
+//  // https://habr.com/ru/post/343622/
+
+//  // https://stackoverflow.com/questions/4818785/how-to-pass-parameters-to-the-gtest
+//  std::cout << "Running main() from gtest_main.cc dddddd\n";
+//  testing::InitGoogleTest(&argc, argv);
+//  //assert(argc >= 2);
+//  for(int i = 0; i < argc; i++) {
+//    std::cout << i << ":" << argv[i] << "\n";
+//  }
+
+//  return RUN_ALL_TESTS();
+//}
+
 TEST(StringUtilTest, endsWith)
 {
   EXPECT_TRUE(hg::StringUtil::endsWith("The string's ending.", " ending."));

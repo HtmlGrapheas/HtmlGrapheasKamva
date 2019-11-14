@@ -185,20 +185,6 @@ if(BUILD_TESTING)
     )
 
     add_test(NAME ${test_NAME} COMMAND ${test_NAME})
-
-    # https://cmake.org/pipermail/cmake-developers/2013-June/019217.html
-    set_property(TEST ${test_NAME} PROPERTY
-      ENVIRONMENT
-        HGKamva_TEST_DIR=${HGKamva_TEST_DIR}
-    )
-    set_property(TEST ${test_NAME} APPEND PROPERTY
-      ENVIRONMENT
-        HGKamva_TEST_FONT_DIR=${HGKamva_TEST_FONT_DIR}
-    )
-    set_property(TEST ${test_NAME} APPEND PROPERTY
-      ENVIRONMENT
-        HGKamva_TEST_DATA_DIR=${HGKamva_TEST_DATA_DIR}
-    )
   endmacro()
 
   # StringUtil tests.

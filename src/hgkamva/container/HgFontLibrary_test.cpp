@@ -31,17 +31,40 @@
 #include "hgkamva/util/FileUtil.h"
 #include "hgkamva/util/StringUtil.h"
 
+#include <filesystem>
+#include <string>
+
+inline std::filesystem::path testDir;
+inline std::filesystem::path fontDir;
+//inline std::filesystem::path dataDir;
+
+int main(int argc, char** argv)
+{
+  testing::InitGoogleTest(&argc, argv);
+
+  // https://stackoverflow.com/a/55579815
+  // See also:
+  // https://stackoverflow.com/a/42772814
+  // https://habr.com/ru/post/343622/
+  testDir =
+      std::filesystem::absolute(std::filesystem::path(argv[0]).parent_path());
+  fontDir = testDir / "fonts";
+//  dataDir = testDir / "data";
+
+  return RUN_ALL_TESTS();
+}
+
 TEST(HgFontLibraryTest, getFontFilePath)
 {
-  //const char* testDir = std::getenv("HGKamva_TEST_DIR");
-  //EXPECT_TRUE(testDir);
-  const char* fontDir = std::getenv("HGKamva_TEST_FONT_DIR");
-  EXPECT_NE(fontDir, nullptr);
+  EXPECT_TRUE(std::filesystem::exists(testDir));
+  EXPECT_TRUE(std::filesystem::exists(fontDir));
+//  EXPECT_TRUE(std::filesystem::exists(dataDir));
 
   hg::HgFontLibrary hgFontLibrary;
 
-  std::string confFile = std::string(fontDir) + "/fonts.conf";
-  std::string fontConfig = hg::FileUtil::readFile(confFile);
+  std::filesystem::path fontConfFile = fontDir / "fonts.conf";
+  EXPECT_TRUE(std::filesystem::exists(fontConfFile));
+  std::string fontConfig = hg::FileUtil::readFile(fontConfFile);
   EXPECT_GE(fontConfig.size(), 0);
 
   EXPECT_TRUE(hgFontLibrary.parseAndLoadConfigFromMemory(fontConfig, true));

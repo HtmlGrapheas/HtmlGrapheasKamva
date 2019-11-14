@@ -35,18 +35,33 @@
 #include "hgkamva/util/FileUtil.h"
 #include "hgkamva/util/StringUtil.h"
 
+#include <filesystem>
+#include <string>
+
+inline std::filesystem::path testDir;
+inline std::filesystem::path fontDir;
+inline std::filesystem::path dataDir;
+
+int main(int argc, char** argv)
+{
+  testing::InitGoogleTest(&argc, argv);
+
+  // https://stackoverflow.com/a/55579815
+  testDir =
+      std::filesystem::absolute(std::filesystem::path(argv[0]).parent_path());
+  fontDir = testDir / "fonts";
+  dataDir = testDir / "data";
+
+  return RUN_ALL_TESTS();
+}
 
 TEST(HgFontTest, HgFontTest)
 {
   //////// Init part.
 
-  // Get dirs from env vars.
-  const char* testDir = std::getenv("HGKamva_TEST_DIR");
-  EXPECT_NE(testDir, nullptr);
-  const char* fontDir = std::getenv("HGKamva_TEST_FONT_DIR");
-  EXPECT_NE(fontDir, nullptr);
-  const char* dataDir = std::getenv("HGKamva_TEST_DATA_DIR");
-  EXPECT_NE(dataDir, nullptr);
+  EXPECT_TRUE(std::filesystem::exists(testDir));
+  EXPECT_TRUE(std::filesystem::exists(fontDir));
+  EXPECT_TRUE(std::filesystem::exists(dataDir));
 
   //// AGG init.
 
@@ -81,8 +96,9 @@ TEST(HgFontTest, HgFontTest)
   // Init HgFontLibrary.
   hg::HgFontLibrary hgFontLibrary;
 
-  std::string confFile = std::string(fontDir) + "/fonts.conf";
-  std::string fontConfig = hg::FileUtil::readFile(confFile);
+  std::filesystem::path fontConfFile = fontDir / "fonts.conf";
+  EXPECT_TRUE(std::filesystem::exists(fontConfFile));
+  std::string fontConfig = hg::FileUtil::readFile(fontConfFile);
   EXPECT_GE(fontConfig.size(), 0);
 
   EXPECT_TRUE(hgFontLibrary.parseAndLoadConfigFromMemory(fontConfig, true));
@@ -146,12 +162,12 @@ TEST(HgFontTest, HgFontTest)
 
   // Write our picture to file.
   std::string fileName1 = "HgFontTest_1.ppm";
-  std::string fileOutTest1 = std::string(testDir) + "/" + fileName1;
+  std::filesystem::path fileOutTest1 = testDir / fileName1;
   hg::FileUtil::writePpmFile(
       frameBuf, frameWidth, frameHeight, BYTES_PER_PIXEL, fileOutTest1.c_str());
 
   // Compare our file with prototype.
-  std::string fileTest1 = std::string(dataDir) + "/" + fileName1;
+  std::filesystem::path fileTest1 = dataDir / fileName1;
   EXPECT_TRUE(hg::FileUtil::compareFiles(fileTest1, fileOutTest1));
 
   //////// Repeat tests for new text.
@@ -184,12 +200,12 @@ TEST(HgFontTest, HgFontTest)
 
   // Write our picture to file.
   std::string fileName2 = "HgFontTest_2.ppm";
-  std::string fileOutTest2 = std::string(testDir) + "/" + fileName2;
+  std::filesystem::path fileOutTest2 = testDir / fileName2;
   hg::FileUtil::writePpmFile(
       frameBuf, frameWidth, frameHeight, BYTES_PER_PIXEL, fileOutTest2.c_str());
 
   // Compare our file with prototype.
-  std::string fileTest2 = std::string(dataDir) + "/" + fileName2;
+  std::filesystem::path fileTest2 = dataDir / fileName2;
   EXPECT_TRUE(hg::FileUtil::compareFiles(fileTest2, fileOutTest2));
 
   //////// Test HgFont::xHeight().
