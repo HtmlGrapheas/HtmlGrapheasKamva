@@ -21,22 +21,16 @@
  *    along with this program. If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
 
-#include "hgkamva/container/HgFont.h"
-
+#include <filesystem>
 #include <string>
 
 #include "gtest/gtest.h"
 
-#include "agg_pixfmt_rgb.h"
-//#include "agg_pixfmt_rgba.h"
-
-#include "hgkamva/agg/container/HgAggPainter.h"
+#include "hgkamva/container/HgCairoPainter.h"
+#include "hgkamva/container/HgFont.h"
 #include "hgkamva/container/HgFontLibrary.h"
 #include "hgkamva/util/FileUtil.h"
 #include "hgkamva/util/StringUtil.h"
-
-#include <filesystem>
-#include <string>
 
 inline std::filesystem::path testDir;
 inline std::filesystem::path fontDir;

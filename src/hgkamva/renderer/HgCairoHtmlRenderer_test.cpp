@@ -21,14 +21,13 @@
  *    along with this program. If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
 
-#include "hgkamva/renderer/HgCairoHtmlRenderer.h"
+#include <filesystem>
+#include <string>
 
 #include "gtest/gtest.h"
 
+#include "hgkamva/renderer/HgCairoHtmlRenderer.h"
 #include "hgkamva/util/FileUtil.h"
-
-#include <filesystem>
-#include <string>
 
 inline std::filesystem::path testDir;
 inline std::filesystem::path fontDir;

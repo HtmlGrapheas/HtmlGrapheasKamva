@@ -73,9 +73,12 @@ target_sources(${lib_NAME}
   PRIVATE
     ${private_src_DIR}/hgkamva/hg_kamva_api.cpp
 
+    ${private_src_DIR}/hgkamva/container/CairoWrapper.cpp
+    ${private_src_DIR}/hgkamva/container/HgCairoPainter.cpp
     ${private_src_DIR}/hgkamva/container/HgContainer.cpp
     ${private_src_DIR}/hgkamva/container/HgFont.cpp
     ${private_src_DIR}/hgkamva/container/HgFontLibrary.cpp
+    ${private_src_DIR}/hgkamva/renderer/HgCairoHtmlRenderer.cpp
     ${private_src_DIR}/hgkamva/renderer/HgHtmlRenderer.cpp
     ${private_src_DIR}/hgkamva/util/FileUtil.cpp
     ${private_src_DIR}/hgkamva/util/StringUtil.cpp
@@ -86,33 +89,17 @@ target_sources(${lib_NAME}
     ${public_src_DIR}/hgkamva/hg_kamva_codes.h
     ${public_src_DIR}/hgkamva/hg_kamva_common.h
 
+    ${public_src_DIR}/hgkamva/container/CairoWrapper.h
+    ${public_src_DIR}/hgkamva/container/HgCairoPainter.h
     ${public_src_DIR}/hgkamva/container/HgContainer.h
     ${public_src_DIR}/hgkamva/container/HgFont.h
     ${public_src_DIR}/hgkamva/container/HgFontLibrary.h
     ${public_src_DIR}/hgkamva/container/HgPainter.h
+    ${public_src_DIR}/hgkamva/renderer/HgCairoHtmlRenderer.h
     ${public_src_DIR}/hgkamva/renderer/HgHtmlRenderer.h
     ${public_src_DIR}/hgkamva/util/FileUtil.h
     ${public_src_DIR}/hgkamva/util/StringUtil.h
 )
-
-if(HG_AGG_CONTAINER)
-  target_sources(${lib_NAME}
-    PRIVATE
-      ${private_src_DIR}/hgkamva/agg/hg_agg_kamva_api.cpp
-    PUBLIC
-      ${public_src_DIR}/hgkamva/agg/container/HgAggPainter.h
-      ${public_src_DIR}/hgkamva/agg/renderer/HgAggHtmlRenderer.h
-  )
-  target_compile_definitions(${lib_NAME} PUBLIC HG_AGG_CONTAINER)
-else()
-  target_sources(${lib_NAME}
-    PRIVATE
-      ${private_src_DIR}/hgkamva/cairo/hg_cairo_kamva_api.cpp
-    PUBLIC
-      ${public_src_DIR}/hgkamva/cairo/container/HgCairoPainter.h
-      ${public_src_DIR}/hgkamva/cairo/renderer/HgCairoHtmlRenderer.h
-  )
-endif()
 
 
 #-----------------------------------------------------------------------
@@ -132,18 +119,9 @@ find_package(HarfBuzz REQUIRED)
 find_package(Fontconfig REQUIRED)
 find_package(Pixman REQUIRED)
 find_package(Cairo REQUIRED)
-if(HG_AGG_CONTAINER)
-  find_package(Agg REQUIRED CONFIG)
-endif()
 
 # HtmlGrapheas
 target_link_libraries(${lib_NAME} PRIVATE hgraph)
-
-if(HG_AGG_CONTAINER)
-  # AGG
-  target_include_directories(${lib_NAME} PRIVATE ${AGG_INCLUDE_DIRS})
-  target_link_libraries(${lib_NAME} PRIVATE ${AGG_LIBRARY})
-endif()
 
 # Cairo
 target_link_libraries(${lib_NAME} PRIVATE Cairo::Cairo)

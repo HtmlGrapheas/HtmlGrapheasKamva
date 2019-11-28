@@ -21,4 +21,4 @@
  *    along with this program. If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
 
-#include <hgkamva/agg/container/HgAggPainter.h>
+#include <hgkamva/container/HgCairoPainter.h>

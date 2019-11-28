@@ -21,18 +21,15 @@
  *    along with this program. If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
 
-#include "hgkamva/container/HgFontLibrary.h"
-
 #include <cstdlib>
 #include <string>
+#include <filesystem>
 
 #include "gtest/gtest.h"
 
+#include "hgkamva/container/HgFontLibrary.h"
 #include "hgkamva/util/FileUtil.h"
 #include "hgkamva/util/StringUtil.h"
-
-#include <filesystem>
-#include <string>
 
 inline std::filesystem::path testDir;
 inline std::filesystem::path fontDir;

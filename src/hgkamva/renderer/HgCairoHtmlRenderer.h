@@ -21,47 +21,31 @@
  *    along with this program. If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
 
-#include "hgkamva/hg_kamva_api.h"
+#ifndef HG_CAIRO_HTML_RENDERER_H
+#define HG_CAIRO_HTML_RENDERER_H
 
-//#include <cassert>
-//#include <memory>
+#include "hgkamva/container/HgCairoPainter.h"
+#include "hgkamva/renderer/HgHtmlRenderer.h"
 
-//#include "litehtml.h"
-
-//#include "hgkamva/container/HgContainer.h"
-#include "hgkamva/cairo/renderer/HgCairoHtmlRenderer.h"
-//#include "hgkamva/renderer/HgHtmlRenderer.h"
-
-using namespace hg;
-
-// HgHtmlRenderer methods.
-
-HgHtmlRendererPtr hgNewHtmlRendererRgb24()
+namespace hg
 {
-  return new HgAggHtmlRenderer<agg::pixfmt_rgb24>();
+template <typename PixelFormat>
+class HgCairoHtmlRenderer : public HgHtmlRenderer
+{
+public:
+  explicit HgCairoHtmlRenderer();
+  virtual ~HgCairoHtmlRenderer() = default;
+
+private:
+  HgCairoPainter<PixelFormat> mHgCairoPainter;
+};
+
+template <typename PixelFormat>
+HgCairoHtmlRenderer<PixelFormat>::HgCairoHtmlRenderer()
+    : HgHtmlRenderer(&mHgCairoPainter)
+{
 }
 
-HgHtmlRendererPtr hgNewHtmlRendererBgr24()
-{
-  return new HgAggHtmlRenderer<agg::pixfmt_bgr24>();
-}
+}  // namespace hg
 
-HgHtmlRendererPtr hgNewHtmlRendererRgba32()
-{
-  return new HgAggHtmlRenderer<agg::pixfmt_rgba32>();
-}
-
-HgHtmlRendererPtr hgNewHtmlRendererBgra32()
-{
-  return new HgAggHtmlRenderer<agg::pixfmt_bgra32>();
-}
-
-HgHtmlRendererPtr hgNewHtmlRendererArgb32()
-{
-  return new HgAggHtmlRenderer<agg::pixfmt_argb32>();
-}
-
-HgHtmlRendererPtr hgNewHtmlRendererAbgr32()
-{
-  return new HgAggHtmlRenderer<agg::pixfmt_abgr32>();
-}
+#endif  // HG_CAIRO_HTML_RENDERER_H

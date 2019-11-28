@@ -29,6 +29,7 @@
 #include "litehtml.h"
 
 #include "hgkamva/container/HgContainer.h"
+#include "hgkamva/renderer/HgCairoHtmlRenderer.h"
 #include "hgkamva/renderer/HgHtmlRenderer.h"
 
 using namespace hg;
@@ -114,6 +115,37 @@ void hgHtmlRenderer_setBackgroundColor(HgHtmlRendererPtr renderer,
   return getHgHtmlRenderer(renderer)->setBackgroundColor(
       litehtml::web_color(red, green, blue, alpha));
 }
+
+HgHtmlRendererPtr hgNewHtmlRendererRgb24()
+{
+  return new HgAggHtmlRenderer<agg::pixfmt_rgb24>();
+}
+
+HgHtmlRendererPtr hgNewHtmlRendererBgr24()
+{
+  return new HgAggHtmlRenderer<agg::pixfmt_bgr24>();
+}
+
+HgHtmlRendererPtr hgNewHtmlRendererRgba32()
+{
+  return new HgAggHtmlRenderer<agg::pixfmt_rgba32>();
+}
+
+HgHtmlRendererPtr hgNewHtmlRendererBgra32()
+{
+  return new HgAggHtmlRenderer<agg::pixfmt_bgra32>();
+}
+
+HgHtmlRendererPtr hgNewHtmlRendererArgb32()
+{
+  return new HgAggHtmlRenderer<agg::pixfmt_argb32>();
+}
+
+HgHtmlRendererPtr hgNewHtmlRendererAbgr32()
+{
+  return new HgAggHtmlRenderer<agg::pixfmt_abgr32>();
+}
+
 
 // HgContainer methods.
 
