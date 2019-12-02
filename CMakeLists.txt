@@ -73,7 +73,7 @@ target_sources(${lib_NAME}
   PRIVATE
     ${private_src_DIR}/hgkamva/hg_kamva_api.cpp
 
-    ${private_src_DIR}/hgkamva/container/CairoWrapper.cpp
+    ${private_src_DIR}/hgkamva/container/CairoHolder.cpp
     ${private_src_DIR}/hgkamva/container/HgCairoPainter.cpp
     ${private_src_DIR}/hgkamva/container/HgContainer.cpp
     ${private_src_DIR}/hgkamva/container/HgFont.cpp
@@ -89,7 +89,7 @@ target_sources(${lib_NAME}
     ${public_src_DIR}/hgkamva/hg_kamva_codes.h
     ${public_src_DIR}/hgkamva/hg_kamva_common.h
 
-    ${public_src_DIR}/hgkamva/container/CairoWrapper.h
+    ${public_src_DIR}/hgkamva/container/CairoHolder.h
     ${public_src_DIR}/hgkamva/container/HgCairoPainter.h
     ${public_src_DIR}/hgkamva/container/HgContainer.h
     ${public_src_DIR}/hgkamva/container/HgFont.h

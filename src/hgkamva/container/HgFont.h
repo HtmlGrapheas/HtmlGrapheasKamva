@@ -37,75 +37,41 @@
 #include <hb-ft.h>
 #include <hb.h>
 
+#include <cairo/cairo.h>
+
 #include "litehtml.h"
 
 #include <stlcache/stlcache.hpp>
-
-#include "hgkamva/container/HgPainter.h"
 
 namespace hg
 {
 class HgFont
 {
 public:
-  struct TextBbox
-  {
-    int mMinX;
-    int mMaxX;
-    int mMinY;
-    int mMaxY;
-
-    int mBboxW;
-    int mBboxH;
-    int mBaselineShift;
-    int mBaselineOffset;
-  };
-
-  using TextBboxPtr = std::shared_ptr<TextBbox>;
+  using CairoTextExtentsPtr = std::shared_ptr<cairo_text_extents_t>;
 
 private:
-  static constexpr int FT_64 = 64;
-
-  struct FtRasterParamsUser
-  {
-    HgPainter* mHgPainter;
-
-    int mGlyphX;
-    int mGlyphY;
-
-    // Sizing part.
-    int mMinSpanX;
-    int mMaxSpanX;
-    int mMinY;
-    int mMaxY;
-
-    litehtml::web_color mColor;
-  };
-
-  static void blendFtSpanFunc(
-      int y, int count, const FT_Span* spans, void* user);
-  static void sizerFtSpanFunc(
-      int y, int count, const FT_Span* spans, void* user);
+  static constexpr int FT_64_INT = 64;
+  static constexpr double FT_64_DOUBLE = static_cast<double>(FT_64_INT);
 
   using GlyphInfoArray = std::vector<hb_glyph_info_t>;
   using GlyphInfoArrayPtr = std::shared_ptr<GlyphInfoArray>;
   using GlyphPositionArray = std::vector<hb_glyph_position_t>;
   using GlyphPositionArrayPtr = std::shared_ptr<GlyphPositionArray>;
+  using CairoGlyphArray = std::vector<cairo_glyph_t>;
+  using CairoGlyphArrayPtr = std::shared_ptr<CairoGlyphArray>;
 
   struct HbLaoutCacheItem
   {
-    explicit HbLaoutCacheItem(unsigned int glyphCount,
-        GlyphInfoArrayPtr glyphInfo,
-        GlyphPositionArrayPtr glyphPos)
-        : mGlyphCount(glyphCount)
-        , mGlyphInfo(glyphInfo)
-        , mGlyphPos(glyphPos)
+    explicit HbLaoutCacheItem(
+        CairoGlyphArrayPtr cairoGlyph, CairoTextExtentsPtr cairoTextExtents)
+        : mCairoGlyph{cairoGlyph}
+        , mCairoTextExtents{cairoTextExtents}
     {
     }
 
-    unsigned int mGlyphCount;
-    GlyphInfoArrayPtr mGlyphInfo;
-    GlyphPositionArrayPtr mGlyphPos;
+    CairoGlyphArrayPtr mCairoGlyph;
+    CairoTextExtentsPtr mCairoTextExtents;
     // TODO:
     //hb_direction_t mDirection;
     //hb_script_t mScript;
@@ -116,15 +82,11 @@ private:
   using HbLaoutCache =
       stlcache::cache<std::string, HbLaoutCacheItemPtr, stlcache::policy_lru>;
 
-  using TextBboxCache =
-      stlcache::cache<std::string, TextBboxPtr, stlcache::policy_lru>;
-
-  using TextRenderCache =
-      stlcache::cache<std::string, HgPainterPtr, stlcache::policy_lru>;
-
 public:
   explicit HgFont() = delete;
-  explicit HgFont(FT_Library ftLibrary, int textCacheSize = 1000);
+
+  explicit HgFont(
+      cairo_t* cairoContext, FT_Library ftLibrary, int textCacheSize = 1000);
   ~HgFont();
 
   bool createFtFace(const std::string& fontFilePath, int pixelSize);
@@ -136,17 +98,14 @@ public:
   void setScript(hb_script_t script);
   void setLanguage(const std::string& language);
 
-  TextBboxPtr getBbox(const std::string& text);
-  void drawText(const std::string& text,
-      HgPainter* hgPainter,
-      int x,
-      int y,
-      const litehtml::web_color& color);
+  hg::HgFont::CairoTextExtentsPtr getTextExtents(const std::string& text);
+  void drawText(
+      const std::string& text, int x, int y, const litehtml::web_color& color);
 
   int forceUcs2Charmap(FT_Face ftf);
 
   const FT_Face ftFace() const { return mFtFace; }
-  FT_F26Dot6 xHeight() const;
+  double xHeight();
 
   static FT_F26Dot6 intToF26Dot6(int pixelSize);
   static int f26Dot6ToInt(FT_F26Dot6 f26Dot6Pixels);
@@ -157,25 +116,26 @@ private:
 private:
   FT_Library mFtLibrary;
   FT_Face mFtFace;
-  FT_Raster_Params mFtRasterParams;
-  FtRasterParamsUser mFtRasterParamsUser;
 
   hb_buffer_t* mHbBuffer;
   hb_font_t* mHbFont;
 
-  std::shared_ptr<HbLaoutCache> mHbLaoutCache;
-  std::shared_ptr<TextBboxCache> mTextBboxCache;
-  std::shared_ptr<TextRenderCache> mTextRenderCache;
+  cairo_t* mCairoContext;
+  cairo_font_face_t* mCairoFontFace;
+  cairo_scaled_font_t* mCairoScaledFont;
 
+  std::shared_ptr<HbLaoutCache> mHbLaoutCache;
+
+public:
   // TODO: get size, strikeout and underline from FT structs if possible,
   // TODO: remove it here.
-public:
   void setPixelSize(int pixelSize) { mPixelSize = pixelSize; }
   void setUnderline(bool underline) { mUnderline = underline; }
   void setStrikeout(bool strikeout) { mStrikeout = strikeout; }
   int pixelSize() { return mPixelSize; }
   bool underline() { return mUnderline; }
   bool strikeout() { return mStrikeout; }
+
 private:
   int mPixelSize;
   bool mStrikeout;
@@ -184,12 +144,12 @@ private:
 
 inline FT_F26Dot6 HgFont::intToF26Dot6(int pixelSize)
 {
-  return static_cast<FT_Long>(pixelSize) * FT_64;
+  return static_cast<FT_Long>(pixelSize) * FT_64_INT;
 }
 
 inline int HgFont::f26Dot6ToInt(FT_F26Dot6 f26Dot6Pixels)
 {
-  return static_cast<int>(f26Dot6Pixels / FT_64);
+  return static_cast<int>(f26Dot6Pixels / FT_64_INT);
 }
 
 }  // namespace hg

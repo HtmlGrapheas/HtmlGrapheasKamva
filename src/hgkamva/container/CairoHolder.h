@@ -1,16 +1,19 @@
 #ifndef CAIROWRAPPER_HPP
 #define CAIROWRAPPER_HPP
 
-#include <cairo.h>
+#include <cairo/cairo.h>
 
-class CairoWrapper
+class CairoHolder
 {
 public:
-  explicit CairoWrapper(unsigned char* buffer,
+  CairoHolder() = delete;
+
+  explicit CairoHolder(unsigned char* buffer,
+      cairo_format_t colorFormat,
       unsigned int width,
       unsigned int height,
       int stride);
-  ~CairoWrapper();
+  ~CairoHolder();
 
   cairo_surface_t* getSurface() { return mSurface; }
   cairo_t* getContext() { return mContext; };
