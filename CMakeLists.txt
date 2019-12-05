@@ -73,15 +73,13 @@ target_sources(${lib_NAME}
   PRIVATE
     ${private_src_DIR}/hgkamva/hg_kamva_api.cpp
 
-    ${private_src_DIR}/hgkamva/container/CairoHolder.cpp
-    ${private_src_DIR}/hgkamva/container/HgCairoPainter.cpp
+    ${private_src_DIR}/hgkamva/container/HgCairo.cpp
     ${private_src_DIR}/hgkamva/container/HgContainer.cpp
     ${private_src_DIR}/hgkamva/container/HgFont.cpp
     ${private_src_DIR}/hgkamva/container/HgFontLibrary.cpp
     ${private_src_DIR}/hgkamva/renderer/HgCairoHtmlRenderer.cpp
     ${private_src_DIR}/hgkamva/renderer/HgHtmlRenderer.cpp
     ${private_src_DIR}/hgkamva/util/FileUtil.cpp
-    ${private_src_DIR}/hgkamva/util/StringUtil.cpp
 
   PUBLIC
     # TODO: all are public?
@@ -89,8 +87,7 @@ target_sources(${lib_NAME}
     ${public_src_DIR}/hgkamva/hg_kamva_codes.h
     ${public_src_DIR}/hgkamva/hg_kamva_common.h
 
-    ${public_src_DIR}/hgkamva/container/CairoHolder.h
-    ${public_src_DIR}/hgkamva/container/HgCairoPainter.h
+    ${public_src_DIR}/hgkamva/container/HgCairo.h
     ${public_src_DIR}/hgkamva/container/HgContainer.h
     ${public_src_DIR}/hgkamva/container/HgFont.h
     ${public_src_DIR}/hgkamva/container/HgFontLibrary.h

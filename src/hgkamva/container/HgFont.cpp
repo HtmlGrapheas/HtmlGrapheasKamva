@@ -28,73 +28,51 @@
 #include <limits>
 #include <stdexcept>
 
-#include <cairo/cairo-ft.h>
-
 namespace hg
 {
-HgFont::HgFont(cairo_t* cairoContext, FT_Library ftLibrary, int textCacheSize)
+HgFont::HgFont(HgCairoPtr cairo, FtLibraryPtr ftLibrary, int textCacheSize)
     : mFtLibrary{ftLibrary}
-    , mFtFace{nullptr}
-    , mHbBuffer{hb_buffer_create()}
-    , mHbFont{nullptr}
-    , mCairoContext{cairoContext}
-    , mCairoFontFace{nullptr}
-    , mCairoScaledFont{nullptr}
-    , mHbLaoutCache{std::make_shared<HbLaoutCache>(textCacheSize)}
+    , mHbBuffer{hb_buffer_create(), hb_buffer_destroy}
+    , mCairo{cairo}
+    , mTextLayoutCache{std::make_shared<TextLayoutCache>(textCacheSize)}
     , mPixelSize{10}
     , mStrikeout{false}
     , mUnderline{false}
+    , mxHeight{0.0}
 {
 }
 
-HgFont::~HgFont()
-{
-  destroyFtFace();
-  hb_buffer_destroy(mHbBuffer);
-}
+HgFont::~HgFont() {}
 
-bool HgFont::createFtFace(const std::string& fontFilePath, int pixelSize)
+bool HgFont::createFtFace(
+    const std::filesystem::path& fontFilePath, int pixelSize)
 {
-  // px = pt * DPI / 72
+  // NOTE: px = pt * DPI / 72
   mPixelSize = pixelSize;
 
-  if(!destroyFtFace()) {
-    throw std::logic_error("!destroyFtFace()");
-  }
-
-  if(FT_New_Face(mFtLibrary, fontFilePath.c_str(), 0, &mFtFace) != FT_Err_Ok) {
+  FT_Face ftFace;
+  if(FT_New_Face(mFtLibrary.get(), fontFilePath.c_str(), 0, &ftFace)
+      != FT_Err_Ok) {
     throw std::logic_error("FT_New_Face() != FT_Err_Ok");
   }
+  mFtFace = {ftFace, FT_Done_Face};
 
-  //  if(FT_Set_Pixel_Sizes(mFtFace, 0, mPixelSize) != FT_Err_Ok) {
+  //  if(FT_Set_Pixel_Sizes(mFtFace.get(), 0, mPixelSize) != FT_Err_Ok) {
   //    throw std::logic_error("FT_Set_Pixel_Sizes() != FT_Err_Ok");
   //  }
 
   // We ignore encoding.
-  if(forceUcs2Charmap(mFtFace) != FT_Err_Ok) {
+  if(forceUcs2Charmap(mFtFace.get()) != FT_Err_Ok) {
     throw std::logic_error("forceUcs2Charmap() != FT_Err_Ok");
   }
 
-  if(!(mHbFont = hb_ft_font_create(mFtFace, nullptr))) {
+  mHbFont = {hb_ft_font_create(mFtFace.get(), nullptr), hb_font_destroy};
+  if(!mHbFont) {
     throw std::logic_error("hb_ft_font_create() returns nullptr");
   }
 
-  if(!(mCairoFontFace =
-             cairo_ft_font_face_create_for_ft_face(mFtFace, FT_LOAD_DEFAULT))) {
-    throw std::logic_error(
-        "cairo_ft_font_face_create_for_ft_face() returns nullptr");
-  }
-
-  cairo_save(mCairoContext);
-  cairo_set_font_face(mCairoContext, mCairoFontFace);
-  cairo_set_font_size(mCairoContext, mPixelSize);
-  mCairoScaledFont =
-      cairo_scaled_font_reference(cairo_get_scaled_font(mCairoContext));
-  cairo_restore(mCairoContext);
-  if(cairo_scaled_font_status(mCairoScaledFont) != CAIRO_STATUS_SUCCESS) {
-    throw std::logic_error(
-        "cairo_scaled_font_status() != CAIRO_STATUS_SUCCESS");
-  }
+  mCairoFontFace = mCairo->getFontFace(mFtFace.get(), FT_LOAD_DEFAULT);
+  mCairoScaledFont = mCairo->getScaledFont(mCairoFontFace, mPixelSize);
 
   //    mFtRasterParams.flags = FT_RASTER_FLAG_DIRECT | FT_RASTER_FLAG_AA;
   return true;
@@ -108,6 +86,7 @@ bool HgFont::createFtFace(const std::string& fontFilePath, int pixelSize)
 //    Freetype will select on face load (it promises most wide
 //    unicode, and if that will be slower that UCS-2 - left as
 //    an excercise to check.
+// static
 int HgFont::forceUcs2Charmap(FT_Face ftf)
 {
   for(int i = 0; i < ftf->num_charmaps; i++) {
@@ -121,140 +100,113 @@ int HgFont::forceUcs2Charmap(FT_Face ftf)
   return FT_Err_Invalid_Argument;
 }
 
-bool HgFont::destroyFtFace()
-{
-  if(mCairoScaledFont) {
-    cairo_scaled_font_destroy(mCairoScaledFont);
-    mCairoScaledFont = nullptr;
-  }
-  if(mCairoFontFace) {
-    cairo_font_face_destroy(mCairoFontFace);
-    mCairoFontFace = nullptr;
-  }
-
-  if(mHbFont) {
-    hb_font_destroy(mHbFont);
-    mHbFont = nullptr;
-  }
-  if(mFtFace) {
-    FT_Done_Face(mFtFace);
-    mFtFace = nullptr;
-  }
-  return true;
-}
-
 void HgFont::resetBuffer()
 {
-  hb_buffer_reset(mHbBuffer);
+  hb_buffer_reset(mHbBuffer.get());
 }
 
 void HgFont::clearBuffer()
 {
   // Clean up the buffer, but don't kill it just yet.
-  hb_buffer_clear_contents(mHbBuffer);
+  hb_buffer_clear_contents(mHbBuffer.get());
 }
 
 void HgFont::setDirection(hb_direction_t direction)
 {
   // NOTE: see also hb_script_get_horizontal_direction()
-  hb_buffer_set_direction(mHbBuffer, direction);
+  hb_buffer_set_direction(mHbBuffer.get(), direction);
 }
 
 void HgFont::setScript(hb_script_t script)
 {
-  hb_buffer_set_script(mHbBuffer, script);  // see hb-unicode.h
+  hb_buffer_set_script(mHbBuffer.get(), script);  // see hb-unicode.h
 }
 
 void HgFont::setLanguage(const std::string& language)
 {
   // For ISO 639 Code see
   // http://www.loc.gov/standards/iso639-2/php/code_list.php
-  hb_buffer_set_language(
-      mHbBuffer, hb_language_from_string(language.c_str(), language.size()));
+  hb_buffer_set_language(mHbBuffer.get(),
+      hb_language_from_string(language.c_str(), language.size()));
 }
 
-typename HgFont::HbLaoutCacheItemPtr HgFont::layoutText(const std::string& text)
+typename HgFont::TextLayoutPtr HgFont::getTextLayout(const std::string& text)
 {
   // TODO: check buffer state.
 
-  if(mHbLaoutCache->check(text)) {
-    return mHbLaoutCache->fetch(text);
+  if(mTextLayoutCache->check(text)) {
+    return mTextLayoutCache->fetch(text);
   }
 
   // Layout the text
-  hb_buffer_add_utf8(mHbBuffer, text.c_str(), text.size(), 0, text.size());
-  hb_shape(mHbFont, mHbBuffer, nullptr, 0);
+  hb_buffer_add_utf8(
+      mHbBuffer.get(), text.c_str(), text.size(), 0, text.size());
+  hb_shape(mHbFont.get(), mHbBuffer.get(), nullptr, 0);
 
   unsigned int glyphCount;
   hb_glyph_info_t* glyphInfo =
-      hb_buffer_get_glyph_infos(mHbBuffer, &glyphCount);
+      hb_buffer_get_glyph_infos(mHbBuffer.get(), &glyphCount);
   hb_glyph_position_t* glyphPos =
-      hb_buffer_get_glyph_positions(mHbBuffer, &glyphCount);
+      hb_buffer_get_glyph_positions(mHbBuffer.get(), &glyphCount);
 
-  CairoGlyphArrayPtr cairoGlyphArray =
-      std::make_shared<CairoGlyphArray>(glyphCount);
+  HgCairo::GlyphVectorPtr glyphs =
+      std::make_shared<HgCairo::GlyphVector>(glyphCount);
   double x = 0;
   double y = 0;
   for(unsigned int i = 0; i < glyphCount; ++i) {
-    (*cairoGlyphArray)[i].index = glyphInfo[i].codepoint;
-    (*cairoGlyphArray)[i].x =
+    (*glyphs)[i].index = glyphInfo[i].codepoint;
+    (*glyphs)[i].x =
         x + (static_cast<double>(glyphPos[i].x_offset) / FT_64_DOUBLE);
-    (*cairoGlyphArray)[i].y =
+    (*glyphs)[i].y =
         y - (static_cast<double>(glyphPos[i].y_offset) / FT_64_DOUBLE);
     x += static_cast<double>(glyphPos[i].x_advance) / FT_64_DOUBLE;
     y -= static_cast<double>(glyphPos[i].y_advance) / FT_64_DOUBLE;
   }
 
-  CairoTextExtentsPtr cairoTextExtents =
+  HgCairo::TextExtentsPtr textExtents =
       std::make_shared<cairo_text_extents_t>();
-  cairo_scaled_font_glyph_extents(mCairoScaledFont, cairoGlyphArray->data(),
-      glyphCount, cairoTextExtents.get());
+  cairo_scaled_font_glyph_extents(
+      mCairoScaledFont.get(), glyphs->data(), glyphCount, textExtents.get());
 
-  HbLaoutCacheItemPtr hbLaoutCacheItem =
-      std::make_shared<HbLaoutCacheItem>(cairoGlyphArray, cairoTextExtents);
-
-  mHbLaoutCache->insert(text, hbLaoutCacheItem);
-  return hbLaoutCacheItem;
+  TextLayoutPtr textLayout = std::make_shared<TextLayout>(glyphs, textExtents);
+  mTextLayoutCache->insert(text, textLayout);
+  return textLayout;
 }
 
-hg::HgFont::CairoTextExtentsPtr HgFont::getTextExtents(const std::string& text)
+HgCairo::FontExtentsPtr HgFont::getScaledFontExtents()
 {
-  return layoutText(text)->mCairoTextExtents;
-}
-
-void HgFont::drawText(
-    const std::string& text, int x, int y, const litehtml::web_color& color)
-{
-  HbLaoutCacheItemPtr hbLayoutInfo = layoutText(text);
-
-  // Move glyphs to position (x, y)
-  CairoGlyphArray glyphs{*(hbLayoutInfo->mCairoGlyph)};
-  for(unsigned int i = 0, size = glyphs.size(); i < size; ++i) {
-    glyphs[i].x += x;
-    glyphs[i].y += y;
+  if(mScaledFontExtents) {
+    return mScaledFontExtents;
   }
+  mScaledFontExtents = std::make_shared<cairo_font_extents_t>(
+      mCairo->getScaledFontExtents(mCairoScaledFont));
+  return mScaledFontExtents;
+}
 
-  cairo_save(mCairoContext);
-  cairo_set_source_rgba(mCairoContext, color.red / 255.0, color.green / 255.0,
-      color.blue / 255.0, color.alpha / 255.0);
-  cairo_set_scaled_font(mCairoContext, mCairoScaledFont);
-  // NOTE: See also: cairo_show_text_glyphs(), cairo_glyph_path()
-  cairo_show_glyphs(mCairoContext, glyphs.data(), glyphs.size());
-  cairo_restore(mCairoContext);
+HgCairo::TextExtentsPtr HgFont::getTextExtents(const std::string& text)
+{
+  return getTextLayout(text)->mExtents;
+}
+
+void HgFont::drawText(const std::string& text,
+    double x,
+    double y,
+    const litehtml::web_color& color)
+{
+  TextLayoutPtr textLayout = getTextLayout(text);
+  HgCairo::Color col{color.red / 255.0, color.green / 255.0, color.blue / 255.0,
+      color.alpha / 255.0};
+  mCairo->showGlyphs(
+      *textLayout->mGlyphs, mCairoScaledFont, x, y, *textLayout->mExtents, col);
 }
 
 double HgFont::xHeight()
 {
-  cairo_save(mCairoContext);
-
-  cairo_set_font_face(mCairoContext, mCairoFontFace);
-  cairo_set_font_size(mCairoContext, mPixelSize);
-  cairo_text_extents_t tex;
-  cairo_text_extents(mCairoContext, "x", &tex);
-
-  cairo_restore(mCairoContext);
-
-  return tex.height;
+  if(mxHeight > 0) {
+    return mxHeight;
+  }
+  mxHeight = mCairo->xHeight(mCairoScaledFont);
+  return mxHeight;
 }
 
 }  // namespace hg

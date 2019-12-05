@@ -25,6 +25,7 @@
 #define HG_FONT_LIBRARY_H
 
 #include <cstdint>
+#include <filesystem>
 #include <string>
 
 #include <fontconfig/fontconfig.h>
@@ -36,6 +37,10 @@
 
 namespace hg
 {
+using FcConfigPtr = std::shared_ptr<FcConfig>;
+using FcPatternPtr = std::shared_ptr<FcPattern>;
+using FtLibraryPtr = std::shared_ptr<FT_LibraryRec_>;
+
 class HgFontLibrary
 {
 public:
@@ -48,26 +53,29 @@ public:
     notMatchedWeight = 1 << 3,
   };
 
+  // TODO: Copy/move constructors/operators.
   explicit HgFontLibrary();
   ~HgFontLibrary();
 
-  bool parseAndLoadConfigFromMemory(const std::string& fontConfig, bool complain);
-  bool addFontDir(const std::string& dirPath);
+  bool parseAndLoadConfigFromMemory(
+      const std::string& fontConfig, bool complain);
+  bool addFontDir(const std::filesystem::path& dirPath);
 
-  std::string getFontFilePath(const std::string& names,
+  std::filesystem::path getFontFilePath(const std::string& names,
       int pixelSize,
       int weight,
       litehtml::font_style fontStyle,
       uint_least8_t* result) const;
 
-  FT_Library ftLibrary() { return mFtLibrary; }
+  FtLibraryPtr ftLibrary() { return mFtLibrary; }
+
 private:
   int weightToFcWeight(int weigh) const;
   int fontStyleToFcSlant(litehtml::font_style fontStyle) const;
 
 private:
-  FcConfig* mFcConfig;
-  FT_Library mFtLibrary;
+  FcConfigPtr mFcConfig;
+  FtLibraryPtr mFtLibrary;
 };  // class HgFontLibrary
 
 inline int HgFontLibrary::weightToFcWeight(int weight) const

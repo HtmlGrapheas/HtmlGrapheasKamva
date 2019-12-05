@@ -22,13 +22,15 @@
  ****************************************************************************/
 
 #include <filesystem>
+#include <memory>
 #include <string>
+#include <vector>
 
 #include <cairo/cairo.h>
 
 #include "gtest/gtest.h"
 
-#include "hgkamva/container/CairoHolder.h"
+#include "hgkamva/container/HgCairo.h"
 #include "hgkamva/container/HgFont.h"
 #include "hgkamva/container/HgFontLibrary.h"
 #include "hgkamva/util/FileUtil.h"
@@ -67,26 +69,17 @@ TEST(HgFontTest, HgFontTest)
     BYTES_PER_PIXEL = 4
   };
 
-  cairo_format_t colorFormat = CAIRO_FORMAT_ARGB32;
-  int frameWidth = 250;
-  int frameHeight = 50;
+  const cairo_format_t colorFormat = CAIRO_FORMAT_ARGB32;
+  const int frameWidth = 250;
+  const int frameHeight = 50;
   //int stride = frameWidth * BYTES_PER_PIXEL;
-  int stride = cairo_format_stride_for_width(colorFormat, frameWidth);
+  const int stride = cairo_format_stride_for_width(colorFormat, frameWidth);
 
-  unsigned char* frameBuf = new unsigned char[stride * frameHeight];
-  EXPECT_NE(frameBuf, nullptr);
+  std::vector<unsigned char> frameBuf(stride * frameHeight);
 
-  CairoHolder cairoWrapper(
-      frameBuf, colorFormat, frameWidth, frameHeight, stride);
-
-  // TODO: use it
-  litehtml::web_color backgroundColor(0, 0, 0);
-
-  cairo_save(cairoWrapper.getContext());
-  cairo_set_source_rgba(cairoWrapper.getContext(), 0, 0, 0, 1);
-  cairo_set_operator(cairoWrapper.getContext(), CAIRO_OPERATOR_SOURCE);
-  cairo_paint(cairoWrapper.getContext());
-  cairo_restore(cairoWrapper.getContext());
+  hg::HgCairoPtr cairo = std::make_shared<hg::HgCairo>(
+      frameBuf.data(), colorFormat, frameWidth, frameHeight, stride);
+  cairo->clear(hg::HgCairo::Color{0, 0, 0, 1});
 
   //// HtmlGrapheasKamva init.
 
@@ -95,26 +88,26 @@ TEST(HgFontTest, HgFontTest)
 
   std::filesystem::path fontConfFile = fontDir / "fonts.conf";
   EXPECT_TRUE(std::filesystem::exists(fontConfFile));
-  std::string fontConfig = hg::FileUtil::readFile(fontConfFile);
-  EXPECT_GE(fontConfig.size(), 0);
+  std::string fontConfig = hg::util::readFile(fontConfFile);
+  EXPECT_FALSE(fontConfig.empty());
 
   EXPECT_TRUE(hgFontLibrary.parseAndLoadConfigFromMemory(fontConfig, true));
 
   EXPECT_TRUE(hgFontLibrary.addFontDir(fontDir));
 
-  // px = pt * DPI / 72
+  // NOTE: px = pt * DPI / 72
   int pixelSize = 16;
   int weight = 400;
   litehtml::font_style fontStyle = litehtml::font_style::fontStyleNormal;
 
   uint_least8_t result;
-  std::string filePath = hgFontLibrary.getFontFilePath(
+  std::filesystem::path filePath = hgFontLibrary.getFontFilePath(
       "Tinos", pixelSize, weight, fontStyle, &result);
   EXPECT_EQ(hg::HgFontLibrary::FontMatches::allMatched, result);
-  EXPECT_TRUE(hg::StringUtil::endsWith(filePath, "Tinos-Regular.ttf"));
+  EXPECT_TRUE(filePath.filename() == "Tinos-Regular.ttf");
 
   // Create HgFont with HgFontLibrary.
-  hg::HgFont hgFont(cairoWrapper.getContext(), hgFontLibrary.ftLibrary(), 1000);
+  hg::HgFont hgFont(cairo, hgFontLibrary.ftLibrary(), 1000);
 
   //////// Test HgFont::createFtFace().
 
@@ -132,7 +125,7 @@ TEST(HgFontTest, HgFontTest)
 
   //////// Test HgFont::getBbox().
 
-  hg::HgFont::CairoTextExtentsPtr extents = hgFont.getTextExtents(text);
+  hg::HgCairo::TextExtentsPtr extents = hgFont.getTextExtents(text);
   EXPECT_DOUBLE_EQ(extents->x_bearing, 0);
   EXPECT_DOUBLE_EQ(extents->y_bearing, -11);
   EXPECT_DOUBLE_EQ(extents->width, 159.765625);
@@ -143,13 +136,9 @@ TEST(HgFontTest, HgFontTest)
   //////// Test HgFont::drawText().
 
   // Set text position.
-  // TODO: Maybe use Cairo's methods.
-  FT_Size ftSize = hgFont.ftFace()->size;
   int x = 10;
-  //int ascender = hg::HgFont::f26Dot6ToInt(ftSize->metrics.ascender);
-  //int y = 10 + ascender;
-  int descent = hg::HgFont::f26Dot6ToInt(ftSize->metrics.descender);
-  int y = frameHeight - 10 + descent;
+  //int y = 10 + hgFont.getScaledFontExtents()->ascent;
+  int y = frameHeight - 10 - hgFont.getScaledFontExtents()->descent;
 
   // Set text color.
   litehtml::web_color color(128, 128, 128, 255);
@@ -160,12 +149,12 @@ TEST(HgFontTest, HgFontTest)
   // Write our picture to file.
   std::string fileName1 = "HgFontTest_1.ppm";
   std::filesystem::path fileOutTest1 = testDir / fileName1;
-  hg::FileUtil::writePpmFile(
-      frameBuf, frameWidth, frameHeight, BYTES_PER_PIXEL, fileOutTest1.c_str());
+  hg::util::writePpmFile(
+      frameBuf.data(), frameWidth, frameHeight, BYTES_PER_PIXEL, fileOutTest1);
 
   // Compare our file with prototype.
   std::filesystem::path fileTest1 = dataDir / fileName1;
-  EXPECT_TRUE(hg::FileUtil::compareFiles(fileTest1, fileOutTest1));
+  EXPECT_TRUE(hg::util::compareFiles(fileTest1, fileOutTest1));
 
   //////// Repeat tests for new text.
 
@@ -173,12 +162,7 @@ TEST(HgFontTest, HgFontTest)
 
   // Make cleaning before new text.
   hgFont.clearBuffer();
-
-  cairo_save(cairoWrapper.getContext());
-  cairo_set_source_rgba(cairoWrapper.getContext(), 0, 0, 0, 0);
-  cairo_set_operator(cairoWrapper.getContext(), CAIRO_OPERATOR_SOURCE);
-  cairo_paint(cairoWrapper.getContext());
-  cairo_restore(cairoWrapper.getContext());
+  cairo->clear(hg::HgCairo::Color{0, 0, 0, 1});
 
   // Set HarfBuzz params.
   hgFont.setDirection(HB_DIRECTION_LTR);
@@ -200,19 +184,14 @@ TEST(HgFontTest, HgFontTest)
   // Write our picture to file.
   std::string fileName2 = "HgFontTest_2.ppm";
   std::filesystem::path fileOutTest2 = testDir / fileName2;
-  hg::FileUtil::writePpmFile(
-      frameBuf, frameWidth, frameHeight, BYTES_PER_PIXEL, fileOutTest2.c_str());
+  hg::util::writePpmFile(frameBuf.data(), frameWidth, frameHeight,
+      BYTES_PER_PIXEL, fileOutTest2.c_str());
 
   // Compare our file with prototype.
   std::filesystem::path fileTest2 = dataDir / fileName2;
-  EXPECT_TRUE(hg::FileUtil::compareFiles(fileTest2, fileOutTest2));
+  EXPECT_TRUE(hg::util::compareFiles(fileTest2, fileOutTest2));
 
   //////// Test HgFont::xHeight().
 
   EXPECT_DOUBLE_EQ(hgFont.xHeight(), 8.0);
-
-  //////// Deinit part.
-
-  EXPECT_TRUE(hgFont.destroyFtFace());
-  delete[] frameBuf;
 }

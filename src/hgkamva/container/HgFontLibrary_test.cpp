@@ -22,8 +22,8 @@
  ****************************************************************************/
 
 #include <cstdlib>
-#include <string>
 #include <filesystem>
+#include <string>
 
 #include "gtest/gtest.h"
 
@@ -46,7 +46,7 @@ int main(int argc, char** argv)
   testDir =
       std::filesystem::absolute(std::filesystem::path(argv[0]).parent_path());
   fontDir = testDir / "fonts";
-//  dataDir = testDir / "data";
+  //  dataDir = testDir / "data";
 
   return RUN_ALL_TESTS();
 }
@@ -55,39 +55,39 @@ TEST(HgFontLibraryTest, getFontFilePath)
 {
   EXPECT_TRUE(std::filesystem::exists(testDir));
   EXPECT_TRUE(std::filesystem::exists(fontDir));
-//  EXPECT_TRUE(std::filesystem::exists(dataDir));
+  //  EXPECT_TRUE(std::filesystem::exists(dataDir));
 
   hg::HgFontLibrary hgFontLibrary;
 
   std::filesystem::path fontConfFile = fontDir / "fonts.conf";
   EXPECT_TRUE(std::filesystem::exists(fontConfFile));
-  std::string fontConfig = hg::FileUtil::readFile(fontConfFile);
-  EXPECT_GE(fontConfig.size(), 0);
+  std::string fontConfig = hg::util::readFile(fontConfFile);
+  EXPECT_FALSE(fontConfig.empty());
 
   EXPECT_TRUE(hgFontLibrary.parseAndLoadConfigFromMemory(fontConfig, true));
 
   EXPECT_TRUE(hgFontLibrary.addFontDir(fontDir));
 
   uint_least8_t result;
-  std::string filePath;
+  std::filesystem::path filePath;
 
   filePath = hgFontLibrary.getFontFilePath("Some Unknown Font, Tinos", 16, 400,
       litehtml::font_style::fontStyleNormal, &result);
   EXPECT_EQ(hg::HgFontLibrary::FontMatches::allMatched, result);
-  EXPECT_TRUE(hg::StringUtil::endsWith(filePath, "Tinos-Regular.ttf"));
+  EXPECT_TRUE(filePath.filename() == "Tinos-Regular.ttf");
 
   filePath = hgFontLibrary.getFontFilePath("Some Unknown Font, Tinos", 16, 400,
       litehtml::font_style::fontStyleItalic, &result);
   EXPECT_EQ(hg::HgFontLibrary::FontMatches::allMatched, result);
-  EXPECT_TRUE(hg::StringUtil::endsWith(filePath, "Tinos-Italic.ttf"));
+  EXPECT_TRUE(filePath.filename() == "Tinos-Italic.ttf");
 
   filePath = hgFontLibrary.getFontFilePath("Some Unknown Font, Tinos", 16, 700,
       litehtml::font_style::fontStyleNormal, &result);
   EXPECT_EQ(hg::HgFontLibrary::FontMatches::allMatched, result);
-  EXPECT_TRUE(hg::StringUtil::endsWith(filePath, "Tinos-Bold.ttf"));
+  EXPECT_TRUE(filePath.filename() == "Tinos-Bold.ttf");
 
   filePath = hgFontLibrary.getFontFilePath("Some Unknown Font, Tinos", 16, 700,
       litehtml::font_style::fontStyleItalic, &result);
   EXPECT_EQ(hg::HgFontLibrary::FontMatches::allMatched, result);
-  EXPECT_TRUE(hg::StringUtil::endsWith(filePath, "Tinos-BoldItalic.ttf"));
+  EXPECT_TRUE(filePath.filename() == "Tinos-BoldItalic.ttf");
 }
