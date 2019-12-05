@@ -7,10 +7,10 @@
 namespace hg
 {
 HgCairo::HgCairo(unsigned char* buffer,
-    cairo_format_t colorFormat,
-    unsigned int width,
-    unsigned int height,
-    int stride)
+    const cairo_format_t colorFormat,
+    const unsigned int width,
+    const unsigned int height,
+    const int stride)
 {
   mSurface = {cairo_image_surface_create_for_data(
                   buffer, colorFormat, width, height, stride),
@@ -34,7 +34,7 @@ void HgCairo::clear(const Color& color)
 }
 
 // static
-HgCairo::FontFacePtr HgCairo::getFontFace(FT_Face ftFace, int ftLoadFlags)
+HgCairo::FontFacePtr HgCairo::getFontFace(const FT_Face ftFace, const int ftLoadFlags)
 {
   FontFacePtr fontFacePtr{
       cairo_ft_font_face_create_for_ft_face(ftFace, ftLoadFlags),
@@ -55,14 +55,6 @@ HgCairo::ScaledFontPtr HgCairo::getScaledFont(
   cairo_restore(mContext.get());
   checkStatus(cairo_scaled_font_status, scaledFont.get());
   return scaledFont;
-}
-
-// static
-cairo_font_extents_t HgCairo::getScaledFontExtents(ScaledFontPtr scaledFont)
-{
-  cairo_font_extents_t extents;
-  cairo_scaled_font_extents(scaledFont.get(), &extents);
-  return extents;
 }
 
 void HgCairo::showGlyphs(const GlyphVector& glyphs,

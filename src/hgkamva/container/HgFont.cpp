@@ -30,10 +30,11 @@
 
 namespace hg
 {
-HgFont::HgFont(HgCairoPtr cairo, FtLibraryPtr ftLibrary, int textCacheSize)
+HgFont::HgFont(HgCairoPtr cairo, FtLibraryPtr ftLibrary, const int textCacheSize)
     : mFtLibrary{ftLibrary}
     , mHbBuffer{hb_buffer_create(), hb_buffer_destroy}
     , mCairo{cairo}
+    , mScaledFontExtents{0.0, 0.0, 0.0, 0.0, 0.0}
     , mTextLayoutCache{std::make_shared<TextLayoutCache>(textCacheSize)}
     , mPixelSize{10}
     , mStrikeout{false}
@@ -45,7 +46,7 @@ HgFont::HgFont(HgCairoPtr cairo, FtLibraryPtr ftLibrary, int textCacheSize)
 HgFont::~HgFont() {}
 
 bool HgFont::createFtFace(
-    const std::filesystem::path& fontFilePath, int pixelSize)
+    const std::filesystem::path& fontFilePath, const int pixelSize)
 {
   // NOTE: px = pt * DPI / 72
   mPixelSize = pixelSize;
@@ -111,13 +112,13 @@ void HgFont::clearBuffer()
   hb_buffer_clear_contents(mHbBuffer.get());
 }
 
-void HgFont::setDirection(hb_direction_t direction)
+void HgFont::setDirection(const hb_direction_t direction)
 {
   // NOTE: see also hb_script_get_horizontal_direction()
   hb_buffer_set_direction(mHbBuffer.get(), direction);
 }
 
-void HgFont::setScript(hb_script_t script)
+void HgFont::setScript(const hb_script_t script)
 {
   hb_buffer_set_script(mHbBuffer.get(), script);  // see hb-unicode.h
 }
@@ -173,13 +174,12 @@ typename HgFont::TextLayoutPtr HgFont::getTextLayout(const std::string& text)
   return textLayout;
 }
 
-HgCairo::FontExtentsPtr HgFont::getScaledFontExtents()
+const cairo_font_extents_t& HgFont::getScaledFontExtents()
 {
-  if(mScaledFontExtents) {
+  if(mScaledFontExtents.height > 0) {
     return mScaledFontExtents;
   }
-  mScaledFontExtents = std::make_shared<cairo_font_extents_t>(
-      mCairo->getScaledFontExtents(mCairoScaledFont));
+  cairo_scaled_font_extents(mCairoScaledFont.get(), &mScaledFontExtents);
   return mScaledFontExtents;
 }
 
@@ -189,8 +189,8 @@ HgCairo::TextExtentsPtr HgFont::getTextExtents(const std::string& text)
 }
 
 void HgFont::drawText(const std::string& text,
-    double x,
-    double y,
+    const double x,
+    const double y,
     const litehtml::web_color& color)
 {
   TextLayoutPtr textLayout = getTextLayout(text);

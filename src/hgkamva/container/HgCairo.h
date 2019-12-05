@@ -31,10 +31,10 @@ public:
   struct Color
   {
     explicit Color()
-        : mRed{0}
-        , mGreen{0}
-        , mBlue{0}
-        , mAlpha{1}
+        : mRed{0.0}
+        , mGreen{0.0}
+        , mBlue{0.0}
+        , mAlpha{1.0}
     {
     }
 
@@ -59,10 +59,10 @@ public:
 
   // TODO: Copy/move constructors/operators.
   explicit HgCairo(unsigned char* buffer,
-      cairo_format_t colorFormat,
-      unsigned int width,
-      unsigned int height,
-      int stride);
+      const cairo_format_t colorFormat,
+      const unsigned int width,
+      const unsigned int height,
+      const int stride);
   ~HgCairo();
 
   //  cairo_surface_t* getSurface() { return mSurface; }
@@ -70,9 +70,8 @@ public:
 
   void clear(const Color& color = Color{});
 
-  static FontFacePtr getFontFace(FT_Face ftFace, int ftLoadFlags);
+  static FontFacePtr getFontFace(const FT_Face ftFace, const int ftLoadFlags);
   ScaledFontPtr getScaledFont(const FontFacePtr fontFace, const int pixelSize);
-  static cairo_font_extents_t getScaledFontExtents(ScaledFontPtr scaledFont);
   void showGlyphs(const GlyphVector& glyphs,
       const ScaledFontPtr scaledFont,
       const double x,
@@ -83,10 +82,10 @@ public:
 
 private:
   template <typename StatusFunc, typename... Args>
-  static void checkStatus(StatusFunc statusFunc, Args&&... args);
+  static void checkStatus(const StatusFunc statusFunc, Args&&... args);
 
   template <typename Ptr>
-  static void checkPtrStatus(Ptr ptr);
+  static void checkPtrStatus(const Ptr ptr);
 
   SurfacePtr mSurface;
   ContextPtr mContext;
@@ -94,7 +93,7 @@ private:
 
 // static
 template <typename StatusFunc, typename... Args>
-inline void HgCairo::checkStatus(StatusFunc statusFunc, Args&&... args)
+inline void HgCairo::checkStatus(const StatusFunc statusFunc, Args&&... args)
 {
   cairo_status_t status = statusFunc(std::forward<Args>(args)...);
   if(status != CAIRO_STATUS_SUCCESS) {
@@ -106,7 +105,7 @@ inline void HgCairo::checkStatus(StatusFunc statusFunc, Args&&... args)
 
 // static
 template <typename Ptr>
-inline void HgCairo::checkPtrStatus(Ptr ptr)
+inline void HgCairo::checkPtrStatus(const Ptr ptr)
 {
   if(!ptr) {
     std::string msg = "Cairo's status: ";

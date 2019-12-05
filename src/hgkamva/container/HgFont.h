@@ -52,22 +52,22 @@ public:
 
   // TODO: Copy/move constructors/operators.
   explicit HgFont(
-      HgCairoPtr cairo, FtLibraryPtr ftLibrary, int textCacheSize = 1000);
+      HgCairoPtr cairo, FtLibraryPtr ftLibrary, const int textCacheSize = 1000);
   ~HgFont();
 
-  bool createFtFace(const std::filesystem::path& fontFilePath, int pixelSize);
+  bool createFtFace(const std::filesystem::path& fontFilePath, const int pixelSize);
 
   void resetBuffer();
   void clearBuffer();
-  void setDirection(hb_direction_t direction);
-  void setScript(hb_script_t script);
+  void setDirection(const hb_direction_t direction);
+  void setScript(const hb_script_t script);
   void setLanguage(const std::string& language);
 
-  HgCairo::FontExtentsPtr getScaledFontExtents();
+  const cairo_font_extents_t& getScaledFontExtents();
   HgCairo::TextExtentsPtr getTextExtents(const std::string& text);
   void drawText(const std::string& text,
-      double x,
-      double y,
+      const double x,
+      const double y,
       const litehtml::web_color& color);
 
   double xHeight();
@@ -126,7 +126,7 @@ private:
   HgCairoPtr mCairo;
   HgCairo::FontFacePtr mCairoFontFace;
   HgCairo::ScaledFontPtr mCairoScaledFont;
-  HgCairo::FontExtentsPtr mScaledFontExtents;
+  cairo_font_extents_t mScaledFontExtents;
 
   TextLayoutCachePtr mTextLayoutCache;
 
@@ -136,11 +136,13 @@ private:
   double mxHeight;
 };  // class HgFont
 
+// static
 inline FT_F26Dot6 HgFont::intToF26Dot6(int pixelSize)
 {
   return static_cast<FT_Long>(pixelSize) * FT_64_INT;
 }
 
+// static
 inline int HgFont::f26Dot6ToInt(FT_F26Dot6 f26Dot6Pixels)
 {
   return static_cast<int>(f26Dot6Pixels / FT_64_INT);

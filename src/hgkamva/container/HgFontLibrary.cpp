@@ -36,7 +36,7 @@ HgFontLibrary::HgFontLibrary()
 HgFontLibrary::~HgFontLibrary() {}
 
 bool HgFontLibrary::parseAndLoadConfigFromMemory(
-    const std::string& fontConfig, bool complain)
+    const std::string& fontConfig, const bool complain)
 {
   const FcChar8* config = reinterpret_cast<const FcChar8*>(fontConfig.c_str());
   return FcConfigParseAndLoadFromMemory(mFcConfig.get(), config, complain)
@@ -50,9 +50,9 @@ bool HgFontLibrary::addFontDir(const std::filesystem::path& dirPath)
 }
 
 std::filesystem::path HgFontLibrary::getFontFilePath(const std::string& names,
-    int pixelSize,
-    int weight,
-    litehtml::font_style fontStyle,
+    const int pixelSize,
+    const int weight,
+    const litehtml::font_style fontStyle,
     uint_least8_t* result) const
 {
   std::filesystem::path ret;

@@ -137,8 +137,8 @@ TEST(HgFontTest, HgFontTest)
 
   // Set text position.
   int x = 10;
-  //int y = 10 + hgFont.getScaledFontExtents()->ascent;
-  int y = frameHeight - 10 - hgFont.getScaledFontExtents()->descent;
+  //int y = 10 + hgFont.getScaledFontExtents().ascent;
+  int y = frameHeight - 10 - hgFont.getScaledFontExtents().descent;
 
   // Set text color.
   litehtml::web_color color(128, 128, 128, 255);

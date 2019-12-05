@@ -58,27 +58,27 @@ public:
   ~HgFontLibrary();
 
   bool parseAndLoadConfigFromMemory(
-      const std::string& fontConfig, bool complain);
+      const std::string& fontConfig, const bool complain);
   bool addFontDir(const std::filesystem::path& dirPath);
 
   std::filesystem::path getFontFilePath(const std::string& names,
-      int pixelSize,
-      int weight,
-      litehtml::font_style fontStyle,
+      const int pixelSize,
+      const int weight,
+      const litehtml::font_style fontStyle,
       uint_least8_t* result) const;
 
   FtLibraryPtr ftLibrary() { return mFtLibrary; }
 
 private:
-  int weightToFcWeight(int weigh) const;
-  int fontStyleToFcSlant(litehtml::font_style fontStyle) const;
+  int weightToFcWeight(const int weigh) const;
+  int fontStyleToFcSlant(const litehtml::font_style fontStyle) const;
 
 private:
   FcConfigPtr mFcConfig;
   FtLibraryPtr mFtLibrary;
 };  // class HgFontLibrary
 
-inline int HgFontLibrary::weightToFcWeight(int weight) const
+inline int HgFontLibrary::weightToFcWeight(const int weight) const
 {
   if(weight >= 0 && weight < 150)
     return FC_WEIGHT_THIN;
@@ -103,7 +103,7 @@ inline int HgFontLibrary::weightToFcWeight(int weight) const
 }
 
 inline int HgFontLibrary::fontStyleToFcSlant(
-    litehtml::font_style fontStyle) const
+    const litehtml::font_style fontStyle) const
 {
   switch(fontStyle) {
     case litehtml::fontStyleItalic:
