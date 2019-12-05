@@ -28,22 +28,17 @@
 
 namespace hg
 {
-class StringUtil
+namespace util
 {
-public:
-  static bool endsWith(std::string const& value, std::string const& ending);
-};
-
 // https://stackoverflow.com/a/2072890
-// static
-inline bool StringUtil::endsWith(
-    std::string const& value, std::string const& ending)
+inline bool stringEndsWith(std::string const& value, std::string const& ending)
 {
   if(ending.size() > value.size())
     return false;
   return std::equal(ending.rbegin(), ending.rend(), value.rbegin());
 }
 
+}  // namespace util
 }  // namespace hg
 
 #endif  // HG_STRING_UTIL_H

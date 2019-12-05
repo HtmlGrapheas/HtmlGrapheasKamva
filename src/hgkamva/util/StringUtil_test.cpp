@@ -45,6 +45,6 @@
 
 TEST(StringUtilTest, endsWith)
 {
-  EXPECT_TRUE(hg::StringUtil::endsWith("The string's ending.", " ending."));
-  EXPECT_FALSE(hg::StringUtil::endsWith("The string's ending.", " begin."));
+  EXPECT_TRUE(hg::util::stringEndsWith("The string's ending.", " ending."));
+  EXPECT_FALSE(hg::util::stringEndsWith("The string's ending.", " begin."));
 }
