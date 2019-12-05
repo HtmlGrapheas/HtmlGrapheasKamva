@@ -32,22 +32,23 @@
 
 namespace hg
 {
+namespace util
+{
 // Writing the buffer to a .PPM file, assuming it has RGB-structure, one byte
 // per color component.
 // http://www.antigrain.com/doc/basic_renderers/basic_renderers.agdoc.html
-// static
-bool FileUtil::writePpmFile(const unsigned char* buf,
+bool writePpmFile(const unsigned char* buf,
     unsigned width,
     unsigned height,
     unsigned bytePerPixel,
-    const char* file_name)
+    const std::filesystem::path& fileName)
 {
-  FILE* fd = fopen(file_name, "wb");
+  FILE* fd = fopen(fileName.c_str(), "wb");
   if(fd) {
     fprintf(fd, "P6 %d %d 255 ", width, height);
 
-    unsigned size = width * height * bytePerPixel;
-    for (int i = 0; i < size; i += bytePerPixel) {
+    unsigned int size = width * height * bytePerPixel;
+    for(unsigned int i = 0; i < size; i += bytePerPixel) {
       fwrite(buf + i, 1, 3, fd);
     }
 
@@ -58,9 +59,8 @@ bool FileUtil::writePpmFile(const unsigned char* buf,
 }
 
 //https://stackoverflow.com/a/37575457
-// static
-bool FileUtil::compareFiles(
-    const std::string& filePath1, const std::string& filePath2)
+bool compareFiles(const std::filesystem::path& filePath1,
+    const std::filesystem::path& filePath2)
 {
   std::ifstream f1(filePath1, std::ifstream::binary | std::ifstream::ate);
   std::ifstream f2(filePath2, std::ifstream::binary | std::ifstream::ate);
@@ -83,11 +83,9 @@ bool FileUtil::compareFiles(
 
 // https://stackoverflow.com/a/525103
 // https://stackoverflow.com/a/43009155
-// static
-std::string FileUtil::readFile(const std::string& fileName)
+std::string readFile(const std::filesystem::path& fileName)
 {
-  std::ifstream ifs(
-      fileName.c_str(), std::ios::in | std::ios::binary | std::ios::ate);
+  std::ifstream ifs(fileName, std::ios::in | std::ios::binary | std::ios::ate);
 
   std::ifstream::pos_type fileSize = ifs.tellg();
   if(fileSize < 0)
@@ -100,4 +98,5 @@ std::string FileUtil::readFile(const std::string& fileName)
   return std::string(&bytes[0], fileSize);
 }
 
+}  // namespace util
 }  // namespace hg

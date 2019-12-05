@@ -24,25 +24,25 @@
 #ifndef HG_FILEUTIL_H
 #define HG_FILEUTIL_H
 
+#include <filesystem>
 #include <string>
 
 namespace hg
 {
-class FileUtil
+namespace util
 {
-public:
-  static bool writePpmFile(const unsigned char* buf,
-      unsigned width,
-      unsigned height,
-      unsigned bytePerPixel,
-      const char* file_name);
+bool writePpmFile(const unsigned char* buf,
+    unsigned width,
+    unsigned height,
+    unsigned bytePerPixel,
+    const std::filesystem::path& fileName);
 
-  static bool compareFiles(
-      const std::string& filePath1, const std::string& filePath2);
+bool compareFiles(const std::filesystem::path& filePath1,
+    const std::filesystem::path& filePath2);
 
-  static std::string readFile(const std::string& fileName);
-};
+std::string readFile(const std::filesystem::path& fileName);
 
+}  // namespace util
 }  // namespace hg
 
 #endif  // HG_FILEUTIL_H
