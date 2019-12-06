@@ -24,24 +24,26 @@
 #ifndef HG_CONTAINER_H
 #define HG_CONTAINER_H
 
+#include <filesystem>
 #include <memory>
 #include <string>
 
 #include "litehtml.h"
 
+#include "hgkamva/container/HgCairo.h"
+#include "hgkamva/container/HgFontLibrary.h"
+
 namespace hg
 {
-class HgFontLibrary;
-
 class HgContainer : public litehtml::document_container
 {
 public:
-  explicit HgContainer();
+  explicit HgContainer(HgCairoPtr cairo);
   virtual ~HgContainer() = default;
 
   bool parseAndLoadFontConfigFromMemory(
       const std::string& fontConfig, bool complain);
-  bool addFontDir(const std::string& dirPath);
+  bool addFontDir(const std::filesystem::path& dirPath);
   void setDefaultFontName(const std::string& name);
   void setDefaultFontSize(int size);
   void setFontTextCacheSize(int size);
@@ -122,7 +124,8 @@ public:
   //    const litehtml::tstring& color) const override;
 
 private:
-  std::shared_ptr<HgFontLibrary> mHgFontLibrary;
+  HgCairoPtr mCairo;
+  HgFontLibraryPtr mHgFontLibrary;
 
   std::string mFontDefaultName;
   int mDefaultFontSize;

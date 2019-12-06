@@ -45,6 +45,10 @@
 
 namespace hg
 {
+class HgFont;
+
+using HgFontPtr = std::shared_ptr<HgFont>;
+
 class HgFont
 {
 public:

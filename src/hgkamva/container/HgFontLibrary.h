@@ -37,6 +37,10 @@
 
 namespace hg
 {
+class HgFontLibrary;
+
+using HgFontLibraryPtr = std::shared_ptr<HgFontLibrary>;
+
 using FcConfigPtr = std::shared_ptr<FcConfig>;
 using FcPatternPtr = std::shared_ptr<FcPattern>;
 using FtLibraryPtr = std::shared_ptr<FT_LibraryRec_>;

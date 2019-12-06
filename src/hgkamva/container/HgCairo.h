@@ -70,6 +70,13 @@ public:
 
   void clear(const Color& color = Color{});
 
+  void drawLine(const double x1,
+      const double y1,
+      const double x2,
+      const double y2,
+      const double width,
+      const Color& color = Color{});
+
   static FontFacePtr getFontFace(const FT_Face ftFace, const int ftLoadFlags);
   ScaledFontPtr getScaledFont(const FontFacePtr fontFace, const int pixelSize);
   void showGlyphs(const GlyphVector& glyphs,

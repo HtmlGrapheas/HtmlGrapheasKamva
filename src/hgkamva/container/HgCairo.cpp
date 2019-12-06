@@ -23,7 +23,7 @@ HgCairo::HgCairo(unsigned char* buffer,
 
 HgCairo::~HgCairo() {}
 
-void HgCairo::clear(const Color& color)
+void HgCairo::clear(const Color& color /*= Color{}*/)
 {
   cairo_save(mContext.get());
   cairo_set_source_rgba(
@@ -33,8 +33,24 @@ void HgCairo::clear(const Color& color)
   cairo_restore(mContext.get());
 }
 
+void HgCairo::drawLine(const double x1,
+    const double y1,
+    const double x2,
+    const double y2,
+    const double width,
+    const Color& color /*= Color{}*/)
+{
+  cairo_set_source_rgba(
+      mContext.get(), color.mRed, color.mGreen, color.mBlue, color.mAlpha);
+  cairo_move_to(mContext.get(), x1, y1);
+  cairo_line_to(mContext.get(), x2, y2);
+  cairo_set_line_width(mContext.get(), width);
+  cairo_stroke(mContext.get());
+}
+
 // static
-HgCairo::FontFacePtr HgCairo::getFontFace(const FT_Face ftFace, const int ftLoadFlags)
+HgCairo::FontFacePtr HgCairo::getFontFace(
+    const FT_Face ftFace, const int ftLoadFlags)
 {
   FontFacePtr fontFacePtr{
       cairo_ft_font_face_create_for_ft_face(ftFace, ftLoadFlags),

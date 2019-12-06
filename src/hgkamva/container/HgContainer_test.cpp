@@ -26,7 +26,7 @@
 
 #include "gtest/gtest.h"
 
-#include "hgkamva/container/HgCairoPainter.h"
+#include "hgkamva/container/HgCairo.h"
 #include "hgkamva/container/HgContainer.h"
 #include "hgkamva/util/FileUtil.h"
 
@@ -52,13 +52,35 @@ TEST(HgContainerTest, create_font)
   EXPECT_TRUE(std::filesystem::exists(testDir));
   EXPECT_TRUE(std::filesystem::exists(fontDir));
 
+  //// Cairo init.
+
+  enum
+  {
+    //BYTES_PER_PIXEL = 3
+    BYTES_PER_PIXEL = 4
+  };
+
+  const cairo_format_t colorFormat = CAIRO_FORMAT_ARGB32;
+  const unsigned int frameWidth = 250;
+  const unsigned int frameHeight = 50;
+  //const int stride = frameWidth * BYTES_PER_PIXEL;
+  const int stride = cairo_format_stride_for_width(colorFormat, frameWidth);
+
+  std::vector<unsigned char> frameBuf(stride * frameHeight);
+
+  hg::HgCairoPtr cairo = std::make_shared<hg::HgCairo>(
+      frameBuf.data(), colorFormat, frameWidth, frameHeight, stride);
+  cairo->clear(hg::HgCairo::Color{0, 0, 0, 1});
+
+  ////
+
   std::filesystem::path fontConfFile = fontDir / "fonts.conf";
   EXPECT_TRUE(std::filesystem::exists(fontConfFile));
-  std::string fontConfig = hg::FileUtil::readFile(fontConfFile.string());
-  EXPECT_GE(fontConfig.size(), 0);
+  std::string fontConfig = hg::util::readFile(fontConfFile);
+  EXPECT_FALSE(fontConfig.empty());
 
   litehtml::font_metrics fm;
-  hg::HgContainer container;
+  hg::HgContainer container{cairo};
   container.setFontTextCacheSize(1000);
   EXPECT_TRUE(container.parseAndLoadFontConfigFromMemory(fontConfig, true));
   EXPECT_TRUE(container.addFontDir(fontDir));
@@ -72,8 +94,8 @@ TEST(HgContainerTest, create_font)
   EXPECT_EQ(fm.x_height, 8);
   EXPECT_FALSE(fm.draw_spaces);
 
-  EXPECT_EQ(container.text_width("This is some english text", hFont), 155);
-  EXPECT_EQ(container.text_width("some english", hFont), 82);
+  EXPECT_EQ(container.text_width("This is some english text", hFont), 158);
+  EXPECT_EQ(container.text_width("some english", hFont), 84);
 
   container.delete_font(hFont);
 }
@@ -86,36 +108,30 @@ TEST(HgContainerTest, draw_text)
   EXPECT_TRUE(std::filesystem::exists(fontDir));
   EXPECT_TRUE(std::filesystem::exists(dataDir));
 
-  //// AGG init.
+  //// Cairo init.
 
   enum
   {
-    BYTES_PER_PIXEL = 3
-    //BYTES_PER_PIXEL = 4
+    //BYTES_PER_PIXEL = 3
+    BYTES_PER_PIXEL = 4
   };
 
-  // The AGG pixel format.
-  using PixelFormat = agg::pixfmt_rgb24;
-  //using PixelFormat = agg::pixfmt_rgba32;
+  const cairo_format_t colorFormat = CAIRO_FORMAT_ARGB32;
+  const unsigned int frameWidth = 250;
+  const unsigned int frameHeight = 50;
+  //const int stride = frameWidth * BYTES_PER_PIXEL;
+  const int stride = cairo_format_stride_for_width(colorFormat, frameWidth);
 
-  unsigned int frameWidth = 250;
-  unsigned int frameHeight = 50;
-  int stride = frameWidth * BYTES_PER_PIXEL;
+  std::vector<unsigned char> frameBuf(stride * frameHeight);
 
-  unsigned char* frameBuf = new unsigned char[stride * frameHeight];
-  EXPECT_NE(frameBuf, nullptr);
-
-  hg::HgAggPainter<PixelFormat> hgAggPainter;
-  hgAggPainter.attach(frameBuf, frameWidth, frameHeight, stride);
-
-  litehtml::web_color backgroundColor(0, 0, 0);
-  hgAggPainter.setPaintColor(backgroundColor);
-  hgAggPainter.clear();
+  hg::HgCairoPtr cairo = std::make_shared<hg::HgCairo>(
+      frameBuf.data(), colorFormat, frameWidth, frameHeight, stride);
+  cairo->clear(hg::HgCairo::Color{0, 0, 0, 1});
 
   //// HtmlGrapheasKamva init.
 
   litehtml::font_metrics fm;
-  hg::HgContainer container;
+  hg::HgContainer container{cairo};
   container.setFontTextCacheSize(1000);
   EXPECT_TRUE(container.addFontDir(fontDir));
   litehtml::uint_ptr hFont = container.create_font("Tinos", 16, 400,
@@ -130,49 +146,47 @@ TEST(HgContainerTest, draw_text)
   // Set text position.
   int x = 10;
   int y = frameHeight - 10;
-  litehtml::position pos(x, 0, 0, y);
+  litehtml::position pos(x, y, 0, 0);
 
   // Set text color.
   litehtml::web_color textColor(128, 128, 128);
 
   // draw_text()
-  container.draw_text(reinterpret_cast<litehtml::uint_ptr>(&hgAggPainter),
+  container.draw_text(reinterpret_cast<litehtml::uint_ptr>(cairo.get()),
       "This is some english text", hFont, textColor, pos);
 
   // Write our picture to file.
   std::string fileName1 = "HgContainer_1.ppm";
   std::filesystem::path fileOutTest1 = testDir / fileName1;
-  hg::FileUtil::writePpmFile(
-      frameBuf, frameWidth, frameHeight, BYTES_PER_PIXEL, fileOutTest1.c_str());
+  hg::util::writePpmFile(
+      frameBuf.data(), frameWidth, frameHeight, BYTES_PER_PIXEL, fileOutTest1);
 
   // Compare our file with prototype.
   std::filesystem::path fileTest1 = dataDir / fileName1;
-  EXPECT_TRUE(hg::FileUtil::compareFiles(fileTest1, fileOutTest1));
+  EXPECT_TRUE(hg::util::compareFiles(fileTest1, fileOutTest1));
 
   //////// Repeat tests for new text.
 
   // Make cleaning before new text.
-  hgAggPainter.setPaintColor(backgroundColor);
-  hgAggPainter.clear();
+  cairo->clear(hg::HgCairo::Color{0, 0, 0, 1});
 
   // draw_text()
-  container.draw_text(reinterpret_cast<litehtml::uint_ptr>(&hgAggPainter),
+  container.draw_text(reinterpret_cast<litehtml::uint_ptr>(cairo.get()),
       "some english", hFont, textColor, pos);
 
   // Write our picture to file.
   std::string fileName2 = "HgContainer_2.ppm";
   std::filesystem::path fileOutTest2 = testDir / fileName2;
-  hg::FileUtil::writePpmFile(
-      frameBuf, frameWidth, frameHeight, BYTES_PER_PIXEL, fileOutTest2.c_str());
+  hg::util::writePpmFile(
+      frameBuf.data(), frameWidth, frameHeight, BYTES_PER_PIXEL, fileOutTest2);
 
   // Compare our file with prototype.
   std::filesystem::path fileTest2 = dataDir / fileName2;
-  EXPECT_TRUE(hg::FileUtil::compareFiles(fileTest2, fileOutTest2));
+  EXPECT_TRUE(hg::util::compareFiles(fileTest2, fileOutTest2));
 
   //////// Deinit part.
 
   container.delete_font(hFont);
-  delete[] frameBuf;
 }
 
 TEST(HgContainerTest, drawHtmlDocument)
@@ -183,35 +197,29 @@ TEST(HgContainerTest, drawHtmlDocument)
   EXPECT_TRUE(std::filesystem::exists(fontDir));
   EXPECT_TRUE(std::filesystem::exists(dataDir));
 
-  //// AGG init.
+  //// Cairo init.
 
   enum
   {
-    BYTES_PER_PIXEL = 3
-    //    BYTES_PER_PIXEL = 4
+    //BYTES_PER_PIXEL = 3
+    BYTES_PER_PIXEL = 4
   };
 
-  // The AGG pixel format.
-  using PixelFormat = agg::pixfmt_rgb24;
-  //  using PixelFormat = agg::pixfmt_rgba32;
+  const cairo_format_t colorFormat = CAIRO_FORMAT_ARGB32;
+  const unsigned int frameWidth = 640;
+  const unsigned int frameHeight = 480;
+  //const int stride = frameWidth * BYTES_PER_PIXEL;
+  const int stride = cairo_format_stride_for_width(colorFormat, frameWidth);
 
-  unsigned int frameWidth = 640;
-  unsigned int frameHeight = 480;
-  int stride = frameWidth * BYTES_PER_PIXEL;
+  std::vector<unsigned char> frameBuf(stride * frameHeight);
 
-  unsigned char* frameBuf = new unsigned char[stride * frameHeight];
-  EXPECT_NE(frameBuf, nullptr);
-
-  hg::HgAggPainter<PixelFormat> hgAggPainter;
-  hgAggPainter.attach(frameBuf, frameWidth, frameHeight, stride);
-
-  litehtml::web_color backgroundColor(255, 255, 255);
-  hgAggPainter.setPaintColor(backgroundColor);
-  hgAggPainter.clear();
+  hg::HgCairoPtr cairo = std::make_shared<hg::HgCairo>(
+      frameBuf.data(), colorFormat, frameWidth, frameHeight, stride);
+  cairo->clear(hg::HgCairo::Color{1, 1, 1, 1});
 
   //// HtmlGrapheasKamva init.
 
-  hg::HgContainer container;
+  hg::HgContainer container{cairo};
 
   // Set fonts.
   container.setFontTextCacheSize(1000);
@@ -234,9 +242,8 @@ TEST(HgContainerTest, drawHtmlDocument)
   //////// Draw HTML document.
 
   // Load master CSS.
-  std::string masterCss =
-      hg::FileUtil::readFile(dataDir / "master.css");
-  EXPECT_GE(masterCss.size(), 0);
+  std::string masterCss = hg::util::readFile(dataDir / "master.css");
+  EXPECT_FALSE(masterCss.empty());
 
   litehtml::context htmlContext;
   htmlContext.load_master_stylesheet(masterCss.c_str());
@@ -264,19 +271,15 @@ TEST(HgContainerTest, drawHtmlDocument)
   // Draw HTML document.
   litehtml::position clip(0, 0, frameWidth, frameHeight);
   htmlDocument->draw(
-      reinterpret_cast<litehtml::uint_ptr>(&hgAggPainter), 0, 0, &clip);
+      reinterpret_cast<litehtml::uint_ptr>(cairo.get()), 0, 0, &clip);
 
   // Write our picture to file.
   std::string fileName1 = "HtmlDocument_1.ppm";
   std::filesystem::path fileOutTest1 = testDir / fileName1;
-  hg::FileUtil::writePpmFile(
-      frameBuf, frameWidth, frameHeight, BYTES_PER_PIXEL, fileOutTest1.c_str());
+  hg::util::writePpmFile(
+      frameBuf.data(), frameWidth, frameHeight, BYTES_PER_PIXEL, fileOutTest1);
 
   // Compare our file with prototype.
   std::filesystem::path fileTest1 = dataDir / fileName1;
-  EXPECT_TRUE(hg::FileUtil::compareFiles(fileTest1, fileOutTest1));
-
-  //////// Deinit part.
-
-  delete[] frameBuf;
+  EXPECT_TRUE(hg::util::compareFiles(fileTest1, fileOutTest1));
 }

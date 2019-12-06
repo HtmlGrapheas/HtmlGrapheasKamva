@@ -61,7 +61,7 @@ TEST(HgFontTest, HgFontTest)
   EXPECT_TRUE(std::filesystem::exists(fontDir));
   EXPECT_TRUE(std::filesystem::exists(dataDir));
 
-  //// AGG init.
+  //// Cairo init.
 
   enum
   {
@@ -70,9 +70,9 @@ TEST(HgFontTest, HgFontTest)
   };
 
   const cairo_format_t colorFormat = CAIRO_FORMAT_ARGB32;
-  const int frameWidth = 250;
-  const int frameHeight = 50;
-  //int stride = frameWidth * BYTES_PER_PIXEL;
+  const unsigned int frameWidth = 250;
+  const unsigned int frameHeight = 50;
+  //const int stride = frameWidth * BYTES_PER_PIXEL;
   const int stride = cairo_format_stride_for_width(colorFormat, frameWidth);
 
   std::vector<unsigned char> frameBuf(stride * frameHeight);
