@@ -55,11 +55,11 @@ public:
   explicit HgFont() = delete;
 
   // TODO: Copy/move constructors/operators.
-  explicit HgFont(
-      HgCairoPtr cairo, FtLibraryPtr ftLibrary, const int textCacheSize = 1000);
+  explicit HgFont(FtLibraryPtr ftLibrary, const int textCacheSize = 1000);
   ~HgFont();
 
-  bool createFtFace(const std::filesystem::path& fontFilePath, const int pixelSize);
+  bool createFtFace(
+      const std::filesystem::path& fontFilePath, const int pixelSize);
 
   void resetBuffer();
   void clearBuffer();
@@ -69,7 +69,8 @@ public:
 
   const cairo_font_extents_t& getScaledFontExtents();
   HgCairo::TextExtentsPtr getTextExtents(const std::string& text);
-  void drawText(const std::string& text,
+  void drawText(HgCairoPtr cairo,
+      const std::string& text,
       const double x,
       const double y,
       const litehtml::web_color& color);
@@ -127,8 +128,6 @@ private:
   HbBufferPtr mHbBuffer;
   HbFontPtr mHbFont;
 
-  HgCairoPtr mCairo;
-  HgCairo::FontFacePtr mCairoFontFace;
   HgCairo::ScaledFontPtr mCairoScaledFont;
   cairo_font_extents_t mScaledFontExtents;
 

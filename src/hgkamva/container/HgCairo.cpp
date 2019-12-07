@@ -12,12 +12,12 @@ HgCairo::HgCairo(unsigned char* buffer,
     const unsigned int height,
     const int stride)
 {
-  mSurface = {cairo_image_surface_create_for_data(
-                  buffer, colorFormat, width, height, stride),
+  SurfacePtr surface = {cairo_image_surface_create_for_data(
+                            buffer, colorFormat, width, height, stride),
       cairo_surface_destroy};
-  checkStatus(cairo_surface_status, mSurface.get());
+  checkStatus(cairo_surface_status, surface.get());
 
-  mContext = {cairo_create(mSurface.get()), cairo_destroy};
+  mContext = {cairo_create(surface.get()), cairo_destroy};
   checkStatus(cairo_status, mContext.get());
 }
 
@@ -48,31 +48,6 @@ void HgCairo::drawLine(const double x1,
   cairo_stroke(mContext.get());
 }
 
-// static
-HgCairo::FontFacePtr HgCairo::getFontFace(
-    const FT_Face ftFace, const int ftLoadFlags)
-{
-  FontFacePtr fontFacePtr{
-      cairo_ft_font_face_create_for_ft_face(ftFace, ftLoadFlags),
-      cairo_font_face_destroy};
-  checkPtrStatus(fontFacePtr);
-  return fontFacePtr;
-}
-
-HgCairo::ScaledFontPtr HgCairo::getScaledFont(
-    const FontFacePtr fontFace, const int pixelSize)
-{
-  cairo_save(mContext.get());
-  cairo_set_font_face(mContext.get(), fontFace.get());
-  cairo_set_font_size(mContext.get(), pixelSize);
-  ScaledFontPtr scaledFont{
-      cairo_scaled_font_reference(cairo_get_scaled_font(mContext.get())),
-      cairo_scaled_font_destroy};
-  cairo_restore(mContext.get());
-  checkStatus(cairo_scaled_font_status, scaledFont.get());
-  return scaledFont;
-}
-
 void HgCairo::showGlyphs(const GlyphVector& glyphs,
     const ScaledFontPtr scaledFont,
     const double x,
@@ -93,14 +68,45 @@ void HgCairo::showGlyphs(const GlyphVector& glyphs,
   cairo_restore(mContext.get());
 }
 
+// static
+HgCairo::ScaledFontPtr HgCairo::getScaledFont(
+    const FT_Face ftFace, const int ftLoadFlags, const int pixelSize)
+{
+  FontFacePtr fontFace{
+      cairo_ft_font_face_create_for_ft_face(ftFace, ftLoadFlags),
+      cairo_font_face_destroy};
+  checkPtrStatus(fontFace);
+
+  cairo_matrix_t fontMatrix;
+  cairo_matrix_init_scale(&fontMatrix, pixelSize, pixelSize);
+  cairo_matrix_t ctm;
+  cairo_matrix_init_identity(&ctm);
+
+  FontOptionsPtr fontOptions{
+      cairo_font_options_create(), cairo_font_options_destroy};
+  checkStatus(cairo_font_options_status, fontOptions.get());
+  cairo_font_options_set_antialias(fontOptions.get(), CAIRO_ANTIALIAS_GRAY);
+  cairo_font_options_set_hint_style(fontOptions.get(), CAIRO_HINT_STYLE_MEDIUM);
+  cairo_font_options_set_hint_metrics(
+      fontOptions.get(), CAIRO_HINT_METRICS_DEFAULT);
+  // CSS font-variation-settings
+  // (in Chrome browser!) see http://css.yoksel.ru/opentype-variable-fonts/
+  //cairo_font_options_set_variations(options, "wght=200, wdth=140.5");
+
+  ScaledFontPtr scaledFont{cairo_scaled_font_create(fontFace.get(), &fontMatrix,
+                               &ctm, fontOptions.get()),
+      cairo_scaled_font_destroy};
+  checkStatus(cairo_scaled_font_status, scaledFont.get());
+
+  return scaledFont;
+}
+
+// static
 double HgCairo::xHeight(const ScaledFontPtr scaledFont)
 {
-  cairo_save(mContext.get());
-  cairo_set_scaled_font(mContext.get(), scaledFont.get());
-  cairo_text_extents_t tex;
-  cairo_text_extents(mContext.get(), "x", &tex);
-  cairo_restore(mContext.get());
-  return tex.height;
+  cairo_text_extents_t textExtents;
+  cairo_scaled_font_text_extents(scaledFont.get(), "x", &textExtents);
+  return textExtents.height;
 }
 
 }  // namespace hg

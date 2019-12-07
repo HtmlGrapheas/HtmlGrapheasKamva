@@ -80,7 +80,7 @@ TEST(HgContainerTest, create_font)
   EXPECT_FALSE(fontConfig.empty());
 
   litehtml::font_metrics fm;
-  hg::HgContainer container{cairo};
+  hg::HgContainer container{};
   container.setFontTextCacheSize(1000);
   EXPECT_TRUE(container.parseAndLoadFontConfigFromMemory(fontConfig, true));
   EXPECT_TRUE(container.addFontDir(fontDir));
@@ -131,7 +131,7 @@ TEST(HgContainerTest, draw_text)
   //// HtmlGrapheasKamva init.
 
   litehtml::font_metrics fm;
-  hg::HgContainer container{cairo};
+  hg::HgContainer container{};
   container.setFontTextCacheSize(1000);
   EXPECT_TRUE(container.addFontDir(fontDir));
   litehtml::uint_ptr hFont = container.create_font("Tinos", 16, 400,
@@ -152,7 +152,7 @@ TEST(HgContainerTest, draw_text)
   litehtml::web_color textColor(128, 128, 128);
 
   // draw_text()
-  container.draw_text(reinterpret_cast<litehtml::uint_ptr>(cairo.get()),
+  container.draw_text(reinterpret_cast<litehtml::uint_ptr>(&cairo),
       "This is some english text", hFont, textColor, pos);
 
   // Write our picture to file.
@@ -171,7 +171,7 @@ TEST(HgContainerTest, draw_text)
   cairo->clear(hg::HgCairo::Color{0, 0, 0, 1});
 
   // draw_text()
-  container.draw_text(reinterpret_cast<litehtml::uint_ptr>(cairo.get()),
+  container.draw_text(reinterpret_cast<litehtml::uint_ptr>(&cairo),
       "some english", hFont, textColor, pos);
 
   // Write our picture to file.
@@ -219,7 +219,7 @@ TEST(HgContainerTest, drawHtmlDocument)
 
   //// HtmlGrapheasKamva init.
 
-  hg::HgContainer container{cairo};
+  hg::HgContainer container{};
 
   // Set fonts.
   container.setFontTextCacheSize(1000);
@@ -271,7 +271,7 @@ TEST(HgContainerTest, drawHtmlDocument)
   // Draw HTML document.
   litehtml::position clip(0, 0, frameWidth, frameHeight);
   htmlDocument->draw(
-      reinterpret_cast<litehtml::uint_ptr>(cairo.get()), 0, 0, &clip);
+      reinterpret_cast<litehtml::uint_ptr>(&cairo), 0, 0, &clip);
 
   // Write our picture to file.
   std::string fileName1 = "HtmlDocument_1.ppm";

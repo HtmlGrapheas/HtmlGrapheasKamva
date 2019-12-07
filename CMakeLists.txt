@@ -77,7 +77,6 @@ target_sources(${lib_NAME}
     ${private_src_DIR}/hgkamva/container/HgContainer.cpp
     ${private_src_DIR}/hgkamva/container/HgFont.cpp
     ${private_src_DIR}/hgkamva/container/HgFontLibrary.cpp
-    ${private_src_DIR}/hgkamva/renderer/HgCairoHtmlRenderer.cpp
     ${private_src_DIR}/hgkamva/renderer/HgHtmlRenderer.cpp
     ${private_src_DIR}/hgkamva/util/FileUtil.cpp
 
@@ -91,8 +90,6 @@ target_sources(${lib_NAME}
     ${public_src_DIR}/hgkamva/container/HgContainer.h
     ${public_src_DIR}/hgkamva/container/HgFont.h
     ${public_src_DIR}/hgkamva/container/HgFontLibrary.h
-    ${public_src_DIR}/hgkamva/container/HgPainter.h
-    ${public_src_DIR}/hgkamva/renderer/HgCairoHtmlRenderer.h
     ${public_src_DIR}/hgkamva/renderer/HgHtmlRenderer.h
     ${public_src_DIR}/hgkamva/util/FileUtil.h
     ${public_src_DIR}/hgkamva/util/StringUtil.h

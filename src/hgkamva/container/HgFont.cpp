@@ -30,10 +30,9 @@
 
 namespace hg
 {
-HgFont::HgFont(HgCairoPtr cairo, FtLibraryPtr ftLibrary, const int textCacheSize)
+HgFont::HgFont(FtLibraryPtr ftLibrary, const int textCacheSize)
     : mFtLibrary{ftLibrary}
     , mHbBuffer{hb_buffer_create(), hb_buffer_destroy}
-    , mCairo{cairo}
     , mScaledFontExtents{0.0, 0.0, 0.0, 0.0, 0.0}
     , mTextLayoutCache{std::make_shared<TextLayoutCache>(textCacheSize)}
     , mPixelSize{10}
@@ -72,8 +71,8 @@ bool HgFont::createFtFace(
     throw std::logic_error("hb_ft_font_create() returns nullptr");
   }
 
-  mCairoFontFace = mCairo->getFontFace(mFtFace.get(), FT_LOAD_DEFAULT);
-  mCairoScaledFont = mCairo->getScaledFont(mCairoFontFace, mPixelSize);
+  mCairoScaledFont =
+      HgCairo::getScaledFont(mFtFace.get(), FT_LOAD_DEFAULT, mPixelSize);
 
   //    mFtRasterParams.flags = FT_RASTER_FLAG_DIRECT | FT_RASTER_FLAG_AA;
   return true;
@@ -188,7 +187,8 @@ HgCairo::TextExtentsPtr HgFont::getTextExtents(const std::string& text)
   return getTextLayout(text)->mExtents;
 }
 
-void HgFont::drawText(const std::string& text,
+void HgFont::drawText(HgCairoPtr cairo,
+    const std::string& text,
     const double x,
     const double y,
     const litehtml::web_color& color)
@@ -196,7 +196,7 @@ void HgFont::drawText(const std::string& text,
   TextLayoutPtr textLayout = getTextLayout(text);
   HgCairo::Color col{color.red / 255.0, color.green / 255.0, color.blue / 255.0,
       color.alpha / 255.0};
-  mCairo->showGlyphs(
+  cairo->showGlyphs(
       *textLayout->mGlyphs, mCairoScaledFont, x, y, *textLayout->mExtents, col);
 }
 
@@ -205,7 +205,7 @@ double HgFont::xHeight()
   if(mxHeight > 0) {
     return mxHeight;
   }
-  mxHeight = mCairo->xHeight(mCairoScaledFont);
+  mxHeight = HgCairo::xHeight(mCairoScaledFont);
   return mxHeight;
 }
 

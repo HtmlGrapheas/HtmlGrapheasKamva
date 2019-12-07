@@ -23,14 +23,14 @@
 
 #include "hgkamva/container/HgContainer.h"
 
+#include "hgkamva/container/HgCairo.h"
 #include "hgkamva/container/HgFont.h"
 #include "hgkamva/container/HgFontLibrary.h"
 
 namespace hg
 {
-HgContainer::HgContainer(HgCairoPtr cairo)
-    : mCairo{cairo}
-    , mHgFontLibrary{std::make_shared<HgFontLibrary>()}
+HgContainer::HgContainer()
+    : mHgFontLibrary{std::make_shared<HgFontLibrary>()}
     , mFontDefaultName{"Times New Roman"}
     , mDefaultFontSize{16}
     , mFontTextCacheSize{1000}
@@ -69,19 +69,15 @@ litehtml::uint_ptr HgContainer::create_font(const litehtml::tchar_t* faceName,
     return nullptr;
   }
 
-  HgFont* hgFont =
-      new HgFont(mCairo, mHgFontLibrary->ftLibrary(), mFontTextCacheSize);
-
   uint_least8_t result;
   std::filesystem::path filePath =
       mHgFontLibrary->getFontFilePath(faceName, size, weight, italic, &result);
+  if(filePath.empty() || HgFontLibrary::FontMatches::allMatched != result) {
+    return nullptr;
+  }
 
-  if(HgFontLibrary::FontMatches::allMatched != result) {
-    return nullptr;
-  }
-  if(filePath.empty()) {
-    return nullptr;
-  }
+  HgFont* hgFont = new HgFont(mHgFontLibrary->ftLibrary(), mFontTextCacheSize);
+
   if(!hgFont->createFtFace(filePath, size)) {
     return nullptr;
   }
@@ -139,7 +135,7 @@ void HgContainer::draw_text(litehtml::uint_ptr hdc,
     litehtml::web_color color,
     const litehtml::position& pos)
 {
-  HgCairo* cairo = reinterpret_cast<HgCairo*>(hdc);
+  HgCairoPtr& cairo = *(reinterpret_cast<HgCairoPtr*>(hdc));
   if(!cairo) {
     return;
   }
@@ -164,7 +160,7 @@ void HgContainer::draw_text(litehtml::uint_ptr hdc,
   hgFont->setScript(HB_SCRIPT_LATIN);
   hgFont->setLanguage("eng");
 
-  hgFont->drawText(text, x, y, color);
+  hgFont->drawText(cairo, text, x, y, color);
 
   if(hgFont->underline() || hgFont->strikeout()) {
     int tw = text_width(text, hFont);

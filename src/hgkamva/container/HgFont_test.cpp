@@ -107,7 +107,7 @@ TEST(HgFontTest, HgFontTest)
   EXPECT_TRUE(filePath.filename() == "Tinos-Regular.ttf");
 
   // Create HgFont with HgFontLibrary.
-  hg::HgFont hgFont(cairo, hgFontLibrary.ftLibrary(), 1000);
+  hg::HgFont hgFont(hgFontLibrary.ftLibrary(), 1000);
 
   //////// Test HgFont::createFtFace().
 
@@ -144,7 +144,7 @@ TEST(HgFontTest, HgFontTest)
   litehtml::web_color color(128, 128, 128, 255);
 
   // drawText()
-  hgFont.drawText(text, x, y, color);
+  hgFont.drawText(cairo, text, x, y, color);
 
   // Write our picture to file.
   std::string fileName1 = "HgFontTest_1.ppm";
@@ -179,7 +179,7 @@ TEST(HgFontTest, HgFontTest)
   EXPECT_DOUBLE_EQ(extents->y_advance, 0);
 
   // drawText().
-  hgFont.drawText(text, x, y, color);
+  hgFont.drawText(cairo, text, x, y, color);
 
   // Write our picture to file.
   std::string fileName2 = "HgFontTest_2.ppm";

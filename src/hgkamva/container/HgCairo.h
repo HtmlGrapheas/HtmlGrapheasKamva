@@ -23,6 +23,7 @@ public:
   using ContextPtr = std::shared_ptr<cairo_t>;
   using FontFacePtr = std::shared_ptr<cairo_font_face_t>;
   using ScaledFontPtr = std::shared_ptr<cairo_scaled_font_t>;
+  using FontOptionsPtr = std::shared_ptr<cairo_font_options_t>;
   using FontExtentsPtr = std::shared_ptr<cairo_font_extents_t>;
   using TextExtentsPtr = std::shared_ptr<cairo_text_extents_t>;
   using GlyphVector = std::vector<cairo_glyph_t>;
@@ -65,27 +66,23 @@ public:
       const int stride);
   ~HgCairo();
 
-  //  cairo_surface_t* getSurface() { return mSurface; }
-  //  cairo_t* getContext() { return mContext; };
-
   void clear(const Color& color = Color{});
-
   void drawLine(const double x1,
       const double y1,
       const double x2,
       const double y2,
       const double width,
       const Color& color = Color{});
-
-  static FontFacePtr getFontFace(const FT_Face ftFace, const int ftLoadFlags);
-  ScaledFontPtr getScaledFont(const FontFacePtr fontFace, const int pixelSize);
   void showGlyphs(const GlyphVector& glyphs,
       const ScaledFontPtr scaledFont,
       const double x,
       const double y,
       const cairo_text_extents_t& extents,
       const Color& color);
-  double xHeight(const ScaledFontPtr scaledFont);
+
+  static ScaledFontPtr getScaledFont(
+      const FT_Face ftFace, const int ftLoadFlags, const int pixelSize);
+  static double xHeight(const ScaledFontPtr scaledFont);
 
 private:
   template <typename StatusFunc, typename... Args>
@@ -94,7 +91,6 @@ private:
   template <typename Ptr>
   static void checkPtrStatus(const Ptr ptr);
 
-  SurfacePtr mSurface;
   ContextPtr mContext;
 };
 
