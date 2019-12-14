@@ -138,6 +138,13 @@ typename HgFont::TextLayoutPtr HgFont::getTextLayout(const std::string& text)
     return mTextLayoutCache->fetch(text);
   }
 
+  clearBuffer();
+
+  // TODO: set Direction, Script and Language through HgContainer's methods.
+  setDirection(HB_DIRECTION_LTR);
+  setScript(HB_SCRIPT_LATIN);
+  setLanguage("eng");
+
   // Layout the text
   hb_buffer_add_utf8(
       mHbBuffer.get(), text.c_str(), text.size(), 0, text.size());
@@ -194,10 +201,8 @@ void HgFont::drawText(HgCairoPtr cairo,
     const litehtml::web_color& color)
 {
   TextLayoutPtr textLayout = getTextLayout(text);
-  HgCairo::Color col{color.red / 255.0, color.green / 255.0, color.blue / 255.0,
-      color.alpha / 255.0};
-  cairo->showGlyphs(
-      *textLayout->mGlyphs, mCairoScaledFont, x, y, *textLayout->mExtents, col);
+  cairo->showGlyphs(*textLayout->mGlyphs, mCairoScaledFont, x, y,
+      *textLayout->mExtents, HgCairo::Color{color});
 }
 
 double HgFont::xHeight()

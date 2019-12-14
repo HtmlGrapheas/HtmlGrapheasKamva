@@ -24,9 +24,12 @@
 #include <filesystem>
 #include <string>
 
+#include <cairo/cairo.h>
+
 #include "gtest/gtest.h"
 
-#include "hgkamva/renderer/HgCairoHtmlRenderer.h"
+#include "hgkamva/container/HgCairo.h"
+#include "hgkamva/renderer/HgHtmlRenderer.h"
 #include "hgkamva/util/FileUtil.h"
 
 inline std::filesystem::path testDir;
@@ -46,7 +49,7 @@ int main(int argc, char** argv)
   return RUN_ALL_TESTS();
 }
 
-TEST(HgAggHtmlRenderer, drawHtml)
+TEST(HgHtmlRenderer, drawHtml)
 {
   //////// Init part.
 
@@ -58,33 +61,32 @@ TEST(HgAggHtmlRenderer, drawHtml)
 
   enum
   {
-    BYTES_PER_PIXEL = 3
-    //BYTES_PER_PIXEL = 4
+    //BYTES_PER_PIXEL = 3
+    BYTES_PER_PIXEL = 4
   };
 
-  // The AGG pixel format.
-  using PixelFormat = agg::pixfmt_rgb24;
-  //using PixelFormat = agg::pixfmt_rgba32;
+  const cairo_format_t colorFormat = CAIRO_FORMAT_ARGB32;
+  const unsigned int frameWidth = 640;
+  const unsigned int frameHeight = 480;
+  //const int stride = frameWidth * BYTES_PER_PIXEL;
+  const int stride = cairo_format_stride_for_width(colorFormat, frameWidth);
 
-  unsigned int frameWidth = 640;
-  unsigned int frameHeight = 480;
-  int stride = frameWidth * BYTES_PER_PIXEL;
+  std::vector<unsigned char> frameBuf(stride * frameHeight);
 
-  unsigned char* frameBuf =
-      new unsigned char[frameWidth * frameHeight * BYTES_PER_PIXEL];
-  EXPECT_NE(frameBuf, nullptr);
+  hg::HgCairoPtr cairo = std::make_shared<hg::HgCairo>(
+      frameBuf.data(), colorFormat, frameWidth, frameHeight, stride);
+  cairo->clear(hg::HgCairo::Color{1, 1, 1, 1});
 
   //// HtmlGrapheasKamva init.
 
-  hg::HgCairoHtmlRenderer<PixelFormat> hgCairoHtmlRenderer;
-  std::shared_ptr<hg::HgContainer> hgContainer =
-      hgCairoHtmlRenderer.getHgContainer();
+  hg::HgHtmlRenderer hgHtmlRenderer;
+  hg::HgContainerPtr hgContainer = hgHtmlRenderer.getHgContainer();
 
   // Load font config.
   std::filesystem::path fontConfFile = fontDir / "fonts.conf";
   EXPECT_TRUE(std::filesystem::exists(fontConfFile));
-  std::string fontConfig = hg::FileUtil::readFile(fontConfFile);
-  EXPECT_GE(fontConfig.size(), 0);
+  std::string fontConfig = hg::util::readFile(fontConfFile);
+  EXPECT_FALSE(fontConfig.empty());
 
   bool loadedFontConfig =
       hgContainer->parseAndLoadFontConfigFromMemory(fontConfig, true);
@@ -107,10 +109,10 @@ TEST(HgAggHtmlRenderer, drawHtml)
   //////// Draw HTML document.
 
   // Load master CSS.
-  std::string masterCss = hg::FileUtil::readFile(dataDir / "master.css");
+  std::string masterCss = hg::util::readFile(dataDir / "master.css");
   EXPECT_GE(masterCss.size(), 0);
 
-  hgCairoHtmlRenderer.getHtmlContext()->load_master_stylesheet(masterCss.c_str());
+  hgHtmlRenderer.getHtmlContext()->load_master_stylesheet(masterCss.c_str());
 
   // Create HTML document from UTF8 string.
   std::string htmlText =
@@ -124,29 +126,45 @@ TEST(HgAggHtmlRenderer, drawHtml)
           </body>
         </html>
       )";
-    hgCairoHtmlRenderer.createHtmlDocumentFromUtf8(htmlText);
+  hgHtmlRenderer.createHtmlDocumentFromUtf8(htmlText);
 
   // Render HTML document.
-  int bestWidth = hgCairoHtmlRenderer.renderHtml(frameWidth, frameHeight);
+  int bestWidth = hgHtmlRenderer.renderHtml(frameWidth, frameHeight);
   EXPECT_GE(bestWidth, 0);
 
   // Set background color.
-  hgCairoHtmlRenderer.setBackgroundColor(litehtml::web_color(255, 255, 255));
+  hgHtmlRenderer.setBackgroundColor(litehtml::web_color(255, 255, 255));
 
-  // Draw HTML document.
-  hgCairoHtmlRenderer.drawHtml(frameBuf, frameWidth, frameHeight, stride, 0, 0);
+  // Draw HTML document. Test the text scrolling.
+
+  //  hgHtmlRenderer.drawHtml(
+  //      frameBuf.data(), colorFormat, frameWidth, frameHeight, stride, 0, 207);
+  //  hgHtmlRenderer.drawHtml(
+  //      frameBuf.data(), colorFormat, frameWidth, frameHeight, stride, 0, -217);
+  //  hgHtmlRenderer.drawHtml(
+  //      frameBuf.data(), colorFormat, frameWidth, frameHeight, stride, 0, 0);
+
+  //  hgHtmlRenderer.drawHtml(
+  //      frameBuf.data(), colorFormat, frameWidth, frameHeight, stride, 205, 0);
+  //  hgHtmlRenderer.drawHtml(
+  //      frameBuf.data(), colorFormat, frameWidth, frameHeight, stride, -304, 0);
+  //  hgHtmlRenderer.drawHtml(
+  //      frameBuf.data(), colorFormat, frameWidth, frameHeight, stride, 0, 0);
+
+  hgHtmlRenderer.drawHtml(
+      frameBuf.data(), colorFormat, frameWidth, frameHeight, stride, 205, 207);
+  hgHtmlRenderer.drawHtml(frameBuf.data(), colorFormat, frameWidth, frameHeight,
+      stride, -304, -217);
+  hgHtmlRenderer.drawHtml(
+      frameBuf.data(), colorFormat, frameWidth, frameHeight, stride, 0, 0);
 
   // Write our picture to file.
-  std::string fileName1 = "HgCairoHtmlRenderer_1.ppm";
+  std::string fileName1 = "hgHtmlRenderer_1.ppm";
   std::string fileOutTest1 = testDir / fileName1;
-  hg::FileUtil::writePpmFile(
-      frameBuf, frameWidth, frameHeight, BYTES_PER_PIXEL, fileOutTest1.c_str());
+  hg::util::writePpmFile(frameBuf.data(), frameWidth, frameHeight,
+      BYTES_PER_PIXEL, fileOutTest1.c_str());
 
   // Compare our file with prototype.
   std::string fileTest1 = dataDir / "HtmlDocument_1.ppm";
-  EXPECT_TRUE(hg::FileUtil::compareFiles(fileTest1, fileOutTest1));
-
-  //////// Deinit part.
-
-  delete[] frameBuf;
+  EXPECT_TRUE(hg::util::compareFiles(fileTest1, fileOutTest1));
 }

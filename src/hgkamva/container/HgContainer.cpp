@@ -118,13 +118,6 @@ int HgContainer::text_width(
     return 0;
   }
 
-  hgFont->clearBuffer();
-
-  // TODO: set Direction, Script and Language through HgContainer's methods.
-  hgFont->setDirection(HB_DIRECTION_LTR);
-  hgFont->setScript(HB_SCRIPT_LATIN);
-  hgFont->setLanguage("eng");
-
   HgCairo::TextExtentsPtr extents = hgFont->getTextExtents(text);
   return extents->x_advance - extents->x_bearing;
 }
@@ -153,13 +146,6 @@ void HgContainer::draw_text(litehtml::uint_ptr hdc,
   int x = pos.left();
   int y = pos.bottom() - fontExtents.descent;
 
-  hgFont->clearBuffer();
-
-  // TODO: set Direction, Script and Language through HgContainer's methods.
-  hgFont->setDirection(HB_DIRECTION_LTR);
-  hgFont->setScript(HB_SCRIPT_LATIN);
-  hgFont->setLanguage("eng");
-
   hgFont->drawText(cairo, text, x, y, color);
 
   if(hgFont->underline() || hgFont->strikeout()) {
@@ -168,23 +154,17 @@ void HgContainer::draw_text(litehtml::uint_ptr hdc,
     if(hgFont->underline()) {
       // TODO: set line width by font's height.
       // TODO: set line position by font's parameters.
-      //cairo->drawLine(x, y + 1.5, x + tw, y + 1.5, 1,
-      //    hg::HgCairo::Color{color.red / 255.0, color.green / 255.0,
-      //        color.blue / 255.0, color.alpha / 255.0});
-      cairo->drawLine(x, y + 3, x + tw, y + 3, 1.5,
-          hg::HgCairo::Color{color.red / 255.0, color.green / 255.0,
-              color.blue / 255.0, color.alpha / 255.0});
+      //cairo->drawLine(
+      //    x, y + 1.5, x + tw, y + 1.5, 1, hg::HgCairo::Color{color});
+      cairo->drawLine(x, y + 3, x + tw, y + 3, 1.5, hg::HgCairo::Color{color});
     }
 
     if(hgFont->strikeout()) {
       // TODO: set line width by font's height.
       int lnY = y - hgFont->xHeight() / 2.0;
-      //cairo->drawLine(x, lnY - 0.5, x + tw, lnY - 0.5, 1,
-      //    hg::HgCairo::Color{color.red / 255.0, color.green / 255.0,
-      //        color.blue / 255.0, color.alpha / 255.0});
-      cairo->drawLine(x, lnY, x + tw, lnY, 1.5,
-          hg::HgCairo::Color{color.red / 255.0, color.green / 255.0,
-              color.blue / 255.0, color.alpha / 255.0});
+      //cairo->drawLine(
+      //    x, lnY - 0.5, x + tw, lnY - 0.5, 1, hg::HgCairo::Color{color});
+      cairo->drawLine(x, lnY, x + tw, lnY, 1.5, hg::HgCairo::Color{color});
     }
   }
 }

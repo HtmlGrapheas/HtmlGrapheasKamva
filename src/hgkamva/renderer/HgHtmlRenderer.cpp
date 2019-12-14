@@ -31,9 +31,10 @@
 
 namespace hg
 {
-HgHtmlRenderer::HgHtmlRenderer(HgPainter* painter)
-    : mHgPainter(painter)
-    , mBackgroundColor(255, 255, 255)
+HgHtmlRenderer::HgHtmlRenderer()
+    : mBackgroundColor(255, 255, 255)
+    , mHgContainer{std::make_shared<HgContainer>()}
+    , mHtmlContext{std::make_shared<litehtml::context>()}
     , mHtmlDocument(nullptr)
     , mBuffer(nullptr)
     , mBufferWidth(0)
@@ -42,8 +43,6 @@ HgHtmlRenderer::HgHtmlRenderer(HgPainter* painter)
     , mHtmlX(0)
     , mHtmlY(0)
 {
-  mHgContainer = std::make_shared<HgContainer>();
-  mHtmlContext = std::make_shared<litehtml::context>();
 }
 
 void HgHtmlRenderer::createHtmlDocumentFromUtf8(const std::string& htmlText)
@@ -61,82 +60,91 @@ int HgHtmlRenderer::renderHtml(int width, int height)
 
   // Render HTML document.
   int bestWidth = mHtmlDocument->render(width);
-  assert(bestWidth);
+  assert(bestWidth != 0);
   return bestWidth;
 }
 
 void HgHtmlRenderer::drawHtml(unsigned char* buffer,
-    int width,
-    int height,
-    int stride,
-    int htmlX,
-    int htmlY)
+    const cairo_format_t colorFormat,
+    const int width,
+    const int height,
+    const int stride,
+    const int htmlX,
+    const int htmlY)
 {
   // https://stackoverflow.com/a/18685338
   //auto start = std::chrono::steady_clock::now();
 
-  mHgPainter->attach(buffer, width, height, stride);
-  litehtml::uint_ptr hdc = reinterpret_cast<litehtml::uint_ptr>(mHgPainter);
+  if(buffer != mBuffer) {
+    mCairo =
+        std::make_shared<HgCairo>(buffer, colorFormat, width, height, stride);
+  }
+  litehtml::uint_ptr hdcCairo = reinterpret_cast<litehtml::uint_ptr>(&mCairo);
 
   bool fullDraw = buffer != mBuffer || width != mBufferWidth
       || height != mBufferHeight || stride != mBufferStride
       || abs(mHtmlX - htmlX) >= width || abs(mHtmlY - htmlY) >= height;
 
   if(fullDraw) {
-    mHgPainter->setPaintColor(mBackgroundColor);
-    mHgPainter->clear();
-
-    litehtml::position clip(0, 0, width, height);
-    mHtmlDocument->draw(hdc, -htmlX, -htmlY, &clip);
+    mCairo->save();
+    mCairo->clear(HgCairo::Color{mBackgroundColor});
+    litehtml::position testClip(0, 0, width, height);
+    mHtmlDocument->draw(hdcCairo, -htmlX, -htmlY, &testClip);
+    mCairo->restore();
 
   } else {
     int diffX = htmlX - mHtmlX;
     int diffY = htmlY - mHtmlY;
 
-    mHgPainter->copyFrom(mHgPainter, nullptr, -diffX, -diffY);
+    mCairo->rasterCopy(diffX, diffY);
 
     int x1 = 0;
     int y1 = 0;
     int x2 = width - 1;
     int y2 = height - 1;
-    if(diffX > 0) {
-      x1 = x2 - diffX + 1;
-    } else if(diffX < 0) {
-      x2 = -diffX - 1;  // x2 = x1 - diffX - 1;
-    }
-    if(x1 != x2) {
-      if(mHgPainter->clipBox(x1, y1, x2, y2)) {
-        mHgPainter->setPaintColor(mBackgroundColor);
-        mHgPainter->copyBar(x1, y1, x2, y2);  // clear
 
-        litehtml::position clip(x1, y1, x2 - x1 + 1, y2 - y1 + 1);
-        mHtmlDocument->draw(hdc, -htmlX, -htmlY, &clip);
+    if(diffX != 0) {
+      if(diffX > 0) {
+        x1 = x2 - diffX + 1;
+      } else {
+        x2 = -diffX - 1;  // x2 = x1 - diffX - 1;
       }
-      mHgPainter->resetClipping(true);
-    }
-
-    if(width - 1 == x2 && 0 != x1) {
-      x2 = x1 - 1;
-      x1 = 0;
-    } else if(0 == x1 && width - 1 != x2) {
-      x1 = x2 + 1;
-      x2 = width - 1;
-    }
-
-    if(diffY > 0) {
-      y1 = y2 - diffY + 1;
-    } else if(diffY < 0) {
-      y2 = -diffY - 1;  // y2 = y1 - diffY - 1;
-    }
-    if(y1 != y2) {
-      if(mHgPainter->clipBox(x1, y1, x2, y2)) {
-        mHgPainter->setPaintColor(mBackgroundColor);
-        mHgPainter->copyBar(x1, y1, x2, y2);  // clear
-
-        litehtml::position clip(x1, y1, x2 - x1 + 1, y2 - y1 + 1);
-        mHtmlDocument->draw(hdc, -htmlX, -htmlY, &clip);
+      if(x1 != x2) {
+        int clipWidth = x2 - x1 + 1;
+        int clipHeight = y2 - y1 + 1;
+        mCairo->save();
+        mCairo->clip(x1, y1, clipWidth, clipHeight);
+        mCairo->clear(HgCairo::Color{mBackgroundColor});
+        litehtml::position textClip(x1, y1, clipWidth, clipHeight);
+        mHtmlDocument->draw(hdcCairo, -htmlX, -htmlY, &textClip);
+        mCairo->restore();
       }
-      mHgPainter->resetClipping(true);
+    }
+
+    if(diffY != 0) {
+      if(width - 1 == x2 && 0 != x1) {
+        x2 = x1 - 1;
+        x1 = 0;
+      } else if(0 == x1 && width - 1 != x2) {
+        x1 = x2 + 1;
+        x2 = width - 1;
+      }
+
+      if(diffY > 0) {
+        y1 = y2 - diffY + 1;
+      } else {
+        y2 = -diffY - 1;  // y2 = y1 - diffY - 1;
+      }
+      if(y1 != y2) {
+        int clipWidth = x2 - x1 + 1;
+        int clipHeight = y2 - y1 + 1;
+        mCairo->save();
+        mCairo->clip(x1, y1, clipWidth, clipHeight);
+        mCairo->clear(HgCairo::Color{mBackgroundColor});
+        litehtml::position textClip(x1, y1, clipWidth, clipHeight);
+        mHtmlDocument->draw(hdcCairo, -htmlX, -htmlY, &textClip);
+        mCairo->restore();
+      }
     }
   }
 
@@ -161,7 +169,7 @@ void HgHtmlRenderer::drawHtml(unsigned char* buffer,
 
   //auto finish = std::chrono::steady_clock::now();
   //auto elapsed =
-  //    std::chrono::duration_cast<std::chrono::milliseconds>(finish - start);
+  //    std::chrono::duration_cast<std::chrono::microseconds>(finish - start);
   //std::cout << "HgHtmlRenderer::drawHtml: " << elapsed.count() << "\n";
 }
 

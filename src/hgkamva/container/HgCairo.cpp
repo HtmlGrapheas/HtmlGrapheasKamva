@@ -23,6 +23,23 @@ HgCairo::HgCairo(unsigned char* buffer,
 
 HgCairo::~HgCairo() {}
 
+void HgCairo::save()
+{
+  cairo_save(mContext.get());
+}
+
+void HgCairo::restore()
+{
+  cairo_restore(mContext.get());
+}
+
+void HgCairo::clip(
+    const double x, const double y, const double width, const double height)
+{
+  cairo_rectangle(mContext.get(), x, y, width, height);
+  cairo_clip(mContext.get());
+}
+
 void HgCairo::clear(const Color& color /*= Color{}*/)
 {
   cairo_save(mContext.get());
@@ -40,12 +57,14 @@ void HgCairo::drawLine(const double x1,
     const double width,
     const Color& color /*= Color{}*/)
 {
+  cairo_save(mContext.get());
   cairo_set_source_rgba(
       mContext.get(), color.mRed, color.mGreen, color.mBlue, color.mAlpha);
   cairo_move_to(mContext.get(), x1, y1);
   cairo_line_to(mContext.get(), x2, y2);
   cairo_set_line_width(mContext.get(), width);
   cairo_stroke(mContext.get());
+  cairo_restore(mContext.get());
 }
 
 void HgCairo::showGlyphs(const GlyphVector& glyphs,
@@ -107,6 +126,68 @@ double HgCairo::xHeight(const ScaledFontPtr scaledFont)
   cairo_text_extents_t textExtents;
   cairo_scaled_font_text_extents(scaledFont.get(), "x", &textExtents);
   return textExtents.height;
+}
+
+void HgCairo::rasterCopy(int diffX, int diffY)
+{
+  if(diffX == 0 && diffY == 0) {
+    return;
+  }
+
+  cairo_surface_t* surface = cairo_get_target(mContext.get());
+  checkStatus(cairo_surface_status, surface);
+  cairo_surface_flush(surface);
+
+  unsigned char* data = cairo_image_surface_get_data(surface);
+  int height = cairo_image_surface_get_height(surface);
+  int stride = cairo_image_surface_get_stride(surface);
+
+  int srcY1, srcY2, dstY;
+  if(diffY > 0) {  // To up.
+    srcY1 = diffY * stride;
+    srcY2 = height * stride;
+    dstY = 0;
+  } else {  // To down.
+    srcY1 = 0;
+    srcY2 = (height - -diffY) * stride;
+    dstY = height * stride;
+  }
+
+  if(diffX == 0) {  // Vertical copying
+    int dstY = (diffY > 0) ? 0 : -diffY * stride;
+    std::copy(data + srcY1, data + srcY2, data + dstY);
+
+  } else {
+    int width = cairo_image_surface_get_width(surface);
+    int bpp = stride / width;  // Bytes per pixel.
+
+    int srcX1, srcX2, dstX;
+    if(diffX > 0) {  // To left.
+      srcX1 = diffX * bpp;
+      srcX2 = width * bpp;
+      dstX = 0;
+    } else {  // To right.
+      srcX1 = 0;
+      srcX2 = (width - -diffX) * bpp;
+      dstX = -diffX * bpp;
+    }
+
+    if(diffY > 0) {
+      for(int currSrcY = srcY1, currDstY = dstY; currSrcY < srcY2;
+          currSrcY += stride, currDstY += stride) {
+        std::copy(data + currSrcY + srcX1, data + currSrcY + srcX2,
+            data + currDstY + dstX);
+      }
+    } else {
+      for(int currSrcY = srcY2 - stride, currDstY = dstY - stride;
+          currSrcY >= srcY1; currSrcY -= stride, currDstY -= stride) {
+        std::copy(data + currSrcY + srcX1, data + currSrcY + srcX2,
+            data + currDstY + dstX);
+      }
+    }
+  }
+
+  cairo_surface_mark_dirty(surface);
 }
 
 }  // namespace hg

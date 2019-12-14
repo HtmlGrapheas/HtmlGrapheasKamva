@@ -10,6 +10,8 @@
 
 #include <cairo/cairo.h>
 
+#include "litehtml.h"
+
 namespace hg
 {
 class HgCairo;
@@ -50,6 +52,14 @@ public:
     {
     }
 
+    explicit Color(const litehtml::web_color& webColor)
+        : mRed{webColor.red / 255.0}
+        , mGreen{webColor.green / 255.0}
+        , mBlue{webColor.blue / 255.0}
+        , mAlpha{webColor.alpha / 255.0}
+    {
+    }
+
     double mRed;
     double mGreen;
     double mBlue;
@@ -65,6 +75,11 @@ public:
       const unsigned int height,
       const int stride);
   ~HgCairo();
+
+  void save();
+  void restore();
+  void clip(
+      const double x, const double y, const double width, const double height);
 
   void clear(const Color& color = Color{});
   void drawLine(const double x1,
@@ -83,6 +98,8 @@ public:
   static ScaledFontPtr getScaledFont(
       const FT_Face ftFace, const int ftLoadFlags, const int pixelSize);
   static double xHeight(const ScaledFontPtr scaledFont);
+
+  void rasterCopy(int diffX, int diffY);
 
 private:
   template <typename StatusFunc, typename... Args>

@@ -203,8 +203,8 @@ if(BUILD_TESTING)
   )
 
   # HgCairoHtmlRenderer tests.
-  add_hg_test("HgCairoHtmlRenderer_test"
-    ${private_src_DIR}/hgkamva/renderer/HgCairoHtmlRenderer_test.cpp
+  add_hg_test("HgHtmlRenderer_test"
+    ${private_src_DIR}/hgkamva/renderer/HgHtmlRenderer_test.cpp
     hgkamva
   )
 endif()

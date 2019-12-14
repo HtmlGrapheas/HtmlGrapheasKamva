@@ -29,39 +29,42 @@
 
 #include "litehtml.h"
 
+#include "hgkamva/container/HgCairo.h"
 #include "hgkamva/container/HgContainer.h"
-#include "hgkamva/container/HgPainter.h"
 
 namespace hg
 {
 class HgHtmlRenderer
 {
 public:
-  explicit HgHtmlRenderer(HgPainter* painter);
+  // TODO: Copy/move constructors/operators.
+  explicit HgHtmlRenderer();
   virtual ~HgHtmlRenderer() = default;
 
   void createHtmlDocumentFromUtf8(const std::string& htmlText);
   int renderHtml(int width, int height);
   virtual void drawHtml(unsigned char* buffer,
-      int width,
-      int height,
-      int stride,
-      int htmlX,
-      int htmlY);
+      const cairo_format_t colorFormat,
+      const int width,
+      const int height,
+      const int stride,
+      const int htmlX,
+      const int htmlY);
 
   void setBackgroundColor(const litehtml::web_color& color);
 
-  std::shared_ptr<HgContainer> getHgContainer();
+  HgContainerPtr getHgContainer();
   std::shared_ptr<litehtml::context> getHtmlContext();
   litehtml::document::ptr getHtmlDocument();
 
 private:
-  HgPainter* mHgPainter;
   litehtml::web_color mBackgroundColor;
 
-  std::shared_ptr<HgContainer> mHgContainer;
+  HgContainerPtr mHgContainer;
   std::shared_ptr<litehtml::context> mHtmlContext;
   litehtml::document::ptr mHtmlDocument;
+
+  HgCairoPtr mCairo;
 
   unsigned char* mBuffer;
   int mBufferWidth;
@@ -76,7 +79,7 @@ inline void HgHtmlRenderer::setBackgroundColor(const litehtml::web_color& color)
   mBackgroundColor = color;
 }
 
-inline std::shared_ptr<HgContainer> HgHtmlRenderer::getHgContainer()
+inline HgContainerPtr HgHtmlRenderer::getHgContainer()
 {
   return mHgContainer;
 }
