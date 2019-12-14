@@ -29,7 +29,6 @@
 #include "litehtml.h"
 
 #include "hgkamva/container/HgContainer.h"
-#include "hgkamva/renderer/HgCairoHtmlRenderer.h"
 #include "hgkamva/renderer/HgHtmlRenderer.h"
 
 using namespace hg;
@@ -62,21 +61,17 @@ inline litehtml::document::ptr getHtmlDocument(HgHtmlRendererPtr renderer)
 
 // API functions.
 
-int hgPixelFormatIdToColorBits(enum hgPixelFormatId pixFmtId)
+int hgColorFormatToBitsPerPixel(cairo_format_t format)
 {
-  switch(pixFmtId) {
-    case hgPixelFormatId::RGB24:
-    case hgPixelFormatId::BGR24:
-    case hgPixelFormatId::RGBA32:
-    case hgPixelFormatId::BGRA32:
-    case hgPixelFormatId::ARGB32:
-    case hgPixelFormatId::ABGR32:
-      return 8;
-  }
-  return 0;
+  return HgCairo::formatBitsPerPixel(format);
 }
 
 // HgHtmlRenderer methods.
+
+HgHtmlRendererPtr hgNewHtmlRenderer()
+{
+  return new HgHtmlRenderer();
+}
 
 void hgDeleteHtmlRenderer(HgHtmlRendererPtr renderer)
 {
@@ -96,14 +91,15 @@ int hgHtmlRenderer_renderHtml(HgHtmlRendererPtr renderer, int width, int height)
 
 void hgHtmlRenderer_drawHtml(HgHtmlRendererPtr renderer,
     unsigned char* buffer,
-    int width,
-    int height,
-    int stride,
-    int htmlX,
-    int htmlY)
+    const cairo_format_t colorFormat,
+    const int width,
+    const int height,
+    const int stride,
+    const int htmlX,
+    const int htmlY)
 {
   return getHgHtmlRenderer(renderer)->drawHtml(
-      buffer, width, height, stride, htmlX, htmlY);
+      buffer, colorFormat, width, height, stride, htmlX, htmlY);
 }
 
 void hgHtmlRenderer_setBackgroundColor(HgHtmlRendererPtr renderer,
@@ -114,36 +110,6 @@ void hgHtmlRenderer_setBackgroundColor(HgHtmlRendererPtr renderer,
 {
   return getHgHtmlRenderer(renderer)->setBackgroundColor(
       litehtml::web_color(red, green, blue, alpha));
-}
-
-HgHtmlRendererPtr hgNewHtmlRendererRgb24()
-{
-  return new HgAggHtmlRenderer<agg::pixfmt_rgb24>();
-}
-
-HgHtmlRendererPtr hgNewHtmlRendererBgr24()
-{
-  return new HgAggHtmlRenderer<agg::pixfmt_bgr24>();
-}
-
-HgHtmlRendererPtr hgNewHtmlRendererRgba32()
-{
-  return new HgAggHtmlRenderer<agg::pixfmt_rgba32>();
-}
-
-HgHtmlRendererPtr hgNewHtmlRendererBgra32()
-{
-  return new HgAggHtmlRenderer<agg::pixfmt_bgra32>();
-}
-
-HgHtmlRendererPtr hgNewHtmlRendererArgb32()
-{
-  return new HgAggHtmlRenderer<agg::pixfmt_argb32>();
-}
-
-HgHtmlRendererPtr hgNewHtmlRendererAbgr32()
-{
-  return new HgAggHtmlRenderer<agg::pixfmt_abgr32>();
 }
 
 

@@ -88,6 +88,30 @@ void HgCairo::showGlyphs(const GlyphVector& glyphs,
 }
 
 // static
+int HgCairo::formatBitsPerPixel(cairo_format_t format)
+{
+  switch(format) {
+    case CAIRO_FORMAT_RGBA128F:
+      return 128;
+    case CAIRO_FORMAT_RGB96F:
+      return 96;
+    case CAIRO_FORMAT_ARGB32:
+    case CAIRO_FORMAT_RGB30:
+    case CAIRO_FORMAT_RGB24:
+      return 32;
+    case CAIRO_FORMAT_RGB16_565:
+      return 16;
+    case CAIRO_FORMAT_A8:
+      return 8;
+    case CAIRO_FORMAT_A1:
+      return 1;
+    case CAIRO_FORMAT_INVALID:
+    default:
+      return 0;
+  }
+}
+
+// static
 HgCairo::ScaledFontPtr HgCairo::getScaledFont(
     const FT_Face ftFace, const int ftLoadFlags, const int pixelSize)
 {

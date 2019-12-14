@@ -35,6 +35,8 @@
 
 #include <functional>
 
+#include <cairo/cairo.h>
+
 #include "hgkamva/hg_kamva_api.h"
 
 namespace
@@ -51,125 +53,80 @@ struct wxWidgetsToHgHtmlRendererHelper
 };
 
 /// 24-bit RGB
-template <>
-struct wxWidgetsToHgHtmlRendererHelper<unsigned char, 24, 0, 1, 2, -1>
-{
-  static const enum hgPixelFormatId id = hgPixelFormatId::RGB24;
-  static const std::function<HgHtmlRendererPtr()> hgNewHtmlRendererFunc;
-};
-const std::function<HgHtmlRendererPtr()>
-    wxWidgetsToHgHtmlRendererHelper<unsigned char, 24, 0, 1, 2, -1>::
-        hgNewHtmlRendererFunc = hgNewHtmlRendererRgb24;
+//template <>
+//struct wxWidgetsToHgHtmlRendererHelper<unsigned char, 24, 0, 1, 2, -1>
+//{
+//};
+
 
 /// 24-bit BGR
-template <>
-struct wxWidgetsToHgHtmlRendererHelper<unsigned char, 24, 2, 1, 0, -1>
-{
-  static const enum hgPixelFormatId id = hgPixelFormatId::BGR24;
-  static const std::function<HgHtmlRendererPtr()> hgNewHtmlRendererFunc;
-};
-const std::function<HgHtmlRendererPtr()>
-    wxWidgetsToHgHtmlRendererHelper<unsigned char, 24, 2, 1, 0, -1>::
-        hgNewHtmlRendererFunc = hgNewHtmlRendererBgr24;
+//template <>
+//struct wxWidgetsToHgHtmlRendererHelper<unsigned char, 24, 2, 1, 0, -1>
+//{
+//};
 
 /// 32-bit RGB, alpha unused but stored as ARGB.
-template <>
-struct wxWidgetsToHgHtmlRendererHelper<unsigned char, 32, 1, 2, 3, -1>
-{
-  static const enum hgPixelFormatId id = hgPixelFormatId::ARGB32;
-  static const std::function<HgHtmlRendererPtr()> hgNewHtmlRendererFunc;
-};
-const std::function<HgHtmlRendererPtr()>
-    wxWidgetsToHgHtmlRendererHelper<unsigned char, 32, 1, 2, 3, -1>::
-        hgNewHtmlRendererFunc = hgNewHtmlRendererArgb32;
+//template <>
+//struct wxWidgetsToHgHtmlRendererHelper<unsigned char, 32, 1, 2, 3, -1>
+//{
+//};
 
 /// 32-bit RGB, alpha unused but stored as RGBA.
 template <>
 struct wxWidgetsToHgHtmlRendererHelper<unsigned char, 32, 0, 1, 2, -1>
 {
-  static const enum hgPixelFormatId id = hgPixelFormatId::RGBA32;
-  static const std::function<HgHtmlRendererPtr()> hgNewHtmlRendererFunc;
+  static const cairo_format_t colorFormat = CAIRO_FORMAT_RGB24;
 };
-const std::function<HgHtmlRendererPtr()>
-    wxWidgetsToHgHtmlRendererHelper<unsigned char, 32, 0, 1, 2, -1>::
-        hgNewHtmlRendererFunc = hgNewHtmlRendererRgba32;
 
 /// 32-bit BGR, alpha unused but stored as ABGR.
-template <>
-struct wxWidgetsToHgHtmlRendererHelper<unsigned char, 32, 3, 2, 1, -1>
-{
-  static const enum hgPixelFormatId id = hgPixelFormatId::ABGR32;
-  static const std::function<HgHtmlRendererPtr()> hgNewHtmlRendererFunc;
-};
-const std::function<HgHtmlRendererPtr()>
-    wxWidgetsToHgHtmlRendererHelper<unsigned char, 32, 3, 2, 1, -1>::
-        hgNewHtmlRendererFunc = hgNewHtmlRendererAbgr32;
+//template <>
+//struct wxWidgetsToHgHtmlRendererHelper<unsigned char, 32, 3, 2, 1, -1>
+//{
+//};
 
 /// 32-bit BGR, alpha unused but stored as BGRA.
-template <>
-struct wxWidgetsToHgHtmlRendererHelper<unsigned char, 32, 2, 1, 0, -1>
-{
-  static const enum hgPixelFormatId id = hgPixelFormatId::BGRA32;
-  static const std::function<HgHtmlRendererPtr()> hgNewHtmlRendererFunc;
-};
-const std::function<HgHtmlRendererPtr()>
-    wxWidgetsToHgHtmlRendererHelper<unsigned char, 32, 2, 1, 0, -1>::
-        hgNewHtmlRendererFunc = hgNewHtmlRendererBgra32;
+//template <>
+//struct wxWidgetsToHgHtmlRendererHelper<unsigned char, 32, 2, 1, 0, -1>
+//{
+//};
 
 /// 32-bit RGBA
 template <>
 struct wxWidgetsToHgHtmlRendererHelper<unsigned char, 32, 0, 1, 2, 3>
 {
-  static const enum hgPixelFormatId id = hgPixelFormatId::RGBA32;
-  static const std::function<HgHtmlRendererPtr()> hgNewHtmlRendererFunc;
+  static const /*enum*/ cairo_format_t colorFormat = CAIRO_FORMAT_ARGB32;
 };
-const std::function<HgHtmlRendererPtr()>
-    wxWidgetsToHgHtmlRendererHelper<unsigned char, 32, 0, 1, 2, 3>::
-        hgNewHtmlRendererFunc = hgNewHtmlRendererRgba32;
 
 /// 32-bit BGRA
-template <>
-struct wxWidgetsToHgHtmlRendererHelper<unsigned char, 32, 2, 1, 0, 3>
-{
-  static const enum hgPixelFormatId id = hgPixelFormatId::BGRA32;
-  static const std::function<HgHtmlRendererPtr()> hgNewHtmlRendererFunc;
-};
-const std::function<HgHtmlRendererPtr()>
-    wxWidgetsToHgHtmlRendererHelper<unsigned char, 32, 2, 1, 0, 3>::
-        hgNewHtmlRendererFunc = hgNewHtmlRendererBgra32;
+//template <>
+//struct wxWidgetsToHgHtmlRendererHelper<unsigned char, 32, 2, 1, 0, 3>
+//{
+//};
 
 /// 32-bit ARGB
-template <>
-struct wxWidgetsToHgHtmlRendererHelper<unsigned char, 32, 1, 2, 3, 0>
-{
-  static const enum hgPixelFormatId id = hgPixelFormatId::ARGB32;
-  static const std::function<HgHtmlRendererPtr()> hgNewHtmlRendererFunc;
-};
-const std::function<HgHtmlRendererPtr()>
-    wxWidgetsToHgHtmlRendererHelper<unsigned char, 32, 1, 2, 3, 0>::
-        hgNewHtmlRendererFunc = hgNewHtmlRendererArgb32;
+//template <>
+//struct wxWidgetsToHgHtmlRendererHelper<unsigned char, 32, 1, 2, 3, 0>
+//{
+//};
 
 /// 32-bit ABGR
-template <>
-struct wxWidgetsToHgHtmlRendererHelper<unsigned char, 32, 3, 2, 1, 0>
-{
-  static const enum hgPixelFormatId id = hgPixelFormatId::ABGR32;
-  static const std::function<HgHtmlRendererPtr()> hgNewHtmlRendererFunc;
-};
-const std::function<HgHtmlRendererPtr()>
-    wxWidgetsToHgHtmlRendererHelper<unsigned char, 32, 3, 2, 1, 0>::
-        hgNewHtmlRendererFunc = hgNewHtmlRendererAbgr32;
+//template <>
+//struct wxWidgetsToHgHtmlRendererHelper<unsigned char, 32, 3, 2, 1, 0>
+//{
+//};
 
 }  // namespace
 
 namespace hg
 {
-/// Convert between a wxWidgets pixel format class and a pixel format ID.
+/// Convert between a wxWidgets pixel format class and a Cairo's color format.
 /// Usage examples:
-/// hgPixelFormatId pixFmtId = wxPixelFormatToId<wxNativePixelFormat>::id or
-/// hgPixelFormatId pixFmtId = wxPixelFormatToId<wxAlphaPixelFormat>::id.
+/// cairo_format_t colorFormat = wxPixelFormatToId<wxNativePixelFormat>::colorFormat
+/// or
+/// cairo_format_t colorFormat = wxPixelFormatToId<wxAlphaPixelFormat>::colorFormat.
 template <typename wxWidgetsPixelFormat>
 class wxPixelFormatToHgHtmlRenderer
+// TODO: rename to wxPixelFormatToCairoColorFormat
 {
 public:
   using wxWidgetsType = wxWidgetsPixelFormat;
@@ -183,15 +140,9 @@ public:
       wxWidgetsPixelFormat::BLUE,
       wxWidgetsPixelFormat::ALPHA>;
 
-  static const enum hgPixelFormatId id = HelperType::id;
-  static const std::function<HgHtmlRendererPtr()> hgNewHtmlRendererFunc;
-};  // class wxPixelFormatToId
-
-template <typename wxWidgetsPixelFormat>
-const std::function<HgHtmlRendererPtr()>
-    wxPixelFormatToHgHtmlRenderer<wxWidgetsPixelFormat>::hgNewHtmlRendererFunc =
-        wxPixelFormatToHgHtmlRenderer<wxWidgetsPixelFormat>::HelperType::
-            hgNewHtmlRendererFunc;
+  static const cairo_format_t colorFormat = HelperType::colorFormat;
+  static const int bitsPerPixel = wxWidgetsPixelFormat::BitsPerPixel;
+};  // class wxPixelFormatToHgHtmlRenderer
 
 }  // namespace hg
 

@@ -75,10 +75,6 @@ void HgHtmlRenderer::drawHtml(unsigned char* buffer,
   // https://stackoverflow.com/a/18685338
   //auto start = std::chrono::steady_clock::now();
 
-  if(buffer != mBuffer) {
-    mCairo =
-        std::make_shared<HgCairo>(buffer, colorFormat, width, height, stride);
-  }
   litehtml::uint_ptr hdcCairo = reinterpret_cast<litehtml::uint_ptr>(&mCairo);
 
   bool fullDraw = buffer != mBuffer || width != mBufferWidth
@@ -86,6 +82,9 @@ void HgHtmlRenderer::drawHtml(unsigned char* buffer,
       || abs(mHtmlX - htmlX) >= width || abs(mHtmlY - htmlY) >= height;
 
   if(fullDraw) {
+    mCairo =
+        std::make_shared<HgCairo>(buffer, colorFormat, width, height, stride);
+
     mCairo->save();
     mCairo->clear(HgCairo::Color{mBackgroundColor});
     litehtml::position testClip(0, 0, width, height);

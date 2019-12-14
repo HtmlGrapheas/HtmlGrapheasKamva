@@ -62,7 +62,7 @@ HgKamvaWxWindow::HgKamvaWxWindow(wxWindow* parent,
     , mNewHtmlX(0)
     , mNewHtmlY(0)
 {
-  mHgHtmlRenderer = hgNewHtmlRendererFunc();
+  mHgHtmlRenderer = hgNewHtmlRenderer();
   initHgContainer();
 
   // This part makes the scrollbars show up.
@@ -79,17 +79,12 @@ HgKamvaWxWindow::~HgKamvaWxWindow()
 
 void HgKamvaWxWindow::initHgContainer()
 {
-  int colorBits = hgPixelFormatIdToColorBits(mPixFmtId);
-  if(0 == colorBits) {
-    return;
-  }
-
   // Set device parameters.
   // 15.6", 1920x1080 -> 141 DPI
   hgContainer_setDeviceDpiX(mHgHtmlRenderer, 141);
   hgContainer_setDeviceDpiY(mHgHtmlRenderer, 141);
   hgContainer_setDeviceMonochromeBits(mHgHtmlRenderer, 0);
-  hgContainer_setDeviceColorBits(mHgHtmlRenderer, colorBits);
+  hgContainer_setDeviceColorBits(mHgHtmlRenderer, mBitsPerPixel);
   hgContainer_setDeviceColorIndex(mHgHtmlRenderer, 256);
   hgContainer_setDeviceMediaType(
       mHgHtmlRenderer, hgLitehtmlMediaType::media_type_screen);
@@ -116,8 +111,8 @@ void HgKamvaWxWindow::initHgContainer()
   fontConfFile.SetFullName("fonts.conf");
 
   std::string fontConfig =
-      hg::FileUtil::readFile(fontConfFile.GetFullPath().ToStdString());
-  assert(fontConfig.size());
+      hg::util::readFile(fontConfFile.GetFullPath().ToStdString());
+  assert(!fontConfig.empty());
 
   bool loadedFontConfig = hgContainer_parseAndLoadFontConfigFromMemory(
       mHgHtmlRenderer, fontConfig.c_str(), true);
@@ -135,13 +130,13 @@ void HgKamvaWxWindow::initHgContainer()
   hgContainer_setFontTextCacheSize(mHgHtmlRenderer, 10000);
 
   std::string masterCss =
-      FileUtil::readFile(masterCssFile.GetFullPath().ToStdString());
+      hg::util::readFile(masterCssFile.GetFullPath().ToStdString());
   assert(masterCss.size());
 
   hgHtmlContext_loadMasterStylesheet(mHgHtmlRenderer, masterCss.c_str());
 
   std::string htmlText =
-      FileUtil::readFile(htmlFile.GetFullPath().ToStdString());
+      hg::util::readFile(htmlFile.GetFullPath().ToStdString());
   assert(htmlText.size());
 
   hgHtmlRenderer_createHtmlDocumentFromUtf8(mHgHtmlRenderer, htmlText.c_str());
@@ -162,6 +157,7 @@ void HgKamvaWxWindow::setBitmap(const int width, const int height)
 
 void HgKamvaWxWindow::drawOnBitmap()
 {
+  //{  // TODO: this block to setBitmap()
   // Attach the AGG rendering buffer to the bitmap
   // and call the user draw() code.
 
@@ -192,15 +188,18 @@ void HgKamvaWxWindow::drawOnBitmap()
   if(pixStride < 0) {
     pixData += (pixHeight - 1) * pixStride;
   }
+  //}  // TODO:
 
+  // TODO: do not create Bitmap context if sizes is same.
   drawHtml(pixData, pixWidth, pixHeight, pixStride);
 }
 
 void HgKamvaWxWindow::drawHtml(
     unsigned char* buffer, const int width, const int height, const int stride)
 {
-  if(!buffer || (width == mVisibleHtmlWidth && height == mVisibleHtmlHeight
-                    && mNewHtmlX == mHtmlX && mNewHtmlY == mHtmlY)) {
+  if(!buffer
+      || (width == mVisibleHtmlWidth && height == mVisibleHtmlHeight
+             && mNewHtmlX == mHtmlX && mNewHtmlY == mHtmlY)) {
     return;
   }
 
@@ -211,8 +210,8 @@ void HgKamvaWxWindow::drawHtml(
 
   // Draw HTML document.
   hgHtmlRenderer_setBackgroundColor(mHgHtmlRenderer, 255, 255, 255);
-  hgHtmlRenderer_drawHtml(
-      mHgHtmlRenderer, buffer, width, height, stride, mNewHtmlX, mNewHtmlY);
+  hgHtmlRenderer_drawHtml(mHgHtmlRenderer, buffer, mColorFormat, width, height,
+      stride, mNewHtmlX, mNewHtmlY);
 }
 
 void HgKamvaWxWindow::onSize(wxSizeEvent& event)
@@ -220,6 +219,10 @@ void HgKamvaWxWindow::onSize(wxSizeEvent& event)
   const wxSize size = GetClientSize();
   const int width = size.GetWidth();
   const int height = size.GetHeight();
+
+  // TODO:
+  //dc.GetSize(&width, &height);
+  //setBitmap(width, height);  // dc size == GetClientSize() ???
 
   hgContainer_setDeviceWidth(mHgHtmlRenderer, width);
   hgContainer_setDeviceHeight(mHgHtmlRenderer, height);

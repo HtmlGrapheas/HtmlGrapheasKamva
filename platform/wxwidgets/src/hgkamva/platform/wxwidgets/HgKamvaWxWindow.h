@@ -56,7 +56,7 @@ namespace hg
 class HgKamvaWxWindow : public wxScrolledCanvas
 {
 private:
-  using PixelFormat = wxPixelFormatToHgHtmlRenderer<wxNativePixelFormat>;
+  using PixelFormat = wxPixelFormatToHgHtmlRenderer<wxAlphaPixelFormat>;
   using PixelData = wxPixelData<wxBitmap, PixelFormat::wxWidgetsType>;
 
 public:
@@ -98,9 +98,9 @@ private:
   wxMemoryDC mMemoryDC;  ///< Memory "device context" for drawing the bitmap
   std::shared_ptr<wxBitmap> mBitmap;  ///< wxWidgets bitmap for AGG to draw into
 
-  const enum hgPixelFormatId mPixFmtId = PixelFormat::id;
-  std::function<HgHtmlRendererPtr()> hgNewHtmlRendererFunc =
-      PixelFormat::hgNewHtmlRendererFunc;
+  const cairo_format_t mColorFormat = PixelFormat::colorFormat;
+  const int mBitsPerPixel = PixelFormat::bitsPerPixel;
+
   HgHtmlRendererPtr mHgHtmlRenderer;
 
   int mVisibleHtmlWidth;

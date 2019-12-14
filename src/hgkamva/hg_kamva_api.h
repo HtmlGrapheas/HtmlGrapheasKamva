@@ -24,22 +24,18 @@
 #ifndef HG_KAMVA_API_H
 #define HG_KAMVA_API_H
 
-#include "hgkamva/hg_kamva_common.h"
+#include <cairo/cairo.h>
 
 #include "hgkamva/hg_kamva_codes.h"
+#include "hgkamva/hg_kamva_common.h"
 
 typedef void* HgHtmlRendererPtr;
 typedef unsigned char HgBool;
 typedef unsigned char HgByte;
 
-HG_KAMVA_EXTERNC int hgPixelFormatIdToColorBits(enum hgPixelFormatId pixFmtId);
+HG_KAMVA_EXTERNC int hgColorFormatToBitsPerPixel(cairo_format_t pixFmtId);
 
-HG_KAMVA_EXTERNC HgHtmlRendererPtr hgNewHtmlRendererRgb24();
-HG_KAMVA_EXTERNC HgHtmlRendererPtr hgNewHtmlRendererBgr24();
-HG_KAMVA_EXTERNC HgHtmlRendererPtr hgNewHtmlRendererRgba32();
-HG_KAMVA_EXTERNC HgHtmlRendererPtr hgNewHtmlRendererBgra32();
-HG_KAMVA_EXTERNC HgHtmlRendererPtr hgNewHtmlRendererArgb32();
-HG_KAMVA_EXTERNC HgHtmlRendererPtr hgNewHtmlRendererAbgr32();
+HG_KAMVA_EXTERNC HgHtmlRendererPtr hgNewHtmlRenderer();
 
 HG_KAMVA_EXTERNC void hgDeleteHtmlRenderer(HgHtmlRendererPtr renderer);
 
@@ -49,11 +45,12 @@ HG_KAMVA_EXTERNC int hgHtmlRenderer_renderHtml(
     HgHtmlRendererPtr renderer, int width, int height);
 HG_KAMVA_EXTERNC void hgHtmlRenderer_drawHtml(HgHtmlRendererPtr renderer,
     unsigned char* buffer,
-    int width,
-    int height,
-    int stride,
-    int htmlX,
-    int htmlY);
+    const cairo_format_t colorFormat,
+    const int width,
+    const int height,
+    const int stride,
+    const int htmlX,
+    const int htmlY);
 HG_KAMVA_EXTERNC void hgHtmlRenderer_setBackgroundColor(
     HgHtmlRendererPtr renderer,
     HgByte red,

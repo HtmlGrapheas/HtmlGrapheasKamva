@@ -24,17 +24,6 @@
 #ifndef HG_KAMVA_CODES_H
 #define HG_KAMVA_CODES_H
 
-enum hgPixelFormatId
-{
-  UNKNOWN = 0,
-  RGB24, /**< 24-bit RGB. */
-  BGR24, /**< 24-bit BGR. */
-  RGBA32, /**< 32-bit RGBA. */
-  BGRA32, /**< 32-bit BGRA. */
-  ARGB32, /**< 32-bit ARGB. */
-  ABGR32, /**< 32-bit ABGR. */
-};
-
 enum hgLitehtmlMediaType
 {
   media_type_none,
