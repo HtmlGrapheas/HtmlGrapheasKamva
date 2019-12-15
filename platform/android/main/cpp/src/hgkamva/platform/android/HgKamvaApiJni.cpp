@@ -21,15 +21,13 @@
  *    along with this program. If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
 
+#include <assert.h>
+#include <iostream>
+
 #include <android/bitmap.h>
 #include <jni.h>
 
-#include <assert.h>
-
-#include <iostream>
-
 #include "hgkamva/hg_kamva_api.h"
-
 
 // https://developer.android.com/training/articles/perf-jni.html#faq_ULE
 // http://stackoverflow.com/a/2480564
@@ -45,10 +43,10 @@ inline void* voidpCast(jlong val)
 }
 
 JNIEXPORT jint JNICALL
-Java_ru_htmlgrapheas_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgPixelFormatIdToColorBits(
-    JNIEnv* env, jclass type, jint pixFmtId)
+Java_ru_htmlgrapheas_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgColorFormatToBitsPerPixel(
+    JNIEnv* env, jclass type, jint format)
 {
-  return hgPixelFormatIdToColorBits(static_cast<hgPixelFormatId>(pixFmtId));
+  return hgColorFormatToBitsPerPixel(static_cast<hgColorFormat>(format));
 }
 
 JNIEXPORT jlong JNICALL
@@ -58,10 +56,9 @@ Java_ru_htmlgrapheas_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgNewHtmlRende
   AndroidBitmapInfo bitmapInfo;
   AndroidBitmap_getInfo(env, bitmap, &bitmapInfo);
 
-  enum hgPixelFormatId pixFmtId;
   switch(bitmapInfo.format) {
     case ANDROID_BITMAP_FORMAT_RGBA_8888: {
-      return reinterpret_cast<jlong>(hgNewHtmlRendererRgba32());
+      return reinterpret_cast<jlong>(hgNewHtmlRenderer());
     }
     default: {
       std::cout << "hgHtmlRenderer_drawHtml(), unsupported bitmap format\n";
@@ -117,8 +114,9 @@ Java_ru_htmlgrapheas_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgHtmlRenderer
     return;
   }
 
+  // ANDROID_BITMAP_FORMAT_RGBA_8888 -> HG_FORMAT_ARGB32
   hgHtmlRenderer_drawHtml(voidpCast(renderer),
-      static_cast<unsigned char*>(p_pixels), bitmapInfo.width,
+      static_cast<unsigned char*>(p_pixels), HG_FORMAT_ARGB32, bitmapInfo.width,
       bitmapInfo.height, bitmapInfo.stride, htmlX, htmlY);
 
   AndroidBitmap_unlockPixels(env, bitmap);
@@ -251,7 +249,7 @@ Java_ru_htmlgrapheas_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgContainer_1s
 
 JNIEXPORT void JNICALL
 Java_ru_htmlgrapheas_htmlgrapheaskamva_hgkamva_1api_HgKamvaApiJni_hgContainer_1setDeviceMediaType(
-    JNIEnv* env, jclass type_, jlong renderer, int type)
+    JNIEnv* env, jclass type_, jlong renderer, jint type)
 {
   hgContainer_setDeviceMediaType(
       voidpCast(renderer), static_cast<hgLitehtmlMediaType>(type));

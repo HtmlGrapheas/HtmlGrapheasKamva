@@ -29,7 +29,7 @@ import ru.htmlgrapheas.htmlgrapheaskamva.BuildConfig;
 
 public class HgKamvaApiJni
 {
-  public native static int hgPixelFormatIdToColorBits(int pixFmtId);
+  public native static int hgColorFormatToBitsPerPixel(int format);
 
   public native static long hgNewHtmlRenderer(Bitmap bitmap);
 
@@ -124,10 +124,6 @@ public class HgKamvaApiJni
 
         System.loadLibrary("pixman-1");
         System.loadLibrary("cairo");
-
-        if (BuildConfig.HG_AGG_CONTAINER) {
-          System.loadLibrary("agg");
-        }
 
         System.loadLibrary("gumbo");
         System.loadLibrary("litehtml");
