@@ -24,6 +24,19 @@
 #ifndef HG_KAMVA_CODES_H
 #define HG_KAMVA_CODES_H
 
+typedef enum _hgColorFormat
+{
+  HG_FORMAT_INVALID = -1,
+  HG_FORMAT_ARGB32 = 0,
+  HG_FORMAT_RGB24 = 1,
+  HG_FORMAT_A8 = 2,
+  HG_FORMAT_A1 = 3,
+  HG_FORMAT_RGB16_565 = 4,
+  HG_FORMAT_RGB30 = 5,
+  HG_FORMAT_RGB96F = 6,
+  HG_FORMAT_RGBA128F = 7
+} hgColorFormat;  // == cairo_format_t
+
 enum hgLitehtmlMediaType
 {
   media_type_none,
@@ -39,4 +52,4 @@ enum hgLitehtmlMediaType
   media_type_tv,
 };
 
-#endif  /* HG_KAMVA_CODES_H */
+#endif /* HG_KAMVA_CODES_H */

@@ -24,8 +24,6 @@
 #ifndef HG_KAMVA_API_H
 #define HG_KAMVA_API_H
 
-#include <cairo/cairo.h>
-
 #include "hgkamva/hg_kamva_codes.h"
 #include "hgkamva/hg_kamva_common.h"
 
@@ -33,7 +31,7 @@ typedef void* HgHtmlRendererPtr;
 typedef unsigned char HgBool;
 typedef unsigned char HgByte;
 
-HG_KAMVA_EXTERNC int hgColorFormatToBitsPerPixel(cairo_format_t pixFmtId);
+HG_KAMVA_EXTERNC int hgColorFormatToBitsPerPixel(hgColorFormat pixFmtId);
 
 HG_KAMVA_EXTERNC HgHtmlRendererPtr hgNewHtmlRenderer();
 
@@ -45,7 +43,7 @@ HG_KAMVA_EXTERNC int hgHtmlRenderer_renderHtml(
     HgHtmlRendererPtr renderer, int width, int height);
 HG_KAMVA_EXTERNC void hgHtmlRenderer_drawHtml(HgHtmlRendererPtr renderer,
     unsigned char* buffer,
-    const cairo_format_t colorFormat,
+    const hgColorFormat colorFormat,
     const int width,
     const int height,
     const int stride,

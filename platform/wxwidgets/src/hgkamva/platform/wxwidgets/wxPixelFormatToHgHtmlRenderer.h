@@ -35,8 +35,6 @@
 
 #include <functional>
 
-#include <cairo/cairo.h>
-
 #include "hgkamva/hg_kamva_api.h"
 
 namespace
@@ -75,7 +73,7 @@ struct wxWidgetsToHgHtmlRendererHelper
 template <>
 struct wxWidgetsToHgHtmlRendererHelper<unsigned char, 32, 0, 1, 2, -1>
 {
-  static const cairo_format_t colorFormat = CAIRO_FORMAT_RGB24;
+  static const hgColorFormat colorFormat = HG_FORMAT_RGB24;
 };
 
 /// 32-bit BGR, alpha unused but stored as ABGR.
@@ -94,7 +92,7 @@ struct wxWidgetsToHgHtmlRendererHelper<unsigned char, 32, 0, 1, 2, -1>
 template <>
 struct wxWidgetsToHgHtmlRendererHelper<unsigned char, 32, 0, 1, 2, 3>
 {
-  static const /*enum*/ cairo_format_t colorFormat = CAIRO_FORMAT_ARGB32;
+  static const /*enum*/ hgColorFormat colorFormat = HG_FORMAT_ARGB32;
 };
 
 /// 32-bit BGRA
@@ -121,9 +119,9 @@ namespace hg
 {
 /// Convert between a wxWidgets pixel format class and a Cairo's color format.
 /// Usage examples:
-/// cairo_format_t colorFormat = wxPixelFormatToId<wxNativePixelFormat>::colorFormat
+/// hgColorFormat colorFormat = wxPixelFormatToId<wxNativePixelFormat>::colorFormat
 /// or
-/// cairo_format_t colorFormat = wxPixelFormatToId<wxAlphaPixelFormat>::colorFormat.
+/// hgColorFormat colorFormat = wxPixelFormatToId<wxAlphaPixelFormat>::colorFormat.
 template <typename wxWidgetsPixelFormat>
 class wxPixelFormatToHgHtmlRenderer
 // TODO: rename to wxPixelFormatToCairoColorFormat
@@ -140,7 +138,7 @@ public:
       wxWidgetsPixelFormat::BLUE,
       wxWidgetsPixelFormat::ALPHA>;
 
-  static const cairo_format_t colorFormat = HelperType::colorFormat;
+  static const hgColorFormat colorFormat = HelperType::colorFormat;
   static const int bitsPerPixel = wxWidgetsPixelFormat::BitsPerPixel;
 };  // class wxPixelFormatToHgHtmlRenderer
 

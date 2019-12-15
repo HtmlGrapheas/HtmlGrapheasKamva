@@ -98,7 +98,7 @@ private:
   wxMemoryDC mMemoryDC;  ///< Memory "device context" for drawing the bitmap
   std::shared_ptr<wxBitmap> mBitmap;  ///< wxWidgets bitmap for AGG to draw into
 
-  const cairo_format_t mColorFormat = PixelFormat::colorFormat;
+  const hgColorFormat mColorFormat = PixelFormat::colorFormat;
   const int mBitsPerPixel = PixelFormat::bitsPerPixel;
 
   HgHtmlRendererPtr mHgHtmlRenderer;

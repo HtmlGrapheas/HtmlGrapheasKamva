@@ -118,7 +118,7 @@ find_package(Cairo REQUIRED)
 target_link_libraries(${lib_NAME} PRIVATE hgraph)
 
 # Cairo
-target_link_libraries(${lib_NAME} PUBLIC Cairo::Cairo)
+target_link_libraries(${lib_NAME} PRIVATE Cairo::Cairo)
 
 # Pixman
 target_link_libraries(${lib_NAME} PRIVATE Pixman::Pixman)

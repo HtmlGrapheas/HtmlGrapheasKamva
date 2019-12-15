@@ -26,6 +26,8 @@
 #include <cassert>
 #include <memory>
 
+#include <cairo/cairo.h>
+
 #include "litehtml.h"
 
 #include "hgkamva/container/HgContainer.h"
@@ -61,9 +63,9 @@ inline litehtml::document::ptr getHtmlDocument(HgHtmlRendererPtr renderer)
 
 // API functions.
 
-int hgColorFormatToBitsPerPixel(cairo_format_t format)
+int hgColorFormatToBitsPerPixel(hgColorFormat format)
 {
-  return HgCairo::formatBitsPerPixel(format);
+  return HgCairo::formatBitsPerPixel(static_cast<cairo_format_t>(format));
 }
 
 // HgHtmlRenderer methods.
@@ -91,15 +93,16 @@ int hgHtmlRenderer_renderHtml(HgHtmlRendererPtr renderer, int width, int height)
 
 void hgHtmlRenderer_drawHtml(HgHtmlRendererPtr renderer,
     unsigned char* buffer,
-    const cairo_format_t colorFormat,
+    const hgColorFormat colorFormat,
     const int width,
     const int height,
     const int stride,
     const int htmlX,
     const int htmlY)
 {
-  return getHgHtmlRenderer(renderer)->drawHtml(
-      buffer, colorFormat, width, height, stride, htmlX, htmlY);
+  return getHgHtmlRenderer(renderer)->drawHtml(buffer,
+      static_cast<cairo_format_t>(colorFormat), width, height, stride, htmlX,
+      htmlY);
 }
 
 void hgHtmlRenderer_setBackgroundColor(HgHtmlRendererPtr renderer,
