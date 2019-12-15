@@ -167,7 +167,7 @@ public class HtmlGrapheasView
   // TODO: move it to util.
   private int bitmapConfigToColorBits(Bitmap.Config config)
   {
-    switch (BITMAP_CONFIG) {
+    switch (config) {
       case ARGB_8888:
         return 8;
       default:

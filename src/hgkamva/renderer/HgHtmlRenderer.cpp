@@ -99,18 +99,18 @@ void HgHtmlRenderer::drawHtml(unsigned char* buffer,
 
     int x1 = 0;
     int y1 = 0;
-    int x2 = width - 1;
-    int y2 = height - 1;
+    int x2 = width;
+    int y2 = height;
 
     if(diffX != 0) {
       if(diffX > 0) {
-        x1 = x2 - diffX + 1;
+        x1 = x2 - diffX;
       } else {
-        x2 = -diffX - 1;  // x2 = x1 - diffX - 1;
+        x2 = -diffX;  // x2 = x1 - diffX, but x1 == 0;
       }
       if(x1 != x2) {
-        int clipWidth = x2 - x1 + 1;
-        int clipHeight = y2 - y1 + 1;
+        int clipWidth = x2 - x1;
+        int clipHeight = y2 - y1;
         mCairo->save();
         mCairo->clip(x1, y1, clipWidth, clipHeight);
         mCairo->clear(HgCairo::Color{mBackgroundColor});
@@ -121,22 +121,22 @@ void HgHtmlRenderer::drawHtml(unsigned char* buffer,
     }
 
     if(diffY != 0) {
-      if(width - 1 == x2 && 0 != x1) {
-        x2 = x1 - 1;
+      if(width == x2 && 0 != x1) {
+        x2 = x1;
         x1 = 0;
-      } else if(0 == x1 && width - 1 != x2) {
-        x1 = x2 + 1;
-        x2 = width - 1;
+      } else if(0 == x1 && width != x2) {
+        x1 = x2;
+        x2 = width;
       }
 
       if(diffY > 0) {
-        y1 = y2 - diffY + 1;
+        y1 = y2 - diffY;
       } else {
-        y2 = -diffY - 1;  // y2 = y1 - diffY - 1;
+        y2 = -diffY;  // y2 = y1 - diffY, but y1 == 0;
       }
       if(y1 != y2) {
-        int clipWidth = x2 - x1 + 1;
-        int clipHeight = y2 - y1 + 1;
+        int clipWidth = x2 - x1;
+        int clipHeight = y2 - y1;
         mCairo->save();
         mCairo->clip(x1, y1, clipWidth, clipHeight);
         mCairo->clear(HgCairo::Color{mBackgroundColor});
