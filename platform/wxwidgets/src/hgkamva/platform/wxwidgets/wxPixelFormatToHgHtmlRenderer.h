@@ -92,7 +92,7 @@ struct wxWidgetsToHgHtmlRendererHelper<unsigned char, 32, 0, 1, 2, -1>
 template <>
 struct wxWidgetsToHgHtmlRendererHelper<unsigned char, 32, 0, 1, 2, 3>
 {
-  static const /*enum*/ hgColorFormat colorFormat = HG_FORMAT_ARGB32;
+  static const hgColorFormat colorFormat = HG_FORMAT_ARGB32;
 };
 
 /// 32-bit BGRA
@@ -102,10 +102,12 @@ struct wxWidgetsToHgHtmlRendererHelper<unsigned char, 32, 0, 1, 2, 3>
 //};
 
 /// 32-bit ARGB
-//template <>
-//struct wxWidgetsToHgHtmlRendererHelper<unsigned char, 32, 1, 2, 3, 0>
-//{
-//};
+template <>
+struct wxWidgetsToHgHtmlRendererHelper<unsigned char, 32, 1, 2, 3, 0>
+{
+  // TODO: use cairo_quartz_surface_create() or similar for macOS
+  static const hgColorFormat colorFormat = HG_FORMAT_ARGB32;
+};
 
 /// 32-bit ABGR
 //template <>

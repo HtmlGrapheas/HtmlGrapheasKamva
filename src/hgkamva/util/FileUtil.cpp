@@ -62,8 +62,8 @@ bool writePpmFile(const unsigned char* buf,
 bool compareFiles(const hg::filesystem::path& filePath1,
     const hg::filesystem::path& filePath2)
 {
-  std::ifstream f1(filePath1, std::ifstream::binary | std::ifstream::ate);
-  std::ifstream f2(filePath2, std::ifstream::binary | std::ifstream::ate);
+  std::ifstream f1(filePath1.string(), std::ifstream::binary | std::ifstream::ate);
+  std::ifstream f2(filePath2.string(), std::ifstream::binary | std::ifstream::ate);
 
   if(f1.fail() || f2.fail()) {
     return false;  // File problem.
@@ -85,7 +85,7 @@ bool compareFiles(const hg::filesystem::path& filePath1,
 // https://stackoverflow.com/a/43009155
 std::string readFile(const hg::filesystem::path& fileName)
 {
-  std::ifstream ifs(fileName, std::ios::in | std::ios::binary | std::ios::ate);
+  std::ifstream ifs(fileName.string(), std::ios::in | std::ios::binary | std::ios::ate);
 
   std::ifstream::pos_type fileSize = ifs.tellg();
   if(fileSize < 0)

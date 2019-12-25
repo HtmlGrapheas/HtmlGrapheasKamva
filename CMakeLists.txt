@@ -122,7 +122,7 @@ if(USE_BOOST)
   target_compile_definitions(${lib_NAME} PUBLIC USE_BOOST)
 
   # Boost
-  target_link_libraries(${lib_NAME} PRIVATE
+  target_link_libraries(${lib_NAME} PUBLIC
     Boost::disable_autolinking Boost::filesystem Boost::system
   )
 endif()
