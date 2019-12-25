@@ -24,8 +24,9 @@
 #ifndef HG_FILEUTIL_H
 #define HG_FILEUTIL_H
 
-#include <filesystem>
 #include <string>
+
+#include "hgkamva/util/Filesystem.h"
 
 namespace hg
 {
@@ -35,12 +36,12 @@ bool writePpmFile(const unsigned char* buf,
     unsigned width,
     unsigned height,
     unsigned bytePerPixel,
-    const std::filesystem::path& fileName);
+    const hg::filesystem::path& fileName);
 
-bool compareFiles(const std::filesystem::path& filePath1,
-    const std::filesystem::path& filePath2);
+bool compareFiles(const hg::filesystem::path& filePath1,
+    const hg::filesystem::path& filePath2);
 
-std::string readFile(const std::filesystem::path& fileName);
+std::string readFile(const hg::filesystem::path& fileName);
 
 }  // namespace util
 }  // namespace hg

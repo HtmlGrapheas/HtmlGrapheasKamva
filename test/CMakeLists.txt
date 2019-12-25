@@ -122,6 +122,13 @@ if(BUILD_TESTING)
     # HtmlGrapheas
     target_link_libraries(${test_NAME} PRIVATE hgraph)
 
+    if(USE_BOOST)
+      # Boost
+      target_link_libraries(${test_NAME} PRIVATE
+        Boost::disable_autolinking Boost::filesystem Boost::system
+      )
+    endif()
+
     # Cairo
     target_link_libraries(${test_NAME} PRIVATE Cairo::Cairo)
 

@@ -41,7 +41,7 @@ bool writePpmFile(const unsigned char* buf,
     unsigned width,
     unsigned height,
     unsigned bytePerPixel,
-    const std::filesystem::path& fileName)
+    const hg::filesystem::path& fileName)
 {
   FILE* fd = fopen(fileName.c_str(), "wb");
   if(fd) {
@@ -59,8 +59,8 @@ bool writePpmFile(const unsigned char* buf,
 }
 
 //https://stackoverflow.com/a/37575457
-bool compareFiles(const std::filesystem::path& filePath1,
-    const std::filesystem::path& filePath2)
+bool compareFiles(const hg::filesystem::path& filePath1,
+    const hg::filesystem::path& filePath2)
 {
   std::ifstream f1(filePath1, std::ifstream::binary | std::ifstream::ate);
   std::ifstream f2(filePath2, std::ifstream::binary | std::ifstream::ate);
@@ -83,7 +83,7 @@ bool compareFiles(const std::filesystem::path& filePath1,
 
 // https://stackoverflow.com/a/525103
 // https://stackoverflow.com/a/43009155
-std::string readFile(const std::filesystem::path& fileName)
+std::string readFile(const hg::filesystem::path& fileName)
 {
   std::ifstream ifs(fileName, std::ios::in | std::ios::binary | std::ios::ate);
 

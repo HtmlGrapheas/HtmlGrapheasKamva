@@ -22,18 +22,18 @@
  ****************************************************************************/
 
 #include <cstdlib>
-#include <filesystem>
 #include <string>
 
 #include "gtest/gtest.h"
 
 #include "hgkamva/container/HgFontLibrary.h"
 #include "hgkamva/util/FileUtil.h"
+#include "hgkamva/util/Filesystem.h"
 #include "hgkamva/util/StringUtil.h"
 
-inline std::filesystem::path testDir;
-inline std::filesystem::path fontDir;
-//inline std::filesystem::path dataDir;
+inline hg::filesystem::path testDir;
+inline hg::filesystem::path fontDir;
+//inline hg::filesystem::path dataDir;
 
 int main(int argc, char** argv)
 {
@@ -44,7 +44,7 @@ int main(int argc, char** argv)
   // https://stackoverflow.com/a/42772814
   // https://habr.com/ru/post/343622/
   testDir =
-      std::filesystem::absolute(std::filesystem::path(argv[0]).parent_path());
+      hg::filesystem::absolute(hg::filesystem::path(argv[0]).parent_path());
   fontDir = testDir / "fonts";
   //  dataDir = testDir / "data";
 
@@ -53,14 +53,14 @@ int main(int argc, char** argv)
 
 TEST(HgFontLibraryTest, getFontFilePath)
 {
-  EXPECT_TRUE(std::filesystem::exists(testDir));
-  EXPECT_TRUE(std::filesystem::exists(fontDir));
-  //  EXPECT_TRUE(std::filesystem::exists(dataDir));
+  EXPECT_TRUE(hg::filesystem::exists(testDir));
+  EXPECT_TRUE(hg::filesystem::exists(fontDir));
+  //  EXPECT_TRUE(hg::filesystem::exists(dataDir));
 
   hg::HgFontLibrary hgFontLibrary;
 
-  std::filesystem::path fontConfFile = fontDir / "fonts.conf";
-  EXPECT_TRUE(std::filesystem::exists(fontConfFile));
+  hg::filesystem::path fontConfFile = fontDir / "fonts.conf";
+  EXPECT_TRUE(hg::filesystem::exists(fontConfFile));
   std::string fontConfig = hg::util::readFile(fontConfFile);
   EXPECT_FALSE(fontConfig.empty());
 
@@ -69,7 +69,7 @@ TEST(HgFontLibraryTest, getFontFilePath)
   EXPECT_TRUE(hgFontLibrary.addFontDir(fontDir));
 
   uint_least8_t result;
-  std::filesystem::path filePath;
+  hg::filesystem::path filePath;
 
   filePath = hgFontLibrary.getFontFilePath("Some Unknown Font, Tinos", 16, 400,
       litehtml::font_style::fontStyleNormal, &result);

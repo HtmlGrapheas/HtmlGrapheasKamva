@@ -24,7 +24,6 @@
 #ifndef HG_FONT_H
 #define HG_FONT_H
 
-#include <filesystem>
 #include <memory>
 #include <string>
 
@@ -42,6 +41,7 @@
 
 #include "hgkamva/container/HgCairo.h"
 #include "hgkamva/container/HgFontLibrary.h"
+#include "hgkamva/util/Filesystem.h"
 
 namespace hg
 {
@@ -59,7 +59,7 @@ public:
   ~HgFont();
 
   bool createFtFace(
-      const std::filesystem::path& fontFilePath, const int pixelSize);
+      const hg::filesystem::path& fontFilePath, const int pixelSize);
 
   void resetBuffer();
   void clearBuffer();

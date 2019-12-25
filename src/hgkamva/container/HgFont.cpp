@@ -45,7 +45,7 @@ HgFont::HgFont(FtLibraryPtr ftLibrary, const int textCacheSize)
 HgFont::~HgFont() {}
 
 bool HgFont::createFtFace(
-    const std::filesystem::path& fontFilePath, const int pixelSize)
+    const hg::filesystem::path& fontFilePath, const int pixelSize)
 {
   // NOTE: px = pt * DPI / 72
   mPixelSize = pixelSize;

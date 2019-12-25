@@ -43,19 +43,19 @@ bool HgFontLibrary::parseAndLoadConfigFromMemory(
       && FcConfigSetCurrent(mFcConfig.get());
 }
 
-bool HgFontLibrary::addFontDir(const std::filesystem::path& dirPath)
+bool HgFontLibrary::addFontDir(const hg::filesystem::path& dirPath)
 {
   const FcChar8* dir = reinterpret_cast<const FcChar8*>(dirPath.c_str());
   return FcConfigAppFontAddDir(mFcConfig.get(), dir);
 }
 
-std::filesystem::path HgFontLibrary::getFontFilePath(const std::string& names,
+hg::filesystem::path HgFontLibrary::getFontFilePath(const std::string& names,
     const int pixelSize,
     const int weight,
     const litehtml::font_style fontStyle,
     uint_least8_t* result) const
 {
-  std::filesystem::path ret;
+  hg::filesystem::path ret;
 
   litehtml::string_vector fonts;
   litehtml::split_string(names, fonts, ",");

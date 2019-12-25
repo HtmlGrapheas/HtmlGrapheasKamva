@@ -24,13 +24,13 @@
 #ifndef HG_CONTAINER_H
 #define HG_CONTAINER_H
 
-#include <filesystem>
 #include <memory>
 #include <string>
 
 #include "litehtml.h"
 
 #include "hgkamva/container/HgFontLibrary.h"
+#include "hgkamva/util/Filesystem.h"
 
 namespace hg
 {
@@ -47,7 +47,7 @@ public:
 
   bool parseAndLoadFontConfigFromMemory(
       const std::string& fontConfig, bool complain);
-  bool addFontDir(const std::filesystem::path& dirPath);
+  bool addFontDir(const hg::filesystem::path& dirPath);
   void setDefaultFontName(const std::string& name);
   void setDefaultFontSize(int size);
   void setFontTextCacheSize(int size);

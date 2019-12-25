@@ -25,7 +25,6 @@
 #define HG_FONT_LIBRARY_H
 
 #include <cstdint>
-#include <filesystem>
 #include <string>
 
 #include <fontconfig/fontconfig.h>
@@ -34,6 +33,8 @@
 #include FT_FREETYPE_H
 
 #include "litehtml.h"
+
+#include "hgkamva/util/Filesystem.h"
 
 namespace hg
 {
@@ -63,9 +64,9 @@ public:
 
   bool parseAndLoadConfigFromMemory(
       const std::string& fontConfig, const bool complain);
-  bool addFontDir(const std::filesystem::path& dirPath);
+  bool addFontDir(const hg::filesystem::path& dirPath);
 
-  std::filesystem::path getFontFilePath(const std::string& names,
+  hg::filesystem::path getFontFilePath(const std::string& names,
       const int pixelSize,
       const int weight,
       const litehtml::font_style fontStyle,

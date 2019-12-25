@@ -21,7 +21,6 @@
  *    along with this program. If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
 
-#include <filesystem>
 #include <memory>
 #include <string>
 #include <vector>
@@ -34,11 +33,12 @@
 #include "hgkamva/container/HgFont.h"
 #include "hgkamva/container/HgFontLibrary.h"
 #include "hgkamva/util/FileUtil.h"
+#include "hgkamva/util/Filesystem.h"
 #include "hgkamva/util/StringUtil.h"
 
-inline std::filesystem::path testDir;
-inline std::filesystem::path fontDir;
-inline std::filesystem::path dataDir;
+inline hg::filesystem::path testDir;
+inline hg::filesystem::path fontDir;
+inline hg::filesystem::path dataDir;
 
 int main(int argc, char** argv)
 {
@@ -46,7 +46,7 @@ int main(int argc, char** argv)
 
   // https://stackoverflow.com/a/55579815
   testDir =
-      std::filesystem::absolute(std::filesystem::path(argv[0]).parent_path());
+      hg::filesystem::absolute(hg::filesystem::path(argv[0]).parent_path());
   fontDir = testDir / "fonts";
   dataDir = testDir / "data";
 
@@ -57,9 +57,9 @@ TEST(HgFontTest, HgFontTest)
 {
   //////// Init part.
 
-  EXPECT_TRUE(std::filesystem::exists(testDir));
-  EXPECT_TRUE(std::filesystem::exists(fontDir));
-  EXPECT_TRUE(std::filesystem::exists(dataDir));
+  EXPECT_TRUE(hg::filesystem::exists(testDir));
+  EXPECT_TRUE(hg::filesystem::exists(fontDir));
+  EXPECT_TRUE(hg::filesystem::exists(dataDir));
 
   //// Cairo init.
 
@@ -86,8 +86,8 @@ TEST(HgFontTest, HgFontTest)
   // Init HgFontLibrary.
   hg::HgFontLibrary hgFontLibrary;
 
-  std::filesystem::path fontConfFile = fontDir / "fonts.conf";
-  EXPECT_TRUE(std::filesystem::exists(fontConfFile));
+  hg::filesystem::path fontConfFile = fontDir / "fonts.conf";
+  EXPECT_TRUE(hg::filesystem::exists(fontConfFile));
   std::string fontConfig = hg::util::readFile(fontConfFile);
   EXPECT_FALSE(fontConfig.empty());
 
@@ -101,7 +101,7 @@ TEST(HgFontTest, HgFontTest)
   litehtml::font_style fontStyle = litehtml::font_style::fontStyleNormal;
 
   uint_least8_t result;
-  std::filesystem::path filePath = hgFontLibrary.getFontFilePath(
+  hg::filesystem::path filePath = hgFontLibrary.getFontFilePath(
       "Tinos", pixelSize, weight, fontStyle, &result);
   EXPECT_EQ(hg::HgFontLibrary::FontMatches::allMatched, result);
   EXPECT_TRUE(filePath.filename() == "Tinos-Regular.ttf");
@@ -148,12 +148,12 @@ TEST(HgFontTest, HgFontTest)
 
   // Write our picture to file.
   std::string fileName1 = "HgFontTest_1.ppm";
-  std::filesystem::path fileOutTest1 = testDir / fileName1;
+  hg::filesystem::path fileOutTest1 = testDir / fileName1;
   hg::util::writePpmFile(
       frameBuf.data(), frameWidth, frameHeight, BYTES_PER_PIXEL, fileOutTest1);
 
   // Compare our file with prototype.
-  std::filesystem::path fileTest1 = dataDir / fileName1;
+  hg::filesystem::path fileTest1 = dataDir / fileName1;
   EXPECT_TRUE(hg::util::compareFiles(fileTest1, fileOutTest1));
 
   //////// Repeat tests for new text.
@@ -183,12 +183,12 @@ TEST(HgFontTest, HgFontTest)
 
   // Write our picture to file.
   std::string fileName2 = "HgFontTest_2.ppm";
-  std::filesystem::path fileOutTest2 = testDir / fileName2;
+  hg::filesystem::path fileOutTest2 = testDir / fileName2;
   hg::util::writePpmFile(frameBuf.data(), frameWidth, frameHeight,
       BYTES_PER_PIXEL, fileOutTest2.c_str());
 
   // Compare our file with prototype.
-  std::filesystem::path fileTest2 = dataDir / fileName2;
+  hg::filesystem::path fileTest2 = dataDir / fileName2;
   EXPECT_TRUE(hg::util::compareFiles(fileTest2, fileOutTest2));
 
   //////// Test HgFont::xHeight().

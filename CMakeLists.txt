@@ -91,6 +91,7 @@ target_sources(${lib_NAME}
     ${public_src_DIR}/hgkamva/container/HgFont.h
     ${public_src_DIR}/hgkamva/container/HgFontLibrary.h
     ${public_src_DIR}/hgkamva/renderer/HgHtmlRenderer.h
+    ${public_src_DIR}/hgkamva/util/Filesystem.h
     ${public_src_DIR}/hgkamva/util/FileUtil.h
     ${public_src_DIR}/hgkamva/util/StringUtil.h
 )
@@ -116,6 +117,15 @@ find_package(Cairo REQUIRED)
 
 # HtmlGrapheas
 target_link_libraries(${lib_NAME} PRIVATE hgraph)
+
+if(USE_BOOST)
+  target_compile_definitions(${lib_NAME} PUBLIC USE_BOOST)
+
+  # Boost
+  target_link_libraries(${lib_NAME} PRIVATE
+    Boost::disable_autolinking Boost::filesystem Boost::system
+  )
+endif()
 
 # Cairo
 target_link_libraries(${lib_NAME} PRIVATE Cairo::Cairo)

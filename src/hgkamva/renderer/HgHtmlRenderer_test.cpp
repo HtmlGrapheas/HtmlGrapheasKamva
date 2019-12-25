@@ -21,7 +21,6 @@
  *    along with this program. If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
 
-#include <filesystem>
 #include <string>
 
 #include <cairo/cairo.h>
@@ -31,10 +30,11 @@
 #include "hgkamva/container/HgCairo.h"
 #include "hgkamva/renderer/HgHtmlRenderer.h"
 #include "hgkamva/util/FileUtil.h"
+#include "hgkamva/util/Filesystem.h"
 
-inline std::filesystem::path testDir;
-inline std::filesystem::path fontDir;
-inline std::filesystem::path dataDir;
+inline hg::filesystem::path testDir;
+inline hg::filesystem::path fontDir;
+inline hg::filesystem::path dataDir;
 
 int main(int argc, char** argv)
 {
@@ -42,7 +42,7 @@ int main(int argc, char** argv)
 
   // https://stackoverflow.com/a/55579815
   testDir =
-      std::filesystem::absolute(std::filesystem::path(argv[0]).parent_path());
+      hg::filesystem::absolute(hg::filesystem::path(argv[0]).parent_path());
   fontDir = testDir / "fonts";
   dataDir = testDir / "data";
 
@@ -53,9 +53,9 @@ TEST(HgHtmlRenderer, drawHtml)
 {
   //////// Init part.
 
-  EXPECT_TRUE(std::filesystem::exists(testDir));
-  EXPECT_TRUE(std::filesystem::exists(fontDir));
-  EXPECT_TRUE(std::filesystem::exists(dataDir));
+  EXPECT_TRUE(hg::filesystem::exists(testDir));
+  EXPECT_TRUE(hg::filesystem::exists(fontDir));
+  EXPECT_TRUE(hg::filesystem::exists(dataDir));
 
   //// Cairo init.
 
@@ -83,8 +83,8 @@ TEST(HgHtmlRenderer, drawHtml)
   hg::HgContainerPtr hgContainer = hgHtmlRenderer.getHgContainer();
 
   // Load font config.
-  std::filesystem::path fontConfFile = fontDir / "fonts.conf";
-  EXPECT_TRUE(std::filesystem::exists(fontConfFile));
+  hg::filesystem::path fontConfFile = fontDir / "fonts.conf";
+  EXPECT_TRUE(hg::filesystem::exists(fontConfFile));
   std::string fontConfig = hg::util::readFile(fontConfFile);
   EXPECT_FALSE(fontConfig.empty());
 
@@ -160,11 +160,11 @@ TEST(HgHtmlRenderer, drawHtml)
 
   // Write our picture to file.
   std::string fileName1 = "hgHtmlRenderer_1.ppm";
-  std::string fileOutTest1 = testDir / fileName1;
+  hg::filesystem::path fileOutTest1 = testDir / fileName1;
   hg::util::writePpmFile(frameBuf.data(), frameWidth, frameHeight,
       BYTES_PER_PIXEL, fileOutTest1.c_str());
 
   // Compare our file with prototype.
-  std::string fileTest1 = dataDir / "HtmlDocument_1.ppm";
+  hg::filesystem::path fileTest1 = dataDir / "HtmlDocument_1.ppm";
   EXPECT_TRUE(hg::util::compareFiles(fileTest1, fileOutTest1));
 }
